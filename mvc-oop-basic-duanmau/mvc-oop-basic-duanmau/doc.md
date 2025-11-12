@@ -4,7 +4,7 @@
 2. uploads // Folder lưu trữ file upload
 
 3. controllers // Xử lý logic
-4. models // Thao tác cơ sở dữ liệu
+4. models // Thao tác cơ sở dữ liệu 55
 5. views // Hiển thị
 6. index.php // Điều hướng
 
