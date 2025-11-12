@@ -7,7 +7,7 @@ require_once './commons/function.php'; // Hàm hỗ trợ
 
 // Require toàn bộ file Controllers
 require_once './controllers/ProductController.php';
-
+require_once './controllers/admincontroller.php';
 // Require toàn bộ file Models
 require_once './models/ProductModel.php';
 
@@ -19,6 +19,10 @@ $act = $_GET['act'] ?? '/';
 
 match ($act) {
     // Trang chủ
-    '/'=>(new ProductController())->Home(),
-
+    // '/'=>(new ProductController())->Home(),
+     '/'=>(new admincontroller())->dashboard(),
+     'dashboard'=>(new admincontroller())->dashboard(),
+    'tour'=>(new admincontroller())->tour(),
+     'noidung'=>(new admincontroller())->tour(),
+      'guide'=>(new admincontroller())->guide(),
 };
