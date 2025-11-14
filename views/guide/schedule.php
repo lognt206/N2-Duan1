@@ -193,58 +193,36 @@
               <th>Mã Tour</th>
               <th>Tên Tour</th>
               <th>Ngày Bắt đầu</th>
-              <th>Thời lượng</th>
-              <th>Số Khách</th>
+              <th>Ngày kết thúc</th>
+              <th>Địa điểm tập trung</th>
               <th>Tình trạng</th>
               <th>Hành động</th>
             </tr>
           </thead>
           <tbody>
-            <tr data-status="upcoming">
-              <td>HL25</td>
-              <td>Lucca Bike Tour</td>
-              <td>02 Thg 10, 2025 (15:00)</td>
-              <td>15h 45m</td>
-              <td>40</td>
-              <td><span class="status-badge upcoming">Sắp khởi hành</span></td>
-              <td><a href="tour_detail.php" class="btn-action view">Xem chi tiết</a></td>
-            </tr>
-            <tr data-status="upcoming">
-              <td>HL27</td>
-              <td>Mia Bike Tour</td>
-              <td>15 Thg 11, 2025 (15:00)</td>
-              <td>15h 45m</td>
-              <td>40</td>
-              <td><span class="status-badge upcoming">Sắp khởi hành</span></td>
-              <td><a href="tour_detail.php" class="btn-action view">Xem chi tiết</a></td>
-            </tr>
-            <tr data-status="in_progress">
-              <td>VT12</td>
-              <td>Venice Canals Day 1</td>
-              <td>11 Thg 11, 2025 (08:30)</td>
-              <td>12h</td>
-              <td>25</td>
-              <td><span class="status-badge in_progress">Đang thực hiện</span></td>
-              <td><a href="tour_detail.php?id=VT12" class="btn-action view">Xem chi tiết</a></td>
-            </tr>
-            <tr data-status="completed">
-              <td>PN05</td>
-              <td>Paris Night Walking</td>
-              <td>15 Thg 09, 2025 (19:00)</td>
-              <td>4h 30m</td>
-              <td>18</td>
-              <td><span class="status-badge completed">Đã hoàn thành</span></td>
-              <td><a href="tour_detail.php?id=PN05" class="btn-action view">Xem chi tiết</a></td>
-            </tr>
-            <tr data-status="cancelled">
-              <td>SJ33</td>
-              <td>Saigon Food Tour</td>
-              <td>25 Thg 11, 2025 (17:00)</td>
-              <td>3h</td>
-              <td>12</td>
-              <td><span class="status-badge cancelled">Đã hủy</span></td>
-              <td><a href="tour_detail.php?id=SJ33" class="btn-action view">Xem chi tiết</a></td>
-            </tr>
+            <?php
+              if(!empty($lich_lam_viec)){
+                foreach ($lich_lam_viec as $tour){
+            ?>  
+              <tr data-status="<?= $tour['trangthai'] ?>">
+                <td><?=$tour['departure_id'] ?></td>
+                <td><?=$tour['tour_name'] ?></td>
+                <td><?=$tour['departure_date'] ?></td>
+                <td><?=$tour['return_date'] ?></td>
+                <td><?=$tour['meeting_point'] ?></td>
+                <td>
+                  <span class="status-badge<?= $tour['trangthai'] ?>"><?= $tour['tinh_trang'] ?></span>
+                </td>
+                <td><a href="tour_detail.php?id=<?= $tour['departure_id'] ?>" class="btn-action view">Xem chi tiết</a></td>
+              </tr>
+            <?php }}
+            else { ?>
+    <tr>
+        <td colspan="7" class="text-center">Bạn không có tour nào trong lịch làm việc.</td>
+    </tr>
+            <?php } 
+            ?>
+            
           </tbody>
         </table>
       </main>
