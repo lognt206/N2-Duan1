@@ -8,6 +8,8 @@ require_once './commons/function.php'; // Hàm hỗ trợ
 // Require toàn bộ file Controllers
 require_once './controllers/ProductController.php';
 require_once './controllers/admincontroller.php';
+require_once './controllers/logincontroller.php';
+require_once './controllers/TourGuideController.php';
 // Require toàn bộ file Models
 require_once './models/ProductModel.php';
 
@@ -19,10 +21,25 @@ $act = $_GET['act'] ?? '/';
 
 match ($act) {
     // Trang chủ
-    // '/'=>(new ProductController())->Home(),
+    // '/'=>(new logincontroller())->home(),
      '/'=>(new admincontroller())->dashboard(),
      'dashboard'=>(new admincontroller())->dashboard(),
     'tour'=>(new admincontroller())->tour(),
      'noidung'=>(new admincontroller())->tour(),
-      'guide'=>(new admincontroller())->guide(),
+      'guideadmin'=>(new admincontroller())->guideadmin(),
+       'booking'=>(new admincontroller())->booking(),
+        'customer'=>(new admincontroller())->customer(),
+        'partner'=>(new admincontroller())->partner(),
+         'category'=>(new admincontroller())->category(),
+
+
+'header'=>(new TuorGuideController())-> header(),
+    'schedule'=>(new TuorGuideController())-> lichlamviec(),
+    'profile'=>(new TuorGuideController())-> profile(),
+    'tour_detail'=>(new TuorGuideController())-> tour_detail(),
+    'report'=>(new TuorGuideController())-> report(),
+    'check_in'=>(new TuorGuideController())-> check_in(),
+    'special_request'=>(new TuorGuideController())-> special_request(),
+
+
 };

@@ -5,12 +5,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quản lý Tour</title>
+<title>Quản lý Hướng dẫn viên</title>
+
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
 body { display: flex; min-height: 100vh; margin: 0; font-family: Arial, sans-serif; }
+
 /* Sidebar */
 #sidebar { min-width: 250px; background: #343a40; color: #fff; }
 #sidebar h3 { text-align: center; padding: 12px 0; border-bottom: 1px solid #495057; }
@@ -32,14 +34,12 @@ body { display: flex; min-height: 100vh; margin: 0; font-family: Arial, sans-ser
 .table th { background: #343a40; color: #fff; text-align: center; }
 .table td { vertical-align: middle; text-align: center; }
 .btn-sm { padding: 4px 8px; }
-.badge { font-size: 12px; }
-
-/* Status badges */
-.badge.Available { background: #198754; }
-.badge.Closed { background: #6c757d; }
 
 /* Footer */
 footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box-shadow: 0 -2px 4px rgba(0,0,0,0.1); position: fixed; bottom: 0; }
+
+/* Action buttons */
+.btn-action { margin-right: 5px; }
 </style>
 </head>
 <body>
@@ -48,11 +48,11 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
 <div id="sidebar">
 <h3>Admin Panel</h3>
 <a href="?act=dashboard"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
-<a href="?act=tour" class="active"><i class="fa-solid fa-plane"></i> Quản lý Tour</a>
+<a href="?act=tour"><i class="fa-solid fa-plane"></i> Quản lý Tour</a>
   <a href="?act=category"><i class="fa-solid fa-plane"></i> Quản lý danh mục Tour</a>
 <a href="?act=customer"><i class="fa-solid fa-users"></i> Quản lý Khách hàng</a>
-<a href="?act=booking"><i class="fa-solid fa-ticket"></i> Quản lý Đặt tour</a>
-<a href="?act=guideadmin"><i class="fa-solid fa-user-tie"></i> Quản lý Hướng dẫn viên</a>
+<a href="?act=booking"><i class="fa-solid fa-ticket"></i> Quản lý Đặt Tour</a>
+<a href="?act=guideadmin" class="active"><i class="fa-solid fa-user-tie"></i> Quản lý Hướng dẫn viên</a>
 <a href="?act=partner"><i class="fa-solid fa-handshake"></i> Quản lý Đối tác</a>
 <a href="?act=departures"><i class="fa-solid fa-calendar"></i> Lịch khởi hành</a>
 <a href="?act=reports"><i class="fa-solid fa-coins"></i> Báo cáo tài chính</a>
@@ -73,10 +73,10 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
 </div>
 </div>
 
-<h3 class="mb-3"><i class="fa-solid fa-plane"></i> Quản lý Tour</h3>
+<h3 class="mb-3"><i class="fa-solid fa-user-tie"></i> Quản lý Hướng dẫn viên</h3>
 
 <div class="d-flex justify-content-between mb-3">
-<a href="?controller=tours&action=create" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Thêm Tour mới</a>
+<a href="?act=create_guide" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Thêm HDV mới</a>
 <form class="d-flex" style="max-width:300px;">
 <input type="text" class="form-control me-2" placeholder="Tìm kiếm...">
 <button class="btn btn-outline-secondary"><i class="fa-solid fa-search"></i></button>
@@ -87,46 +87,45 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
 <table class="table table-bordered align-middle">
 <thead>
 <tr>
-<th>Mã Tour</th>
-<th>Tên Tour</th>
-<th>Loại Tour</th>
-<th>Mô tả</th>
-<th>Giá (VNĐ)</th>
-<th>Chính sách</th>
-<th>Nhà cung cấp</th>
-<th>Tình trạng</th>
+<th>ID</th>
+<th>Họ tên</th>
+<th>Ngày sinh</th>
+<th>Ảnh</th>
+<th>Điện thoại</th>
+<th>Ngôn ngữ</th>
+<th>Kinh nghiệm</th>
+<th>Sức khỏe</th>
+<th>Đánh giá</th>
+<th>Chuyên môn</th>
 <th>Hành động</th>
 </tr>
 </thead>
 <tbody>
-<?php if (!empty($tours)) : ?>
-    <?php foreach($tours as $tour): ?>
-    <tr>
-        <td><?= $tour['tour_id'] ?></td>
-        <td><?= $tour['tour_name'] ?></td>
-        <td>
-            <?php
-            if ($tour['tour_type'] === 'Domestic') echo 'Trong nước';
-            elseif ($tour['tour_type'] === 'International') echo 'Quốc tế';
-            else echo 'Theo yêu cầu';
-            ?>
-        </td>
-        <td><?= $tour['description'] ?></td>
-        <td><?= number_format($tour['price'], 0, ',', '.') ?>₫</td>
-        <td><?= $tour['policy'] ?></td>
-        <td><?= $tour['supplier'] ?></td>
-        <td>
-            <span class="badge <?= $tour['status'] ?>"><?= $tour['status'] === 'Available' ? 'Còn mở' : 'Đã đóng' ?></span>
-        </td>
-        <td>
-            <a href="?controller=tours&action=show&id=<?= $tour['tour_id'] ?>" class="btn btn-sm btn-info"><i class="fa-solid fa-eye"></i></a>
-            <a href="?controller=tours&action=edit&id=<?= $tour['tour_id'] ?>" class="btn btn-sm btn-warning"><i class="fa-solid fa-pen"></i></a>
-            <a href="?controller=tours&action=delete&id=<?= $tour['tour_id'] ?>" onclick="return confirm('Bạn có chắc muốn xóa tour này?')" class="btn btn-sm btn-danger"><i class="fa-solid fa-trash"></i></a>
-        </td>
-    </tr>
-    <?php endforeach; ?>
-<?php else : ?>
-<tr><td colspan="9" class="text-center text-muted">Không có dữ liệu tour.</td></tr>
+<?php if (!empty($guides)) : ?>
+<?php foreach($guides as $guide): ?>
+<tr>
+<td><?= $guide['guide_id'] ?></td>
+<td><?= htmlspecialchars($guide['full_name']) ?></td>
+<td><?= $guide['birth_date'] ?></td>
+<td>
+<?php if(!empty($guide['photo'])): ?>
+<img src="<?= $guide['photo'] ?>" alt="HDV" style="width:50px;">
+<?php endif; ?>
+</td>
+<td><?= htmlspecialchars($guide['contact']) ?></td>
+<td><?= htmlspecialchars($guide['languages']) ?></td>
+<td><?= htmlspecialchars($guide['experience']) ?></td>
+<td><?= htmlspecialchars($guide['health_condition']) ?></td>
+<td><?= $guide['rating'] ?></td>
+<td><?= $guide['category'] === 'Domestic' ? 'Nội địa' : 'Quốc tế' ?></td>
+<td>
+<a href="?controller=guides&action=edit&id=<?= $guide['guide_id'] ?>" class="btn btn-warning btn-sm"><i class="fa fa-edit"></i></a>
+<a href="?controller=guides&action=delete&id=<?= $guide['guide_id'] ?>" onclick="return confirm('Bạn có chắc muốn xóa HDV này?')" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></a>
+</td>
+</tr>
+<?php endforeach; ?>
+<?php else: ?>
+<tr><td colspan="11" class="text-center text-muted">Không có dữ liệu HDV.</td></tr>
 <?php endif; ?>
 </tbody>
 </table>
