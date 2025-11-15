@@ -8,6 +8,6 @@
 <body>
     <h1>Trang điều hướng</h1>
     <a href="?act=trangchu">Trang web</a><br>
-    <a href="?act=login"> đăng nhập tài khoản admin</a>
+    <a href="?act=login"> đăng nhập tài khoản admin và hdv</a>
 </body>
 </html>

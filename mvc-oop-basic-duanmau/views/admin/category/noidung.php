@@ -69,31 +69,31 @@
         <table class="table table-bordered align-middle text-center">
             <thead>
                 <tr>
-                    <th>#</th>
+                    <th>ID</th>
                     <th>Tên Category</th>
                     <th>Trạng Thái</th>
                     <th>Hành Động</th>
                 </tr>
             </thead>
             <tbody>
-                <?php if(!empty($categories)): ?>
-                    <?php foreach($categories as $cat): ?>
-                        <tr>
-                            <td><?= $cat['category_id'] ?></td>
-                            <td><?= htmlspecialchars($cat['category_name']) ?></td>
-                            <td>
-                                <?php if($cat['status'] == 1): ?>
-                                    <span class="badge Active">Active</span>
-                                <?php else: ?>
-                                    <span class="badge Inactive">Inactive</span>
-                                <?php endif; ?>
-                            </td>
-                            <td>
-                                <a href="?act=edit_category&id=<?= $cat['category_id'] ?>" class="btn btn-sm btn-warning"><i class="fa-solid fa-pen"></i></a>
-                                <a href="?act=delete_category&id=<?= $cat['category_id'] ?>" onclick="return confirm('Bạn có muốn xóa không?')" class="btn btn-sm btn-danger"><i class="fa-solid fa-trash"></i></a>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
+                <?php if(!empty($danhsach)): ?>
+                   <?php foreach($danhsach as $cat): ?>
+    <tr>
+        <td><?= $cat->category_id ?></td>
+        <td><?= htmlspecialchars($cat->category_name) ?></td>
+        <td>
+            <?php if($cat->status == 1): ?>
+                <span class="badge Active">Active</span>
+            <?php else: ?>
+                <span class="badge Inactive">Inactive</span>
+            <?php endif; ?>
+        </td>
+        <td>
+            <a href="?act=edit_category&id=<?= $cat->category_id ?>" class="btn btn-sm btn-warning"><i class="fa-solid fa-pen"></i></a>
+            <a href="?act=delete_category&id=<?= $cat->category_id ?>" onclick="return confirm('Bạn có muốn xóa không?')" class="btn btn-sm btn-danger"><i class="fa-solid fa-trash"></i></a>
+        </td>
+    </tr>
+<?php endforeach; ?>
                 <?php else: ?>
                     <tr><td colspan="4" class="text-center text-muted">Không có dữ liệu</td></tr>
                 <?php endif; ?>

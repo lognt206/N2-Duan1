@@ -6,13 +6,13 @@ require_once './commons/env.php'; // Khai báo biến môi trường
 require_once './commons/function.php'; // Hàm hỗ trợ
 
 // Require toàn bộ file Controllers
-require_once './controllers/ProductController.php';
+// require_once './controllers/ProductController.php';
 require_once './controllers/admincontroller.php';
 require_once './controllers/logincontroller.php';
 require_once './controllers/TourGuideController.php';
 // Require toàn bộ file Models
 require_once './models/ProductModel.php';
-
+require_once './models/GuideModel.php';
 // Route
 $act = $_GET['act'] ?? '/';
 
@@ -21,8 +21,11 @@ $act = $_GET['act'] ?? '/';
 
 match ($act) {
     // Trang chủ
-    // '/'=>(new logincontroller())->home(),
-     '/'=>(new admincontroller())->dashboard(),
+    '/'=>(new logincontroller())->home(),
+'dangxuat'          => (new logincontroller())->dangxuat(),
+    'login'          => (new logincontroller())->login(),
+
+    //  '/'=>(new admincontroller())->dashboard(),
      'dashboard'=>(new admincontroller())->dashboard(),
     'tour'=>(new admincontroller())->tour(),
      'noidung'=>(new admincontroller())->tour(),
@@ -33,13 +36,13 @@ match ($act) {
          'category'=>(new admincontroller())->category(),
 
 
-'header'=>(new TuorGuideController())-> header(),
-    'schedule'=>(new TuorGuideController())-> lichlamviec(),
-    'profile'=>(new TuorGuideController())-> profile(),
-    'tour_detail'=>(new TuorGuideController())-> tour_detail(),
-    'report'=>(new TuorGuideController())-> report(),
-    'check_in'=>(new TuorGuideController())-> check_in(),
-    'special_request'=>(new TuorGuideController())-> special_request(),
+'header'=>(new TourGuideController())-> header(),
+    'schedule'=>(new TourGuideController())-> lichlamviec(),
+    'profile'=>(new TourGuideController())-> profile(),
+    'tour_detail'=>(new TourGuideController())-> tour_detail(),
+    'report'=>(new TourGuideController())-> report(),
+    'check_in'=>(new TourGuideController())-> check_in(),
+    'special_request'=>(new TourGuideController())-> special_request(),
 
 
 };

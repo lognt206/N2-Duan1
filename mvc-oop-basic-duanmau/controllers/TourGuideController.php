@@ -1,6 +1,6 @@
 <?php
 // có class chứa các function thực thi xử lý logic 
-class TuorGuideController
+class TourGuideController
 {
     public $modelTourGuide;
 
