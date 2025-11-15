@@ -73,10 +73,10 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
 </div>
 </div>
 
-<h3 class="mb-3"><i class="fa-solid fa-plane"></i> Quản lý Tour</h3>
+<h3 class="mb-3"><i class="fa-solid fa-plane"></i> Quản lý danh sách Tour</h3>
 
 <div class="d-flex justify-content-between mb-3">
-<a href="?controller=tours&action=create" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Thêm Tour mới</a>
+<a href="index.php?act=create" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Thêm Tour mới</a>
 <form class="d-flex" style="max-width:300px;">
 <input type="text" class="form-control me-2" placeholder="Tìm kiếm...">
 <button class="btn btn-outline-secondary"><i class="fa-solid fa-search"></i></button>
@@ -104,24 +104,27 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
     <tr>
         <td><?= $tour['tour_id'] ?></td>
         <td><?= $tour['tour_name'] ?></td>
-        <td>
-            <?php
-            if ($tour['tour_type'] === 'Domestic') echo 'Trong nước';
-            elseif ($tour['tour_type'] === 'International') echo 'Quốc tế';
-            else echo 'Theo yêu cầu';
-            ?>
-        </td>
+        <td><?=$tour['category_name'] ?></td>
         <td><?= $tour['description'] ?></td>
         <td><?= number_format($tour['price'], 0, ',', '.') ?>₫</td>
         <td><?= $tour['policy'] ?></td>
         <td><?= $tour['supplier'] ?></td>
-        <td>
-            <span class="badge <?= $tour['status'] ?>"><?= $tour['status'] === 'Available' ? 'Còn mở' : 'Đã đóng' ?></span>
+        <td> <?php 
+        $status_code = (int)$tour['status'];
+        if($status_code === 1){
+            $status_text = "Còn mở";
+            $status_class = 'Available';
+        }else{
+            $status_text = "Đã đóng";
+            $status_class = 'Closed';
+        }
+            ?>
+            <span class="badge <?=$status_class?>"><?=  $status_text ?></span>
         </td>
         <td>
-            <a href="?controller=tours&action=show&id=<?= $tour['tour_id'] ?>" class="btn btn-sm btn-info"><i class="fa-solid fa-eye"></i></a>
-            <a href="?controller=tours&action=edit&id=<?= $tour['tour_id'] ?>" class="btn btn-sm btn-warning"><i class="fa-solid fa-pen"></i></a>
-            <a href="?controller=tours&action=delete&id=<?= $tour['tour_id'] ?>" onclick="return confirm('Bạn có chắc muốn xóa tour này?')" class="btn btn-sm btn-danger"><i class="fa-solid fa-trash"></i></a>
+            <!-- <a href="?act=detail&id=<?= $tour['tour_id'] ?>" class="btn btn-sm btn-info"><i class="fa-solid fa-eye"></i></a> -->
+            <a href="?act=edit&id=<?= $tour['tour_id'] ?>" class="btn btn-sm btn-warning"><i class="fa-solid fa-pen"></i></a>
+            <a href="?act=delete&id=<?= $tour['tour_id'] ?>" onclick="return confirm('Bạn có chắc muốn xóa tour này?')" class="btn btn-sm btn-danger"><i class="fa-solid fa-trash"></i></a>
         </td>
     </tr>
     <?php endforeach; ?>

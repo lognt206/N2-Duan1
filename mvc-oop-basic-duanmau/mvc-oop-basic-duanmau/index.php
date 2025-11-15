@@ -12,6 +12,7 @@ require_once './controllers/logincontroller.php';
 require_once './controllers/TourGuideController.php';
 // Require toàn bộ file Models
 require_once './models/ProductModel.php';
+require_once './models/TourModel.php';
 
 // Route
 $act = $_GET['act'] ?? '/';
@@ -31,7 +32,11 @@ match ($act) {
         'customer'=>(new admincontroller())->customer(),
         'partner'=>(new admincontroller())->partner(),
          'category'=>(new admincontroller())->category(),
-
+         'create'=>(new admincontroller())->create(),
+        'store'=>(new admincontroller())->store(),
+         'delete'=>(new admincontroller())->delete(),
+         'edit'=>(new admincontroller())->edit(),
+         'update'=>(new admincontroller())->update(),
 
 'header'=>(new TuorGuideController())-> header(),
     'schedule'=>(new TuorGuideController())-> lichlamviec(),
