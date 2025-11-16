@@ -99,11 +99,11 @@
       <nav class="col-md-3 col-lg-2 d-md-block sidebar">
         <div class="position-sticky pt-3">
           <ul class="nav flex-column">
-            <li class="nav-item"><a class="nav-link active" href="profile.php"><i class="bi bi-person-circle"></i>Thông tin cá nhân</a></li>
-            <li class="nav-item"><a class="nav-link" href="schedule.php"><i class="bi bi-calendar-week"></i>Lịch làm việc</a></li>
-            <li class="nav-item"><a class="nav-link" href="report.php"><i class="bi bi-journal-text"></i>Nhật ký tour</a></li>
-            <li class="nav-item"><a class="nav-link" href="special_request.php"><i class="bi bi-star"></i>Yêu cầu đặc biệt</a></li>
-            <li class="nav-item"><a class="nav-link" href="#"><i class="bi bi-box-arrow-right"></i>Đăng xuất</a></li>
+            <li class="nav-item"><a class="nav-link active" href="?act=profile"><i class="bi bi-person-circle"></i>Thông tin cá nhân</a></li>
+            <li class="nav-item"><a class="nav-link" href="?act=schedule"><i class="bi bi-calendar-week"></i>Lịch làm việc</a></li>
+            <li class="nav-item"><a class="nav-link" href="?act=report"><i class="bi bi-journal-text"></i>Nhật ký tour</a></li>
+            <li class="nav-item"><a class="nav-link" href="?act=special_request"><i class="bi bi-star"></i>Yêu cầu đặc biệt</a></li>
+            <li class="nav-item"><a class="nav-link" href="?act=login"><i class="bi bi-box-arrow-right"></i>Đăng xuất</a></li>
           </ul>
         </div>
       </nav>
