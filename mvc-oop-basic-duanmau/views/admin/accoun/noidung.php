@@ -38,7 +38,7 @@
     <a href="?act=partner"><i class="fa-solid fa-handshake"></i> Quản lý Đối tác</a>
     <a href="?act=departures"><i class="fa-solid fa-calendar"></i> Lịch khởi hành</a>
     <a href="?act=accoun" class="bg-secondary"><i class="fa-solid fa-users"></i> Quản lý tài khoản</a>
-    <a href="?act=logout"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
+    <a href="?act=login"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
 </div>
 
 <!-- Content -->
@@ -51,7 +51,7 @@
         <div class="user d-flex align-items-center">
             <img src="https://via.placeholder.com/40" alt="User" class="rounded-circle me-2">
             <span>Admin</span>
-            <a href="?act=logout" class="btn btn-sm btn-outline-danger ms-3">Đăng xuất</a>
+            <a href="?act=login" class="btn btn-sm btn-outline-danger ms-3">Đăng xuất</a>
         </div>
     </div>
 

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Thêm hướng dẫn viên mới</title>
+<title>Sửa thông tin hướng dẫn viên</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
@@ -71,61 +71,72 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
 </div>
 </div>
 
-<h3 class="mb-3"><i class="fa-solid fa-user-tie"></i> Thêm hướng dẫn viên mới</h3>
-<form action="?act=create_guide" method="POST" enctype="multipart/form-data">
+<h3 class="mb-3"><i class="fa-solid fa-user-tie"></i> Sửa thông tin hướng dẫn viên</h3>
+<form action="?act=update_guide" method="POST" enctype="multipart/form-data">
+    <input type="hidden" name="guide_id" value="<?= $guide['guide_id'] ?>">
     <div class="row">
         <div class="col-md-6">
-            <h5>Thông tin cá nhân</h5>
             <div class="mb-3">
-                <label>Họ tên</label>
-                <input type="text" class="form-control" name="full_name" required>
+                <label class="form-label">Họ tên</label>
+                <input type="text" class="form-control" name="full_name" value="<?= $guide['full_name'] ?>">
             </div>
+
             <div class="mb-3">
-                <label>Ngày sinh</label>
-                <input type="date" class="form-control" name="birth_date" required>
+                <label class="form-label">Ngày sinh</label>
+                <input type="date" class="form-control" name="birth_date" value="<?= $guide['birth_date'] ?>">
             </div>
+
             <div class="mb-3">
-                <label>Ảnh đại diện</label>
-                <input type="file" class="form-control" name="photo" >
+                <label class="form-label">Điện thoại</label>
+                <input type="number" class="form-control" name="contact" value="<?= $guide['contact'] ?>">
             </div>
+
             <div class="mb-3">
-                <label>Điện thoại</label>
-                <input type="text" class="form-control" name="contact" required>
+                <label class="form-label">Kinh nghiệm</label>
+                <input type="text" class="form-control" name="experience" value="<?= $guide['experience'] ?>">
             </div>
         </div>
+
         <div class="col-md-6">
-            <h5>Thông tin nghề nghiệp</h5>
+
             <div class="mb-3">
-                <label>Ngôn ngữ</label>
-                <input type="text" class="form-control" name="languages" placeholder="VD: English, Chinese..." required>
+                <label class="form-label">Ngôn ngữ</label>
+                <input type="text" class="form-control" name="languages" value="<?= $guide['languages'] ?>">
             </div>
+
             <div class="mb-3">
-                <label>Kinh nghiệm (năm)</label>
-                <input type="number" class="form-control" name="experience" min="0" required>
+                <label class="form-label">Tình trạng sức khỏe</label>
+                <input type="text" class="form-control" name="health_condition" value="<?= $guide['health_condition'] ?>">
             </div>
+
             <div class="mb-3">
-                <label>Tình trạng sức khỏe</label>
-                <input type="text" class="form-control" name="health_condition" placeholder="VD: Tốt, Trung bình..." required>
+                <label class="form-label">Đánh giá</label>
+                <input type="number" step="0.1" min="0" max="5" class="form-control"
+                       name="rating" value="<?= $guide['rating'] ?>">
             </div>
+
             <div class="mb-3">
-                <label>Đánh giá (0–5)</label>
-                <input type="number" class="form-control" name="rating" min="0" max="5" step="0.1" required>
-            </div>
-            <div class="mb-3">
-                <label>Chuyên môn</label>
-                <select name="category" class="form-select">
-                    <option value="1">Nội địa</option>
-                    <option value="2">Quốc tế</option>
+                <label class="form-label">Chuyên môn</label>
+                <select class="form-select" name="category">
+                    <option value="0" <?= $guide['category']=="Domestic" ? "selected" : "" ?>>Nội địa</option>
+                    <option value="1" <?= $guide['category']=="International" ? "selected" : "" ?>>Quốc tế</option>
                 </select>
             </div>
         </div>
     </div>
+
+    <div class="mb-3">
+        <label class="form-label">Ảnh hiện tại</label><br>
+        <img src="uploads/<?= $guide['photo'] ?>" style="width: 90px; border-radius: 6px;">
+        <input type="file" class="form-control mt-2" name="photo">
+        <input type="hidden" name="old_photo" value="<?= $guide['photo'] ?>">
+    </div>
+
     <div class="text-end mb-5">
-        <button type="submit" class="btn btn-success"><i class="fa-solid fa-save"></i> Lưu </button>
-        <a href="?act=guideadmin" class="btn btn-secondary">Hủy</a>
+        <button type="submit" class="btn btn-success"><i class="fa-solid fa-save"></i> Lưu</button>
+        <button type="button" class="btn btn-secondary"><a href="?act=guideadmin">Hủy</a></button>
     </div>
 </form>
-
 </div>
 
 <footer>

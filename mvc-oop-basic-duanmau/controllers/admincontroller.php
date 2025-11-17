@@ -9,9 +9,12 @@ require_once __DIR__ . '/../models/tourmodel.php';
 class admincontroller {
  public $categoryModel;
 public $modelTour;
+public $modelTourGuide;
 
 public function __construct() {
   $this->modelTour = new TourModel();
+        $this->categoryModel = new CategoryModel();
+    $this->modelTourGuide = new TourGuideModel();
         $this->categoryModel = new CategoryModel();
     }
 
@@ -98,8 +101,95 @@ public function update()
 }
 
 public function guideadmin() {
+    $guides = $this->modelTourGuide->allguide();
         include "views/admin/guideadmin/noidung.php";
     }
+public function create_guide(){
+    if($_SERVER['REQUEST_METHOD'] === 'POST'){
+        $guide = new Guide();
+        $guide->full_name           = $_POST['full_name'];
+        $guide->birth_date          = !empty($_POST['birth_date']) ? $_POST['birth_date'] : null;
+        $guide->contact             = $_POST['contact'];
+        $guide->languages           = $_POST['languages'];
+        $guide->experience          = $_POST['experience'];
+        $guide->health_condition    = $_POST['health_condition'];
+        $guide->rating              = $_POST['rating'];
+        $guide->category            = $_POST['category'];
+        $guide->certificate         = $_POST['certificate'] ?? null; 
+        $guide->user_id             = $_POST['user_id'] ?? 1; 
+        // Xử lý ảnh
+        if(isset($_FILES['photo']) && $_FILES['photo']['error'] === 0){
+            $ext = pathinfo($_FILES['photo']['name'], PATHINFO_EXTENSION);
+            $file_name = 'uploads/' . time() . '.' . $ext;
+            move_uploaded_file($_FILES['photo']['tmp_name'], $file_name);
+            $guide->photo = $file_name;
+        } else {
+            $guide->photo = null;
+        }
+
+        $result = $this->modelTourGuide->create_guide($guide);
+
+        if($result){
+            header("Location: ?act=guideadmin");
+            exit();
+        } else {
+            echo "Tạo mới hướng dẫn viên thất bại!";
+        }
+    }
+    include "views/admin/guideadmin/create_guide.php";
+}
+public function delete_guide(){
+    if(isset($_GET['id'])){
+        $id = (int)$_GET['id'];
+        $this->modelTourGuide->delete_guide($id);
+    }
+    $guides = $this->modelTourGuide->allguide();
+    include "views/admin/guideadmin/noidung.php";
+}
+public function update_guide(){
+
+    if($_SERVER['REQUEST_METHOD'] === 'POST'){
+        if(!isset($_POST['guide_id'])){
+            echo "Lỗi: Không tìm thấy guide_id";
+            exit();
+        }
+        $guide = new Guide();
+        $guide->guide_id         = $_POST['guide_id'];
+        $guide->user_id          = 1;
+        $guide->full_name        = $_POST['full_name'] ?? "";
+        $guide->birth_date       = $_POST['birth_date'] ?? "";
+        $guide->contact          = $_POST['contact'] ?? "";
+        $guide->certificate      = $_POST['certificate'] ?? "";
+        $guide->languages        = $_POST['languages'] ?? "";
+        $guide->experience       = $_POST['experience'] ?? "";
+        $guide->health_condition = $_POST['health_condition'] ?? "";
+        $guide->rating           = $_POST['rating'] ?? "";
+        $guide->category         = $_POST['category'] ?? "";
+        //Xử lý ảnh
+        if(isset($_FILES['photo']['name']) && $_FILES['photo']['error'] === 0){
+            $file_name = 'uploads/' . time() . '.' . $_FILES['photo']['name'];
+            move_uploaded_file($_FILES['photo']['tmp_name'], $file_name);
+            $guide->photo = $file_name;
+        } else {
+            $guide->photo = $_POST['old_photo'];
+        }
+
+        $this->modelTourGuide->update_guide($guide);
+        $guides = $this->modelTourGuide->allguide();
+        include "views/admin/guideadmin/noidung.php";
+        exit();
+    }
+    if(isset($_GET['id'])){
+        $id = $_GET['id'];
+        $guide = $this->modelTourGuide->find_guide($id);
+        if((!$guide)){
+            echo "Không tìm thấy hướng dẫn viên.";
+            exit();
+        }
+        include "views/admin/guideadmin/update_guide.php";
+        exit();
+    }   
+}
 public function booking() {
         include "views/admin/booking/noidung.php";
     }

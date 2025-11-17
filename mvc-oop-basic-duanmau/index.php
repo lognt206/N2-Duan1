@@ -30,7 +30,7 @@ match ($act) {
      'dashboard'=>(new admincontroller())->dashboard(),
     'tour'=>(new admincontroller())->tour(),
      'noidung'=>(new admincontroller())->tour(),
-      'guideadmin'=>(new admincontroller())->guideadmin(),
+      
        'booking'=>(new admincontroller())->booking(),
         'customer'=>(new admincontroller())->customer(),
         'partner'=>(new admincontroller())->partner(),
@@ -43,15 +43,18 @@ match ($act) {
          'category'=>(new admincontroller())->category(),
           'category/create'=>(new admincontroller())->category_create(),
            'category/update'=>(new admincontroller())->category_update($id),
-        //    'update_category' =>(new admincontroller())->category_update($id), 
                'delete_danhmuc'    => (new admincontroller())->delete_danhmuc($id),
 
          
          'create'=>(new admincontroller())->create(),
         'store'=>(new admincontroller())->store(),
          'delete'=>(new admincontroller())->delete(),
-         'edit'=>(new admincontroller())->edit(),
          'update'=>(new admincontroller())->update(),
+//hdv
+    'guideadmin' => (new admincontroller())->guideadmin(),
+    'create_guide' => (new admincontroller())->create_guide(),
+    'delete_guide' => (new admincontroller())->delete_guide(),
+    'update_guide' => (new admincontroller())->update_guide(),
 
 
 'header'=>(new TourGuideController())-> header(),

@@ -1,47 +1,100 @@
-<?php 
-// Có class chứa các function thực thi tương tác với cơ sở dữ liệu 
-class TourGuideModel 
-{
+<?php  
+class Guide {
+    public $guide_id;
+    public $user_id;
+    public $full_name;
+    public $birth_date;
+    public $photo;
+    public $contact;
+    public $certificate;
+    public $languages;
+    public $experience;
+    public $health_condition;
+    public $rating;
+    public $category;
+}
+
+class TourGuideModel {
     public $conn;
-    public function __construct()
-    {
+    public function __construct() {
         $this->conn = connectDB();
     }
 
-    // Viết truy vấn danh sách sản phẩm 
-    public function getLichLamViec(int $guideId)
-{
-    $sql = "SELECT 
-        d.departure_id,
-        t.tour_name,
-        d.departure_date,
-        d.return_date,
-        d.meeting_point
-    FROM departure d
-    JOIN tour t ON d.tour_id = t.tour_id
-    WHERE d.guide_id = :guideId
-    ORDER BY d.departure_date DESC";
-    
-    $stmt = $this->conn->prepare($sql);
-    $stmt->execute(['guideId' => $guideId]);
-    $lich_lam_viec = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    public function allguide() {
+        try {
+            $sql = "SELECT * FROM `tourguide`";
+            $data = $this->conn->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+            return $data;
+        } catch (PDOException $err) {
+            echo "Lỗi : " . $err->getMessage();
+            return [];
+        }
+    }
+    public function find_guide($id){
+        try{
+            $sql = "SELECT * FROM `tourguide` WHERE guide_id = :id";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute([':id'=> $id]);
+            $guide = $stmt->fetch();
+            return $guide;
+        }catch (PDOException $err) {
+            echo "Lỗi : " . $err->getMessage();
+        }
+    }
+    public function create_guide(Guide $guide) {
+        try {
+            $sql = "INSERT INTO `tourguide` 
+                (`full_name`, `birth_date`, `photo`, `contact`, `certificate`, `languages`, `experience`, `health_condition`, `rating`, `category`, `user_id`)
+                VALUES 
+                (:full_name, :birth_date, :photo, :contact, :certificate, :languages, :experience, :health_condition, :rating, :category, :user_id)";
 
-    // Thêm trạng thái tính toán
-    $today = date('Y-m-d');
-    foreach($lich_lam_viec as &$tour){
-        if($today < $tour['departure_date']){
-            $tour['trangthai'] = 'upcoming';
-            $tour['tinh_trang'] = 'Sắp khởi hành';
-        } elseif($today >= $tour['departure_date'] && $today <= $tour['return_date']){
-            $tour['trangthai'] = 'in_progress';
-            $tour['tinh_trang'] = 'Đang thực hiện';
-        } else {
-            $tour['trangthai'] = 'completed';
-            $tour['tinh_trang'] = 'Đã hoàn thành';
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute([
+                ':full_name'        => $guide->full_name,
+                ':birth_date'       => $guide->birth_date ?: null,
+                ':photo'            => $guide->photo ?: null,
+                ':contact'          => $guide->contact,
+                ':certificate'      => $guide->certificate ?: null,
+                ':languages'        => $guide->languages,
+                ':experience'       => $guide->experience,
+                ':health_condition' => $guide->health_condition ?: null,
+                ':rating'           => $guide->rating,
+                ':category'         => $guide->category,
+                ':user_id'          => $guide->user_id
+            ]);
+            return $stmt->rowCount();
+        } catch (PDOException $err) {
+            echo "Lỗi tạo guide: " . $err->getMessage();
+            return 0;
         }
     }
 
-    return $lich_lam_viec;
+public function update_guide(Guide $guide){                 
+    try{
+        $id=(int)$guide->guide_id;
+        $sql="UPDATE `tourguide` 
+            SET 
+                `full_name`         = '".$guide->full_name."',
+                `birth_date`        = '".$guide->birth_date."',
+                `photo`             = '".$guide->photo."',
+                `contact`           = '".$guide->contact."',
+                `certificate`       = '".$guide->certificate."',
+                `languages`         = '".$guide->languages."',
+                `experience`        = '".$guide->experience."',
+                `health_condition`  = '".$guide->health_condition."',
+                `rating`            = '".$guide->rating."',
+                `category`          = '".$guide->category."'
+            WHERE `tourguide`.`guide_id` = $id;";
+            $data=$this->conn->exec($sql);
+            return $data;
+        }catch (PDOException $err) {
+            echo "Lỗi truy vấn sản phẩm: " . $err->getMessage();
+    }
 }
-
+    public function delete_guide($id) {
+        $sql = "DELETE FROM `tourguide` WHERE `guide_id` = :id";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([':id' => $id]);
+        return $stmt->rowCount();
+    }
 }
