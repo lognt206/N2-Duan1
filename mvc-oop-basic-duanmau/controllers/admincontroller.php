@@ -134,6 +134,100 @@ public function partner() {
         }
         include "views/admin/category/noidung.php";
     }
+
+public function category_create()
+{
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+        $name   = trim($_POST['category_name'] ?? '');
+        $status = $_POST['status'] ?? 1;
+
+        if ($name === '') {
+            $_SESSION['error'] = "Tên danh mục không được để trống!";
+            header("Location: ?act=category/create");
+            exit;
+        }
+
+        // Tạo object Category
+        $category = new Category();
+        $category->category_name = $name;
+        $category->status = $status;
+
+        // Gọi model
+        $this->categoryModel->create_danhmuc($category);
+
+        $_SESSION['success'] = "Thêm category thành công!";
+        header("Location: ?act=category");
+        exit;
+    }
+
+    include "./views/admin/category/create.php";
+}
+
+
+public function category_update($id) {
+    // Lấy ID từ GET hoặc POST
+    $id = $_GET['id'] ?? $_POST['category_id'] ?? null;
+
+    if (!$id) {
+        echo "Không tìm thấy danh mục!";
+        exit;
+    }
+
+    // Lấy category từ model
+    $category = $this->categoryModel->find($id);
+    if (!$category) {
+        echo "Danh mục không tồn tại!";
+        exit;
+    }
+
+    // Xử lý POST (cập nhật)
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $category = new Category();
+    $category->category_id   = $_POST['category_id'] ?? 0;
+    $category->category_name = $_POST['category_name'] ?? '';
+    $category->status        = $_POST['status'] ?? 1;
+
+    $this->categoryModel->update_danhmuc($category);
+
+    $_SESSION['success'] = "Cập nhật danh mục thành công!";
+    header("Location: ?act=category");
+    exit;
+}
+    // Nếu GET -> load form
+    include "views/admin/category/update.php";
+}
+
+
+
+
+ public function delete_danhmuc($id) {
+        $danhmuc = $this->categoryModel->find($id);
+        $thongbao = "";
+        if (!$danhmuc) {
+            $thongbao = "Danh mục không tồn tại!";
+        } else if ($danhmuc->sum > 0) {
+            $thongbao = "Không thể xóa khi danh mục vẫn còn sản phẩm.";
+        } else {
+            $ketqua = $this->categoryModel->delete_danhmuc($id);
+            if ($ketqua === 1) {
+                header("Location: ?act=category");
+                exit;
+            } else {
+                $thongbao = "Xóa danh mục thất bại.";
+            }
+        }
+
+        $danhsach = $this->categoryModel->all();
+        include "views/admin/category/noidung.php";
+    }
+
+
+public function accoun() {
+        include "views/admin/accoun/noidung.php";
+    }
+
+
 }
 
 

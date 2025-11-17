@@ -53,7 +53,7 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
 <a href="?act=guideadmin"><i class="fa-solid fa-user-tie"></i> Quản lý Hướng dẫn viên</a>
 <a href="?act=partner"><i class="fa-solid fa-handshake"></i> Quản lý Đối tác</a>
 <a href="?act=departures"><i class="fa-solid fa-calendar"></i> Lịch khởi hành</a>
-<a href="?act=reports"><i class="fa-solid fa-coins"></i> Báo cáo tài chính</a>
+<a href="?act=accoun"><i class="fa-solid fa-users"></i> Quản lý tài khoản </a>
 <a href="?act=logout"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
 </div>
 
@@ -135,7 +135,7 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
         </button>
         
         <button type="button" class="btn btn-secondary">
-            <i class="fa-solid fa-xmark"></i> Hủy
+            <a href="?act=noidung">Hủy</a> 
         </button>
     </div>
 </form>

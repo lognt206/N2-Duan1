@@ -40,9 +40,9 @@ public function all(){
             echo "Lỗi : " . $err->getMessage();
         }
     }
-public function delete_danhmuc($category_id){        //thêm danh mục
+public function delete_danhmuc($id){        //thêm danh mục
             try{
-                $sql="DELETE FROM tourcategory WHERE `tourcategory`.`category_id` = $category_id";
+                $sql="DELETE FROM tourcategory WHERE `tourcategory`.`category_id` = $id";
                 $data=$this->conn->exec($sql);
                 return $data;
 
@@ -51,9 +51,9 @@ public function delete_danhmuc($category_id){        //thêm danh mục
         }
         }
 
-        public function find($category_id){//tìm
+        public function find($id){//tìm
             try{
-                $sql="SELECT * FROM `tourcategory` WHERE category_id = $category_id";
+                $sql="SELECT * FROM `tourcategory` WHERE category_id = $id";
                 $data=$this->conn->query($sql)->fetch();
                 if($data !== false){
                     $danhmuc = new Category();
@@ -68,18 +68,15 @@ public function delete_danhmuc($category_id){        //thêm danh mục
             echo "Lỗi truy vấn sản phẩm: " . $err->getMessage();
         }
         }
-
-        public function update_danhmuc(Category $danhmuc){      
-            try{
-                $category_id = (int)$danhmuc->category_id;
-                $sql="UPDATE `tourcategory` SET `category_id` = '".$danhmuc->category_id."','".$danhmuc->category_name."','".$danhmuc->status."' WHERE `tourcategory`.`category_id` = $category_id;";
-                $data=$this->conn->exec($sql);
-                return $data;
-
-            }catch (PDOException $err) {
-            echo "Lỗi truy vấn sản phẩm: " . $err->getMessage();
-        }
-        }
+public function update_danhmuc(Category $danhmuc) {
+    $sql = "UPDATE tourcategory SET category_name = :name, status = :status WHERE category_id = :id";
+    $stmt = $this->conn->prepare($sql);
+    return $stmt->execute([
+        'name' => $danhmuc->category_name,
+        'status' => $danhmuc->status,
+        'id' => $danhmuc->category_id
+    ]);
+}
    
 }
 ?>

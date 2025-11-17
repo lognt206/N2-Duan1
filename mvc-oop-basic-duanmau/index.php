@@ -15,7 +15,7 @@ require_once './controllers/TourGuideController.php';
 require_once './models/GuideModel.php';
 // Route
 $act = $_GET['act'] ?? '/';
-
+$id = $_GET['id'] ?? null;
 
 // Để bảo bảo tính chất chỉ gọi 1 hàm Controller để xử lý request thì mình sử dụng match
 
@@ -34,7 +34,18 @@ match ($act) {
        'booking'=>(new admincontroller())->booking(),
         'customer'=>(new admincontroller())->customer(),
         'partner'=>(new admincontroller())->partner(),
+
+        'accoun'=>(new admincontroller())->accoun(),
+
+
+
+
          'category'=>(new admincontroller())->category(),
+          'category/create'=>(new admincontroller())->category_create(),
+           'category/update'=>(new admincontroller())->category_update($id),
+        //    'update_category' =>(new admincontroller())->category_update($id), 
+               'delete_danhmuc'    => (new admincontroller())->delete_danhmuc($id),
+
          
          'create'=>(new admincontroller())->create(),
         'store'=>(new admincontroller())->store(),
