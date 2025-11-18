@@ -92,6 +92,7 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
 <th>Ngày sinh</th>
 <th>Ảnh</th>
 <th>Điện thoại</th>
+<th>Chứng chỉ</th>
 <th>Ngôn ngữ</th>
 <th>Kinh nghiệm</th>
 <th>Sức khỏe</th>
@@ -113,11 +114,15 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
 <?php endif; ?>
 </td>
 <td><?= $guide['contact'] ?></td>
+<td><?= $guide['certificate'] ?></td>
 <td><?= $guide['languages'] ?></td>
 <td><?= $guide['experience'] ?></td>
 <td><?= $guide['health_condition'] ?></td>
 <td><?= $guide['rating'] ?></td>
-<td><?= $guide['category'] === 'Domestic' ? 'Nội địa' : 'Quốc tế' ?></td>
+<td><?= $guide['category'] == '1' ? 'Nội địa' :(
+        $guide['category'] == '2' ? 'Quốc tế' :(
+        $guide['category'] == '3' ? 'Khác' : 'Không xác định' ) ) 
+?></td>
 <td>
 <a href="index.php?act=update_guide&id=<?= $guide['guide_id'] ?>" class="btn btn-warning btn-sm"><i class="fa fa-edit"></i></a>
 <a href="index.php?act=delete_guide&id=<?= $guide['guide_id'] ?>" onclick="return confirm('Bạn có chắc muốn xóa HDV này?')" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></a>

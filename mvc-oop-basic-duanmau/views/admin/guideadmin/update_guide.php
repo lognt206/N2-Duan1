@@ -92,6 +92,11 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
             </div>
 
             <div class="mb-3">
+                <label class="form-label">Chứng chỉ</label>
+                <input type="text" class="form-control" name="certificate" value="<?= $guide['certificate'] ?>">
+            </div>
+
+            <div class="mb-3">
                 <label class="form-label">Kinh nghiệm</label>
                 <input type="text" class="form-control" name="experience" value="<?= $guide['experience'] ?>">
             </div>
@@ -118,8 +123,9 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
             <div class="mb-3">
                 <label class="form-label">Chuyên môn</label>
                 <select class="form-select" name="category">
-                    <option value="0" <?= $guide['category']=="Domestic" ? "selected" : "" ?>>Nội địa</option>
-                    <option value="1" <?= $guide['category']=="International" ? "selected" : "" ?>>Quốc tế</option>
+                    <option value="1" <?= $guide['category']=="1" ? "selected" : "" ?>>Nội địa</option>
+                    <option value="2" <?= $guide['category']=="2" ? "selected" : "" ?>>Quốc tế</option>
+                    <option value="3" <?= $guide['category']=="3" ? "selected" : "" ?>>Khác</option>
                 </select>
             </div>
         </div>

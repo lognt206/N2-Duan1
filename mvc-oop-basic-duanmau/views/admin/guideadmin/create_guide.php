@@ -92,6 +92,10 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
                 <label>Điện thoại</label>
                 <input type="text" class="form-control" name="contact" required>
             </div>
+            <div class="mb-3">
+                <label>Tình trạng sức khỏe</label>
+                <input type="text" class="form-control" name="health_condition" placeholder="VD: Tốt, Trung bình..." required>
+            </div>
         </div>
         <div class="col-md-6">
             <h5>Thông tin nghề nghiệp</h5>
@@ -104,8 +108,8 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
                 <input type="number" class="form-control" name="experience" min="0" required>
             </div>
             <div class="mb-3">
-                <label>Tình trạng sức khỏe</label>
-                <input type="text" class="form-control" name="health_condition" placeholder="VD: Tốt, Trung bình..." required>
+                <label>Chứng chỉ</label>
+                <input type="text" class="form-control" name="certificate" placeholder="VD:Chứng chỉ HDV quốc tế" required>
             </div>
             <div class="mb-3">
                 <label>Đánh giá (0–5)</label>
@@ -116,6 +120,7 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
                 <select name="category" class="form-select">
                     <option value="1">Nội địa</option>
                     <option value="2">Quốc tế</option>
+                    <option value="3">Khác</option>
                 </select>
             </div>
         </div>
