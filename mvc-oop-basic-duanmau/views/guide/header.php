@@ -71,7 +71,7 @@ $nameUser = $_SESSION['user']['name'] ?? '';
       </nav>
 
       <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
-        <h1 class="h3 text-primary">Chào mừng hướng dẫn viên!</h1>
+        <h1 class="h3 text-primary">Chào mừng hướng dẫn viên <?= $nameUser = $_SESSION['user']['username'] ?? '';?>!</h1>
         <p>Chọn một mục ở menu bên trái để bắt đầu quản lý tour của bạn.</p>
       </main>
     </div>

@@ -36,9 +36,8 @@ match ($act) {
         'partner'=>(new admincontroller())->partner(),
 
         'accoun'=>(new admincontroller())->accoun(),
-
-
-
+        'account_toggle'=>(new admincontroller())->account_toggle($id),
+                'account_delete'=>(new admincontroller())->account_delete($id),
 
          'category'=>(new admincontroller())->category(),
           'category/create'=>(new admincontroller())->category_create(),
@@ -57,13 +56,13 @@ match ($act) {
     'update_guide' => (new admincontroller())->update_guide(),
 
 
-'header'=>(new TourGuideController())-> header(),
-    'schedule'=>(new TourGuideController())-> lichlamviec(),
-    'profile'=>(new TourGuideController())-> profile(),
-    'tour_detail'=>(new TourGuideController())-> tour_detail(),
-    'report'=>(new TourGuideController())-> report(),
-    'check_in'=>(new TourGuideController())-> check_in(),
-    'special_request'=>(new TourGuideController())-> special_request(),
+'header' => (new TourGuideController())->header(),
+'schedule' => (new TourGuideController())->lichlamviec(),
+'profile' => (new TourGuideController())->profile(),
+'tour_detail' => (new TourGuideController())->tour_detail(),
+'report' => (new TourGuideController())->report(),
+'check_in' => (new TourGuideController())->check_in(),
+'special_request' => (new TourGuideController())->special_request(),
 
 
 };

@@ -1,21 +1,27 @@
 <?php
 
-
-
+require_once __DIR__ . '/../models/PartnerModel.php';
 require_once __DIR__ . '/../models/CategoryModel.php';
-
+require_once __DIR__ . '/../models/Guidemodel.php';
+require_once __DIR__ . '/../models/UserModel.php';
 require_once __DIR__ . '/../models/tourmodel.php';
 
 class admincontroller {
  public $categoryModel;
 public $modelTour;
 public $modelTourGuide;
+public $UserModel;
+public $PartnerModel;
 
 public function __construct() {
   $this->modelTour = new TourModel();
         $this->categoryModel = new CategoryModel();
     $this->modelTourGuide = new TourGuideModel();
         $this->categoryModel = new CategoryModel();
+    $this->UserModel = new UserModel();
+$this->PartnerModel = new PartnerModel();
+
+
     }
 
 
@@ -197,6 +203,8 @@ public function customer() {
         include "views/admin/customer/noidung.php";
     }
 public function partner() {
+   
+        $partners = $this->PartnerModel->all();
         include "views/admin/partner/noidung.php";
     }
     public function category() {
@@ -314,9 +322,58 @@ public function category_update($id) {
 
 
 public function accoun() {
+    $err = "";
+        $accounts = $this->UserModel->all();
+
+        if (isset($_POST['tim'])) {
+            $user = $_POST['user'];
+            if (empty($user)) {
+                $err = "bạn chưa nhập tên người dùng";
+            }
+
+            foreach ($accounts as $tt) {
+                if (stripos($tt->email, $user) !== false || stripos($tt->name, $user) !== false) {
+                    $ketqua[] = $tt;
+                }
+            }
+
+            if (empty($ketqua)) {
+                $err = "không tìm thấy";
+            } else {
+                $accounts = $ketqua;
+            }
+        }
         include "views/admin/accoun/noidung.php";
     }
+public function account_toggle($id) {
+    $user = $this->UserModel->find($id);
 
+    if (!$user) {
+        echo "Tài khoản không tồn tại!";
+        exit;
+    }
+
+    // Đổi trạng thái
+    $newStatus = $user->status == 1 ? 0 : 1;
+    $this->UserModel->updateStatus($id, $newStatus);
+
+    header("Location: ?act=accoun");
+    exit;
+}
+public function account_delete($id) 
+{
+    $user = $this->UserModel->find($id);
+
+    if (!$user) {
+        echo "Tài khoản không tồn tại!";
+        exit;
+    }
+
+    $this->UserModel->delete($id);
+
+    header("Location: ?act=accoun");
+    exit;
+}
 
 }
 

@@ -1,3 +1,8 @@
+
+<?php if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+?>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -27,7 +32,7 @@
     <h3 class="text-center py-3 border-bottom">Admin Panel</h3>
     <a href="?act=dashboard"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
     <a href="?act=tour"><i class="fa-solid fa-plane"></i> Quản lý Tour</a>
-    <a href="?act=category"><i class="fa-solid fa-list"></i> Quản lý danh mục Tour</a>
+    <a href="?act=category" class="bg-secondary"><i class="fa-solid fa-list"></i> Quản lý danh mục Tour</a>
     <a href="?act=customer"><i class="fa-solid fa-users"></i> Quản lý Khách hàng</a>
     <a href="?act=booking"><i class="fa-solid fa-ticket"></i> Quản lý Đặt Tour</a>
     <a href="?act=guideadmin"><i class="fa-solid fa-user-tie"></i> Quản lý Hướng dẫn viên</a>
@@ -47,7 +52,7 @@
         </div>
         <div class="user d-flex align-items-center">
             <img src="uploads/logo.png" alt="User">
-            <span>Admin</span>
+            <span><?= $nameUser = $_SESSION['user']['username'] ?? '';?></span>
             <a href="?act=login" class="btn btn-sm btn-outline-danger ms-3">Đăng xuất</a>
         </div>
     </div>

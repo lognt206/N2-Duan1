@@ -1,3 +1,10 @@
+
+
+<?php if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -51,8 +58,8 @@
             <span class="fw-bold">Admin Panel</span>
         </div>
         <div class="user d-flex align-items-center">
-            <img src="https://via.placeholder.com/40" alt="User">
-            <span>Admin</span>
+            <img src="uploads/logo.png" alt="User">
+            <span><?= $nameUser = $_SESSION['user']['username'] ?? '';?></span>
             <a href="?act=logout" class="btn btn-sm btn-outline-danger ms-3">Đăng xuất</a>
         </div>
     </div>
