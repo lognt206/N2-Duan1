@@ -1,4 +1,8 @@
 
+<?php if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+?>
 
 <!DOCTYPE html>
 <html lang="vi">
@@ -68,7 +72,7 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
 </div>
 <div class="user">
 <img src="uploads/logo.png" alt="User">
-<span>Admin</span>
+<span><?= $nameUser = $_SESSION['user']['username'] ?? '';?></span>
 <a href="?act=login" class="btn btn-sm btn-outline-danger ms-3">Đăng xuất</a>
 </div>
 </div>

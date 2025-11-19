@@ -15,37 +15,41 @@ class TourGuideController
     }
 
     public function lichlamviec()
-    {
-        // Lấy guide ID từ session hoặc mặc định = 201
-        $guideId = isset($_SESSION['guide_id']) ? $_SESSION['guide_id'] : 201;
+{
+    $guideId = $_SESSION['guide_id'] ?? 201;
 
-        // Lấy dữ liệu từ model
-        $tours = $this->modelTourGuide->getLichLamViec($guideId);
+    // Gọi phương thức từ model để lấy tour của guide này
+    $tours = $this->modelTourGuide->allguide($guideId); // cần tạo phương thức trong model
 
-        $today = date('Y-m-d');
-        $lich_lam_viec = [];
+    $today = date('Y-m-d');
+    $lich_lam_viec = [];
 
-        foreach ($tours as $tour) {
-            $bdau  = $tour['departure_date'];
-            $kthuc = $tour['return_date'];
+    foreach ($tours as $tour) {
+        // tránh warning nếu cột null hoặc không tồn tại
+        $bdau  = $tour['departure_date'] ?? null;
+        $kthuc = $tour['return_date'] ?? null;
 
-            if ($kthuc < $today) {
-                $tour['tinh_trang'] = "Đã hoàn thành";
-                $tour['trangthai'] = "completed";
-            } elseif ($bdau <= $today && $kthuc >= $today) {
-                $tour['tinh_trang'] = "Đang thực hiện";
-                $tour['trangthai'] = "in_progress";
-            } else {
-                $tour['tinh_trang'] = "Sắp khởi hành";
-                $tour['trangthai'] = "upcoming";
-            }
-
-            $lich_lam_viec[] = $tour;
+        if (!$bdau || !$kthuc) {
+            $tour['tinh_trang'] = "Chưa có dữ liệu";
+            $tour['trangthai'] = "unknown";
+        } elseif ($kthuc < $today) {
+            $tour['tinh_trang'] = "Đã hoàn thành";
+            $tour['trangthai'] = "completed";
+        } elseif ($bdau <= $today && $kthuc >= $today) {
+            $tour['tinh_trang'] = "Đang thực hiện";
+            $tour['trangthai'] = "in_progress";
+        } else {
+            $tour['tinh_trang'] = "Sắp khởi hành";
+            $tour['trangthai'] = "upcoming";
         }
 
-       
-        require_once './views/guide/schedule.php';
+        $lich_lam_viec[] = $tour;
     }
+
+    require_once './views/guide/schedule.php';
+}
+
+
 
     public function profile()
     {

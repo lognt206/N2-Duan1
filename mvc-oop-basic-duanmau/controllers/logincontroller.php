@@ -36,7 +36,7 @@ class logincontroller {
                 $loi = "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị.";
             } else {
                 // Kiểm tra mật khẩu
-                if(( $user->password)){ //password_verify
+                if(password_verify($password, $user->password)){ //password_verify
                     // Lưu thông tin user vào session
                     $_SESSION['user'] = [
                         'user_id'   => $user->user_id,

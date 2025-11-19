@@ -1,5 +1,9 @@
 
 
+<?php if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+?>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -68,7 +72,7 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
 </div>
 <div class="user">
 <img src="uploads/logo.png" alt="User">
-<span>Admin</span>
+<span><?= $nameUser = $_SESSION['user']['username'] ?? '';?></span>
 <a href="?act=login" class="btn btn-sm btn-outline-danger ms-3">Đăng xuất</a>
 </div>
 </div>
@@ -76,7 +80,7 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
 <h3 class="mb-3"><i class="fa-solid fa-user-tie"></i> Quản lý Hướng dẫn viên</h3>
 
 <div class="d-flex justify-content-between mb-3">
-<a href="?act=create_guide" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Thêm HDV mới</a>
+<a href="index.php?act=create_guide" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Thêm HDV mới</a>
 <form class="d-flex" style="max-width:300px;">
 <input type="text" class="form-control me-2" placeholder="Tìm kiếm...">
 <button class="btn btn-outline-secondary"><i class="fa-solid fa-search"></i></button>
@@ -92,6 +96,7 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
 <th>Ngày sinh</th>
 <th>Ảnh</th>
 <th>Điện thoại</th>
+<th>Chứng chỉ</th>
 <th>Ngôn ngữ</th>
 <th>Kinh nghiệm</th>
 <th>Sức khỏe</th>
@@ -105,22 +110,26 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
 <?php foreach($guides as $guide): ?>
 <tr>
 <td><?= $guide['guide_id'] ?></td>
-<td><?= htmlspecialchars($guide['full_name']) ?></td>
+<td><?= $guide['full_name'] ?></td>
 <td><?= $guide['birth_date'] ?></td>
 <td>
 <?php if(!empty($guide['photo'])): ?>
 <img src="<?= $guide['photo'] ?>" alt="HDV" style="width:50px;">
 <?php endif; ?>
 </td>
-<td><?= htmlspecialchars($guide['contact']) ?></td>
-<td><?= htmlspecialchars($guide['languages']) ?></td>
-<td><?= htmlspecialchars($guide['experience']) ?></td>
-<td><?= htmlspecialchars($guide['health_condition']) ?></td>
+<td><?= $guide['contact'] ?></td>
+<td><?= $guide['certificate'] ?></td>
+<td><?= $guide['languages'] ?></td>
+<td><?= $guide['experience'] ?></td>
+<td><?= $guide['health_condition'] ?></td>
 <td><?= $guide['rating'] ?></td>
-<td><?= $guide['category'] === 'Domestic' ? 'Nội địa' : 'Quốc tế' ?></td>
+<td><?= $guide['category'] == '1' ? 'Nội địa' :(
+        $guide['category'] == '2' ? 'Quốc tế' :(
+        $guide['category'] == '3' ? 'Khác' : 'Không xác định' ) ) 
+?></td>
 <td>
-<a href="?controller=guides&action=edit&id=<?= $guide['guide_id'] ?>" class="btn btn-warning btn-sm"><i class="fa fa-edit"></i></a>
-<a href="?controller=guides&action=delete&id=<?= $guide['guide_id'] ?>" onclick="return confirm('Bạn có chắc muốn xóa HDV này?')" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></a>
+<a href="index.php?act=update_guide&id=<?= $guide['guide_id'] ?>" class="btn btn-warning btn-sm"><i class="fa fa-edit"></i></a>
+<a href="index.php?act=delete_guide&id=<?= $guide['guide_id'] ?>" onclick="return confirm('Bạn có chắc muốn xóa HDV này?')" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></a>
 </td>
 </tr>
 <?php endforeach; ?>

@@ -1,4 +1,4 @@
-<?phpif (session_status() === PHP_SESSION_NONE) {
+<?php if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
@@ -43,7 +43,7 @@
 <!-- Sidebar -->
 <div id="sidebar">
      <h3 class="text-center py-3 border-bottom">Admin Panel</h3>
-    <a href="?act=dashboard"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+    <a href="?act=dashboard" class="bg-secondary"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
     <a href="?act=tour"><i class="fa-solid fa-plane"></i> Quản lý Tour</a>
       <a href="?act=category"><i class="fa-solid fa-plane"></i> Quản lý danh mục Tour</a>
     <a href="?act=customer"><i class="fa-solid fa-users"></i> Quản lý Khách hàng</a>
@@ -66,7 +66,7 @@
         </div>
         <div class="user">
             <img src="uploads/logo.png" alt="User">
-            <span>Admin</span>
+            <span><?= $nameUser = $_SESSION['user']['username'] ?? '';?></span>
             <a href="?act=login" class="btn btn-sm btn-outline-danger ms-3">Đăng xuất</a>
         </div>
     </div>
@@ -86,7 +86,7 @@
             <div class="col-md-3">
                 <div class="card-stats bg-success">
                     <h4>Khách hàng</h4>
-                    <p>120</p>
+                    <p>12</p>
                 </div>
             </div>
             <div class="col-md-3">

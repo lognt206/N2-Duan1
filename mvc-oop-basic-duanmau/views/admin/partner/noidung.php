@@ -1,3 +1,8 @@
+
+<?php if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+?>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -48,7 +53,7 @@
         </div>
         <div class="user d-flex align-items-center">
             <img src="uploads/logo.png" alt="User">
-            <span>Admin</span>
+            <span><?= $nameUser = $_SESSION['user']['username'] ?? '';?></span>
             <a href="?act=login" class="btn btn-sm btn-outline-danger ms-3">Đăng xuất</a>
         </div>
     </div>
@@ -80,15 +85,15 @@
                 <?php if (!empty($partners)) : ?>
                     <?php foreach ($partners as $p) : ?>
                         <tr>
-                            <td><?= $p['partner_id'] ?></td>
-                            <td><?= htmlspecialchars($p['partner_name']) ?></td>
-                            <td><?= htmlspecialchars($p['service_type']) ?></td>
-                            <td><?= htmlspecialchars($p['contact']) ?></td>
-                            <td><?= htmlspecialchars($p['address']) ?></td>
-                            <td><?= htmlspecialchars($p['notes']) ?></td>
+                            <td><?= $p->partner_id?></td>
+                            <td><?= htmlspecialchars($p->partner_name) ?></td>
+                            <td><?= htmlspecialchars($p->service_type_name ?? '') ?></td>
+                            <td><?= htmlspecialchars($p->contact) ?></td>
+                            <td><?= htmlspecialchars($p->address) ?></td>
+                            <td><?= htmlspecialchars($p->notes ?? '') ?></td>
                             <td>
-                                <a href="?act=partner_edit&id=<?= $p['partner_id'] ?>" class="btn btn-sm btn-warning"><i class="fa-solid fa-pen"></i></a>
-                                <a href="?act=partner_delete&id=<?= $p['partner_id'] ?>" onclick="return confirm('Xóa đối tác này?')" class="btn btn-sm btn-danger"><i class="fa-solid fa-trash"></i></a>
+                                <a href="?act=partner_edit&id=<?= $p->partner_id ?>" class="btn btn-sm btn-warning"><i class="fa-solid fa-pen"></i></a>
+                                <a href="?act=partner_delete&id=<?= $p->partner_id ?>" onclick="return confirm('Xóa đối tác này?')" class="btn btn-sm btn-danger"><i class="fa-solid fa-trash"></i></a>
                             </td>
                         </tr>
                     <?php endforeach; ?>
