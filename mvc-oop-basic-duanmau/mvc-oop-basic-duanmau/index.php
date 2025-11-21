@@ -1,61 +1,68 @@
 <?php
-// Require toàn bộ các file khai báo môi trường, thực thi,...(không require view)
-
-// Require file Common
-require_once './commons/env.php'; // Khai báo biến môi trường
+require_once './commons/env.php'; // Khai báo biến môi trường 
 require_once './commons/function.php'; // Hàm hỗ trợ
-
-// Require toàn bộ file Controllers
-// require_once './controllers/ProductController.php';
-require_once './controllers/admincontroller.php';
-require_once './controllers/logincontroller.php';
+require_once './controllers/LoginController.php';
+require_once './controllers/AdminController.php';
 require_once './controllers/TourGuideController.php';
-// Require toàn bộ file Models
-// require_once './models/ProductModel.php';
-require_once './models/GuideModel.php';
-// Route
+require_once './controllers/BookingController.php';
+require_once './controllers/CustomerController.php';
+require_once './models/GuideModel.php'; 
+require_once './models/BookingModel.php'; 
+require_once './models/CustomerModel.php';
 $act = $_GET['act'] ?? '/';
-
-
-// Để bảo bảo tính chất chỉ gọi 1 hàm Controller để xử lý request thì mình sử dụng match
+$id  = $_GET['id'] ?? null;
 
 match ($act) {
-    // Trang chủ
-    // '/'=>(new logincontroller())->home(),
-    '/'          => (new logincontroller())->login(),
-    'dangxuat'          => (new logincontroller())->dangxuat(),
-    'login'          => (new logincontroller())->login(),
+    // Trang chủ / login
+    '/' => (new logincontroller())->login(),
+    'login' => (new logincontroller())->login(),
+    'dangxuat' => (new logincontroller())->dangxuat(),
 
-    //  '/'=>(new admincontroller())->dashboard(),
+    // Admin
     'dashboard' => (new admincontroller())->dashboard(),
-    'tour' => (new admincontroller())->tour(),
-    'noidung' => (new admincontroller())->tour(),
-    'guideadmin' => (new admincontroller())->guideadmin(),
-    'booking' => (new admincontroller())->booking(),
-    'customer' => (new admincontroller())->customer(),
-    'partner' => (new admincontroller())->partner(),
-    'category' => (new admincontroller())->category(),
+    'tour'      => (new admincontroller())->tour(),
+    'noidung'   => (new admincontroller())->tour(),
+    'partner'   => (new admincontroller())->partner(),
+    'accoun'    => (new admincontroller())->accoun(),
+    'account_toggle' => (new admincontroller())->account_toggle($id),
+    'account_delete' => (new admincontroller())->account_delete($id),
 
+    // Category
+    'category'        => (new admincontroller())->category(),
+    'category/create' => (new admincontroller())->category_create(),
+    'category/update' => (new admincontroller())->category_update($id),
+    'delete_danhmuc'  => (new admincontroller())->delete_danhmuc($id),
+
+    // Tour
     'create' => (new admincontroller())->create(),
-    'store' => (new admincontroller())->store(),
+    'store'  => (new admincontroller())->store(),
     'delete' => (new admincontroller())->delete(),
-    'edit' => (new admincontroller())->edit(),
     'update' => (new admincontroller())->update(),
 
-    'guideadmin'         => (new admincontroller())->guideadmin(),
-    'guideadmin_create'  => (new admincontroller())->guideadmin_create(),
-    'guideadmin_store'   => (new admincontroller())->guideadmin_store(),
-    'guideadmin_edit'    => (new admincontroller())->guideadmin_edit(),
-    'guideadmin_update'  => (new admincontroller())->guideadmin_update(),
-    'guideadmin_delete'  => (new admincontroller())->guideadmin_delete(),
+    // HDV
+    'guideadmin'   => (new admincontroller())->guideadmin(),
+    'create_guide' => (new admincontroller())->create_guide(),
+    'delete_guide' => (new admincontroller())->delete_guide(),
+    'update_guide' => (new admincontroller())->update_guide(),
 
-
-
-    'header' => (new TourGuideController())->header(),
-    'schedule' => (new TourGuideController())->lichlamviec(),
-    'profile' => (new TourGuideController())->profile(),
-    'tour_detail' => (new TourGuideController())->tour_detail(),
-    'report' => (new TourGuideController())->report(),
-    'check_in' => (new TourGuideController())->check_in(),
+    // TourGuideController
+    'header'          => (new TourGuideController())->header(),
+    'schedule'        => (new TourGuideController())->lichlamviec(),
+    'profile'         => (new TourGuideController())->profile(),
+    'tour_detail'     => (new TourGuideController())->tour_detail(),
+    'report'          => (new TourGuideController())->report(),
+    'check_in'        => (new TourGuideController())->check_in(),
     'special_request' => (new TourGuideController())->special_request(),
+
+    // Booking (dùng BookingController riêng)
+    'booking'        => (new BookingController())->index(),
+    'booking_create' => (new BookingController())->create(),
+    'booking_update' => (new BookingController())->update(),
+    'booking_delete' => (new BookingController())->delete($id),
+
+    // Customer (dùng CustomerController riêng)
+    'customer'        => (new CustomerController())->index(),
+    'customer_create' => (new CustomerController())->create(),
+    'customer_update' => (new CustomerController())->update(),
+    'customer_delete' => (new CustomerController())->delete($id),
 };
