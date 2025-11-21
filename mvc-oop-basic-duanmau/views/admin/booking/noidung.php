@@ -72,7 +72,7 @@
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Tour ID</th>
+                    <th>Tour Guide ID</th>
                     <th>User ID</th>
                     <th>Ngày Đặt</th>
                     <th>Số Người</th>

@@ -5,17 +5,18 @@
 require_once __DIR__ . '/../models/CategoryModel.php';
 
 require_once __DIR__ . '/../models/tourmodel.php';
-
+require_once __DIR__ . '/../models/CustomerModel.php';
 class admincontroller {
  public $categoryModel;
 public $modelTour;
 public $modelTourGuide;
+public $modelCustomer;
 
 public function __construct() {
   $this->modelTour = new TourModel();
         $this->categoryModel = new CategoryModel();
     $this->modelTourGuide = new TourGuideModel();
-        $this->categoryModel = new CategoryModel();
+    $this->modelCustomer = new CustomerModel();
     }
 
 
@@ -194,8 +195,64 @@ public function booking() {
         include "views/admin/booking/noidung.php";
     }
 public function customer() {
+    $customers = $this->modelCustomer->allcustomer();
         include "views/admin/customer/noidung.php";
     }
+public function create_customer(){
+    if($_SERVER['REQUEST_METHOD'] === "POST"){
+        $customers = new Customer();
+        $customers->booking_id           =$_POST['booking_id'];
+        $customers->full_name            =$_POST['full_name'];
+        $customers->gender               =$_POST['gender'];
+        $customers->birth_year           =$_POST['birth_year'];
+        $customers->id_number            =$_POST['id_number'];
+        $customers->contact              =$_POST['contact'];
+        $customers->payment_status       =$_POST['payment_status'];
+        $customers->special_request      =$_POST['special_request'];
+        $this->modelCustomer->create_customer($customers);
+        $customers = $this->modelCustomer->allcustomer();
+        include "views/admin/customer/noidung.php";
+        exit();    
+    }include "views/admin/customer/create_customer.php";
+        exit();
+}
+
+public function delete_customer(){
+    if(isset($_GET['id'])){
+        $id=(int)$_GET['id'];
+        $customers = $this->modelCustomer->delete_customer($id);
+    }
+    $customers = $this->modelCustomer->allcustomer();
+    include "views/admin/customer/noidung.php";
+}
+public function update_customer(){
+    if($_SERVER['REQUEST_METHOD'] === "POST"){
+        $customer = new Customer();
+        $customer->customer_id           =$_POST['customer_id'];
+        $customer->booking_id           =$_POST['booking_id'] ?? "";
+        $customer->full_name            =$_POST['full_name'] ?? "";
+        $customer->gender               =$_POST['gender'] ?? "";
+        $customer->birth_year           =$_POST['birth_year'] ?? "";
+        $customer->id_number            =$_POST['id_number'] ?? "";
+        $customer->contact              =$_POST['contact'] ?? "";
+        $customer->payment_status       =$_POST['payment_status'] ?? "";
+        $customer->special_request      =$_POST['special_request'] ?? null;
+        $this->modelCustomer->update_customer($customer);
+        $customers = $this->modelCustomer->allcustomer();
+        include "views/admin/customer/noidung.php";
+        exit();    
+    }
+    if(isset($_GET['id'])){
+        $id = $_GET['id'];
+        $customer = $this->modelCustomer->find_customer($id);
+        if(!$customer){
+            echo "Không tìm thấy khách hàng";
+            exit();
+        }
+    include "views/admin/customer/update_customer.php";
+    exit();
+    }
+}
 public function partner() {
         include "views/admin/partner/noidung.php";
     }

@@ -22,6 +22,8 @@
         .badge { font-size: 12px; }
         .badge.Unpaid { background: #ffc107; color: #212529; }
         .badge.Paid { background: #198754; }
+        .badge.pay { background: #198754; }
+        .badge.no_pay { background: #6c757d; }
     </style>
 </head>
 <body>
@@ -58,7 +60,7 @@
     <h3 class="mb-3"><i class="fa-solid fa-users"></i> Quản lý Khách hàng</h3>
 
     <div class="d-flex justify-content-between mb-3">
-        <a href="#" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Thêm Khách hàng</a>
+        <a href="index.php?act=create_customer" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Thêm Khách hàng</a>
         <form class="d-flex" style="max-width:300px;">
             <input type="text" class="form-control me-2" placeholder="Tìm kiếm...">
             <button class="btn btn-outline-secondary"><i class="fa-solid fa-search"></i></button>
@@ -83,20 +85,34 @@
             </thead>
             <tbody>
                 <?php if (!empty($customers)) : ?>
-                    <?php foreach ($customers as $c) : ?>
+                    <?php foreach ($customers as $customer) : ?>
                         <tr>
-                            <td><?= $c['customer_id'] ?></td>
-                            <td><?= $c['booking_id'] ?></td>
-                            <td><?= $c['full_name'] ?></td>
-                            <td><?= $c['gender'] ?></td>
-                            <td><?= $c['birth_year'] ?></td>
-                            <td><?= $c['id_number'] ?></td>
-                            <td><?= $c['contact'] ?></td>
-                            <td><span class="badge <?= $c['payment_status'] ?>"><?= $c['payment_status'] ?></span></td>
-                            <td><?= $c['special_request'] ?></td>
+                            <td><?= $customer['customer_id'] ?></td>
+                            <td><?= $customer['booking_id'] ?></td>
+                            <td><?= $customer['full_name'] ?></td>
                             <td>
-                                <a href="#" class="btn btn-sm btn-warning"><i class="fa-solid fa-pen"></i></a>
-                                <a href="#" onclick="return confirm('Xóa khách hàng này?')" class="btn btn-sm btn-danger"><i class="fa-solid fa-trash"></i></a>
+                                <?= $customer['gender'] == 1 ? "Nam" : "Nữ"?>
+                            </td>
+                            <td><?= $customer['birth_year'] ?></td>
+                            <td><?= $customer['id_number'] ?></td>
+                            <td><?= $customer['contact'] ?></td>
+                            <td><?php if($customer['payment_status'] == "1"){
+                                $payment_text = "Đã thanh toán";
+                                $payment_class = "pay";
+                            }else{
+                                $payment_text = "Chưa thanh toán";
+                                $payment_class = "no_pay";
+                            }
+                                ?>
+                                <span class="badge <?= $payment_class ?>">
+                                    <?= $payment_text?>
+                                </span>
+                            </td>
+
+                            <td><?= $customer['special_request'] ?></td>
+                            <td>
+                                <a href="index.php?act=update_customer&id=<?= $customer['customer_id'] ?>" class="btn btn-sm btn-warning"><i class="fa-solid fa-pen"></i></a>
+                                <a href="index.php?act=delete_customer&id=<?= $customer['customer_id'] ?>" onclick="return confirm('Xóa khách hàng này?')" class="btn btn-sm btn-danger"><i class="fa-solid fa-trash"></i></a>
                             </td>
                         </tr>
                     <?php endforeach; ?>

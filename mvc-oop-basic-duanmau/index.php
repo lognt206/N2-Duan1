@@ -32,7 +32,7 @@ match ($act) {
      'noidung'=>(new admincontroller())->tour(),
       
        'booking'=>(new admincontroller())->booking(),
-        'customer'=>(new admincontroller())->customer(),
+        
         'partner'=>(new admincontroller())->partner(),
 
         'accoun'=>(new admincontroller())->accoun(),
@@ -55,8 +55,12 @@ match ($act) {
     'create_guide' => (new admincontroller())->create_guide(),
     'delete_guide' => (new admincontroller())->delete_guide(),
     'update_guide' => (new admincontroller())->update_guide(),
-
-
+//khách hàng
+    'customer'=>(new admincontroller())->customer(),
+    'create_customer' => (new admincontroller())->create_customer(),
+    'delete_customer' => (new admincontroller())->delete_customer(),
+    'update_customer' => (new admincontroller())->update_customer(),
+    
 'header'=>(new TourGuideController())-> header(),
     'schedule'=>(new TourGuideController())-> lichlamviec(),
     'profile'=>(new TourGuideController())-> profile(),
