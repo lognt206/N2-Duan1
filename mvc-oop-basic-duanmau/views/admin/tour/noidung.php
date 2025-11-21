@@ -112,7 +112,7 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
         <td><?= $tour['description'] ?></td>
         <td><?= number_format($tour['price'], 0, ',', '.') ?>₫</td>
         <td><?= $tour['policy'] ?></td>
-        <td><?= $tour['supplier'] ?></td>
+        <td><?= $tour['supplier_name'] ?></td>
         <td> <?php 
         $status_code = (int)$tour['status'];
         if($status_code === 1){
