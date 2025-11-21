@@ -4,7 +4,7 @@ require_once './commons/env.php';
 class Booking {
     public $booking_id;
     public $tour_id;
-    public $user_id;
+    public $customer_id;
     public $booking_date;
     public $num_people;
     public $booking_type;
@@ -28,7 +28,7 @@ class BookingModel {
                 $b = new Booking();
                 $b->booking_id = $row['booking_id'];
                 $b->tour_id = $row['tour_id'];
-                $b->user_id = $row['user_id'];
+                $b->customer_id = $row['customer_id'];
                 $b->booking_date = $row['booking_date'];
                 $b->num_people = $row['num_people'];
                 $b->booking_type = $row['booking_type'];

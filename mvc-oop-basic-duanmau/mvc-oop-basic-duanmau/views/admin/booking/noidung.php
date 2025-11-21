@@ -161,7 +161,7 @@
                             <tr>
                                 <td><?= $b->booking_id ?></td>
                                 <td><?= $b->tour_id ?></td>
-                                <td><?= $b->user_id ?></td>
+                                <td><?= $b->customer_id ?></td>
                                 <td><?= $b->booking_date ?></td>
                                 <td><?= $b->num_people ?></td>
                                 <td><?= $b->booking_type ?></td>

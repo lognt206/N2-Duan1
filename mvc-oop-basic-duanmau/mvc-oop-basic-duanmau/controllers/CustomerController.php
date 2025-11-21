@@ -66,5 +66,5 @@ class CustomerController {
         header("Location: ?act=customer");
         exit;
     }
-}
+}    
 ?>

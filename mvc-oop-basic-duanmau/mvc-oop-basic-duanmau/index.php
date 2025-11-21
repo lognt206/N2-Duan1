@@ -63,6 +63,6 @@ match ($act) {
     // Customer (dùng CustomerController riêng)
     'customer'        => (new CustomerController())->index(),
     'customer_create' => (new CustomerController())->create(),
-    'customer_update' => (new CustomerController())->update(),
+    'customer_update' => (new CustomerController())->update(),  
     'customer_delete' => (new CustomerController())->delete($id),
 };

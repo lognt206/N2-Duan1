@@ -24,7 +24,7 @@ class BookingController
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $booking = new Booking();
             $booking->tour_id      = $_POST['tour_id'];
-            $booking->user_id      = $_POST['user_id'];
+            $booking->customer_id      = $_POST['customer_id'];
             $booking->booking_date = $_POST['booking_date'];
             $booking->num_people   = $_POST['num_people'];
             $booking->booking_type = $_POST['booking_type'];
@@ -54,7 +54,7 @@ class BookingController
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $booking->tour_id      = $_POST['tour_id'];
-            $booking->user_id      = $_POST['user_id'];
+            $booking->customer_id      = $_POST['customer_id'];
             $booking->booking_date = $_POST['booking_date'];
             $booking->num_people   = $_POST['num_people'];
             $booking->booking_type = $_POST['booking_type'];

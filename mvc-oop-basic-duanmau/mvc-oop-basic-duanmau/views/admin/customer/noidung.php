@@ -174,7 +174,7 @@
                     <?php endif; ?>
                 </tbody>
 
-            </table>
+            </table> 
         </div>
     </div>
 
