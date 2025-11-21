@@ -1,6 +1,5 @@
-
-
-<?php if (session_status() === PHP_SESSION_NONE) {
+<?php 
+if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 ?>
@@ -21,36 +20,28 @@
         #content { flex: 1; padding: 20px; background: #f8f9fa; }
         .topbar { height: 60px; background: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
         .topbar .user img { width: 40px; height: 40px; border-radius: 50%; margin-right: 10px; }
-        footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box-shadow: 0 -2px 4px rgba(0,0,0,0.1); position: fixed; bottom: 0; }
-
-        /* Table style */
         .table th { background: #343a40; color: white; }
-        .btn-sm { padding: 4px 8px; }
-        .badge { font-size: 12px; }
-        .badge.Pending { background: #ffc107; color: #212529; }
-        .badge.Deposited { background: #0dcaf0; }
-        .badge.Completed { background: #198754; }
-        .badge.Cancelled { background: #dc3545; }
+        .badge-status { font-size: 12px; padding: 5px 8px; border-radius: 4px; display:inline-block; }
+        footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; 
+                 box-shadow: 0 -2px 4px rgba(0,0,0,0.1); position: fixed; bottom: 0; }
     </style>
 </head>
 <body>
 
-<!-- Sidebar -->
 <div id="sidebar">
     <h3 class="text-center py-3 border-bottom">Admin Panel</h3>
     <a href="?act=dashboard"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
     <a href="?act=tour"><i class="fa-solid fa-plane"></i> Quản lý Tour</a>
-      <a href="?act=category"><i class="fa-solid fa-plane"></i> Quản lý danh mục Tour</a>
+    <a href="?act=category"><i class="fa-solid fa-list"></i> Quản lý danh mục Tour</a>
     <a href="?act=customer"><i class="fa-solid fa-users"></i> Quản lý Khách hàng</a>
     <a href="?act=booking" class="bg-secondary"><i class="fa-solid fa-ticket"></i> Quản lý Đặt Tour</a>
     <a href="?act=guideadmin"><i class="fa-solid fa-user-tie"></i> Quản lý Hướng dẫn viên</a>
     <a href="?act=partner"><i class="fa-solid fa-handshake"></i> Quản lý Đối tác</a>
     <a href="?act=departures"><i class="fa-solid fa-calendar"></i> Lịch khởi hành</a>
-     <a href="?act=accoun"><i class="fa-solid fa-users"></i> Quản lý tài khoản </a>
+    <a href="?act=accoun"><i class="fa-solid fa-users"></i> Quản lý tài khoản</a>
     <a href="?act=logout"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
 </div>
 
-<!-- Content -->
 <div id="content">
     <div class="topbar">
         <div class="logo d-flex align-items-center">
@@ -59,7 +50,7 @@
         </div>
         <div class="user d-flex align-items-center">
             <img src="uploads/logo.png" alt="User">
-            <span><?= $nameUser = $_SESSION['user']['username'] ?? '';?></span>
+            <span><?= $_SESSION['user']['username'] ?? '' ?></span>
             <a href="?act=logout" class="btn btn-sm btn-outline-danger ms-3">Đăng xuất</a>
         </div>
     </div>
@@ -67,9 +58,10 @@
     <h3 class="mb-3"><i class="fa-solid fa-ticket"></i> Quản lý Đặt Tour</h3>
 
     <div class="d-flex justify-content-between mb-3">
-        <a href="#" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Thêm Đặt Tour</a>
-        <form class="d-flex" style="max-width:300px;">
-            <input type="text" class="form-control me-2" placeholder="Tìm kiếm...">
+        <a href="?act=addbooking" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Thêm Đặt Tour</a>
+        <form class="d-flex" method="GET" style="max-width:300px;">
+            <input type="hidden" name="act" value="booking">
+            <input type="text" name="keyword" class="form-control me-2" placeholder="Tìm kiếm...">
             <button class="btn btn-outline-secondary"><i class="fa-solid fa-search"></i></button>
         </form>
     </div>
@@ -79,8 +71,9 @@
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Tour ID</th>
-                    <th>User ID</th>
+                    <th>Tour</th>
+                    <th>Khách hàng</th>
+                    <th>Hướng dẫn viên</th>
                     <th>Ngày Đặt</th>
                     <th>Số Người</th>
                     <th>Loại Đặt</th>
@@ -90,25 +83,41 @@
                 </tr>
             </thead>
             <tbody>
-                <?php if (!empty($bookings)) : ?>
-                    <?php foreach ($bookings as $b) : ?>
+                <?php if (!empty($booking)) : ?>
+                    <?php foreach ($booking as $b) : ?>
                         <tr>
                             <td><?= $b['booking_id'] ?></td>
-                            <td><?= $b['tour_id'] ?></td>
-                            <td><?= $b['user_id'] ?></td>
+                            <td><?= $b['tour_name'] ?></td>
+                            <td><?= $b['customer_name'] ?></td>
+                            <td><?= $b['guide_name'] ?? '-' ?></td>
                             <td><?= $b['booking_date'] ?></td>
                             <td><?= $b['num_people'] ?></td>
                             <td><?= $b['booking_type'] ?></td>
-                            <td><span class="badge <?= $b['status'] ?>"><?= $b['status'] ?></span></td>
+
+                            <!-- Badge trạng thái có thể click -->
+                            <td>
+                                <a href="?act=updateStatus&id=<?= $b['booking_id'] ?>&status=<?= $b['status'] ?>">
+                                    <span class="badge <?= $b['status'] == 1 ? 'bg-success' : ($b['status'] == 2 ? 'bg-primary' : ($b['status']==3?'bg-danger':'bg-warning')) ?>">
+                                        <?= $b['status'] == 1 ? "Hoàn thành" : ($b['status'] == 2 ? "Đã cọc" : ($b['status']==3?"Đã hủy":"Chờ xác nhận")) ?>
+                                    </span>
+                                </a>
+                            </td>
+
                             <td><?= $b['notes'] ?></td>
                             <td>
-                                <a href="#" class="btn btn-sm btn-warning"><i class="fa-solid fa-pen"></i></a>
-                                <a href="#" onclick="return confirm('Xóa đặt tour này?')" class="btn btn-sm btn-danger"><i class="fa-solid fa-trash"></i></a>
+                                <a href="?act=editbooking&id=<?= $b['booking_id'] ?>" class="btn btn-sm btn-warning">
+                                    <i class="fa-solid fa-pen"></i>
+                                </a>
+                                <a href="?act=deletebooking&id=<?= $b['booking_id'] ?>" 
+                                   onclick="return confirm('Xóa đặt tour này?')" 
+                                   class="btn btn-sm btn-danger">
+                                    <i class="fa-solid fa-trash"></i>
+                                </a>
                             </td>
                         </tr>
                     <?php endforeach; ?>
                 <?php else : ?>
-                    <tr><td colspan="9" class="text-center text-muted">Không có dữ liệu đặt tour.</td></tr>
+                    <tr><td colspan="10" class="text-center text-muted">Không có dữ liệu đặt tour.</td></tr>
                 <?php endif; ?>
             </tbody>
         </table>

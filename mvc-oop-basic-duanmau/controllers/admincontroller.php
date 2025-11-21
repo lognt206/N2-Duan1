@@ -5,6 +5,8 @@ require_once __DIR__ . '/../models/CategoryModel.php';
 require_once __DIR__ . '/../models/Guidemodel.php';
 require_once __DIR__ . '/../models/UserModel.php';
 require_once __DIR__ . '/../models/tourmodel.php';
+require_once __DIR__ . '/../models/BookingModel.php';
+
 
 class admincontroller {
  public $categoryModel;
@@ -12,6 +14,8 @@ public $modelTour;
 public $modelTourGuide;
 public $UserModel;
 public $PartnerModel;
+public $BookingModel;
+
 
 public function __construct() {
   $this->modelTour = new TourModel();
@@ -20,6 +24,8 @@ public function __construct() {
         $this->categoryModel = new CategoryModel();
     $this->UserModel = new UserModel();
 $this->PartnerModel = new PartnerModel();
+$this->BookingModel = new BookingModel();
+
 
 
     }
@@ -197,6 +203,8 @@ public function update_guide(){
     }   
 }
 public function booking() {
+         $booking = $this->BookingModel->all();
+
         include "views/admin/booking/noidung.php";
     }
 public function customer() {
@@ -374,6 +382,23 @@ public function account_delete($id)
     header("Location: ?act=accoun");
     exit;
 }
+   public function updateStatus($id)
+    {
+        $id = $_GET['id'];
+        $current_status = $_GET['status'];
+
+        // Thay đổi tuần tự: 0 -> 1 -> 2 -> 3 -> 0
+        $new_status = ($current_status + 1) % 4;
+
+        $this->BookingModel->updateStatus($id, $new_status);
+
+        // Quay lại danh sách
+        header("Location:  ?act=booking");
+        exit;
+    }
+
+
+
 
 }
 

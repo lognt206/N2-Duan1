@@ -32,6 +32,10 @@ match ($act) {
      'noidung'=>(new admincontroller())->tour(),
       
        'booking'=>(new admincontroller())->booking(),
+        'updateStatus'=>(new admincontroller())->updateStatus($id),
+
+
+
         'customer'=>(new admincontroller())->customer(),
         'partner'=>(new admincontroller())->partner(),
 
