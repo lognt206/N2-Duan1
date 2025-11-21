@@ -66,3 +66,4 @@ match ($act) {
     'customer_update' => (new CustomerController())->update(),  
     'customer_delete' => (new CustomerController())->delete($id),
 };
+  

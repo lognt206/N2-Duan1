@@ -179,7 +179,7 @@
     </div>
 
     <footer>
-        &copy; 2025 Công ty Du lịch. All rights reserved.
+        &copy; 2025 Công ty Du lịch. All rights  reserved.
     </footer>
 
 </body>

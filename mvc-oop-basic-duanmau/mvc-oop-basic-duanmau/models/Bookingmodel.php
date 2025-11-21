@@ -50,7 +50,7 @@ class BookingModel {
                 $b = new Booking();
                 $b->booking_id = $row['booking_id'];
                 $b->tour_id = $row['tour_id'];
-                $b->user_id = $row['user_id'];
+                $b->customer_id = $row['customer_id'];
                 $b->booking_date = $row['booking_date'];
                 $b->num_people = $row['num_people'];
                 $b->booking_type = $row['booking_type'];
@@ -65,8 +65,8 @@ class BookingModel {
 
     public function create(Booking $b) {
         try {
-            $sql = "INSERT INTO booking (tour_id, user_id, booking_date, num_people, booking_type, status, notes)
-                    VALUES ('".$b->tour_id."', '".$b->user_id."', '".$b->booking_date."', '".$b->num_people."', '".$b->booking_type."', '".$b->status."', '".$b->notes."')";
+            $sql = "INSERT INTO booking (tour_id, customer_id, booking_date, num_people, booking_type, status, notes)
+                    VALUES ('".$b->tour_id."', '".$b->customer_id."', '".$b->booking_date."', '".$b->num_people."', '".$b->booking_type."', '".$b->status."', '".$b->notes."')";
             return $this->conn->exec($sql);
         } catch (PDOException $err) {
             echo "Lỗi thêm Booking: " . $err->getMessage();
@@ -77,7 +77,7 @@ class BookingModel {
         try {
             $sql = "UPDATE booking SET
                     tour_id='".$b->tour_id."',
-                    user_id='".$b->user_id."',
+                    customer_id='".$b->customer_id."',
                     booking_date='".$b->booking_date."',
                     num_people='".$b->num_people."',
                     booking_type='".$b->booking_type."',

@@ -170,7 +170,7 @@
                                 <td>
                                     <a href="?act=booking_update&id=<?= $b->booking_id ?>" class="btn btn-sm btn-warning"><i class="fa-solid fa-pen"></i></a>
                                     <a href="?act=booking_delete&id=<?= $b->booking_id ?>" onclick="return confirm('Xóa đặt tour này?')" class="btn btn-sm btn-danger"><i class="fa-solid fa-trash"></i></a>
-                                </td>
+                                </td> 
 
                             </tr>
                         <?php endforeach; ?>

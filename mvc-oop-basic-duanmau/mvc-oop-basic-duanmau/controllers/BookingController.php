@@ -77,5 +77,5 @@ class BookingController
         }
         header("Location: ?act=booking");
         exit;
-    }
+    } 
 }
