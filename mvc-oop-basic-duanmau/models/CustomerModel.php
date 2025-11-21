@@ -15,58 +15,36 @@ class CustomerModel{
     public function __construct(){
         $this->conn = connectDB();
     }
-    public function all(){
+    public function allcustomer(){
         try {
             $sql = "SELECT * FROM `customer`";
             $data = $this->conn->query($sql)->fetchAll();
-            $danhsachcustomer = [];
-            foreach($data as $value){
-                $customer = new Customer();
-                $customer->customer_id        = $value['customer_id'];
-                $customer->booking_id         = $value['booking_id'];
-                $customer->full_name          = $value['full_name'];
-                $customer->gender             = $value['gender'];
-                $customer->birth_year         = $value['birth_year'];
-                $customer->contact            = $value['contact'];
-                $customer->payment_status     = $value['payment_status'];
-                $customer->special_request    = $value['special_request'];
-                $danhsachcustomer[]=$customer;
-            }
-            return $danhsachcustomer;
+            return $data;
         }catch (PDOException $err){
             echo "Lỗi: ". $err->getMessage();
         }
     }
 
-    public function find($id){
+    public function find_customer($id){
         try {
-            $sql = "SELECT * FROM `customer` WHERE id = $id";
-            $data = $this->conn->query($sql)->fetch();
-            if($data !== false){
-                $customer = new Customer();
-                $customer->customer_id        = $data['customer_id'];
-                $customer->booking_id         = $data['booking_id'];
-                $customer->full_name          = $data['full_name'];
-                $customer->gender             = $data['gender'];
-                $customer->birth_year         = $data['birth_year'];
-                $customer->contact            = $data['contact'];
-                $customer->payment_status     = $data['payment_status'];
-                $customer->special_request    = $data['special_request'];
+                $sql= "SELECT * FROM `customer` WHERE customer_id = :id";
+                $stmt = $this->conn->prepare($sql);
+                $stmt ->execute(['id'=> $id]);
+                $customer = $stmt->fetch();
                 return $customer;
             }
-            
-        }catch (PDOException $err){
+        catch (PDOException $err){
             echo "Lỗi: ". $err->getMessage();
         }
     }
-    public function create(Customer $customer){
+    public function create_customer(Customer $customer){
         try{
-            $sql= "INSERT INTO `customer` (`customer_id`, `booking_id`, `full_name`, `gender`, `birth_year`, `contact`, `payment_status`, `special_request`)
-            VALUES (NULL, '".$customer->customer_id."',
-                        '".$customer->booking_id."',
+            $sql= "INSERT INTO `customer` ( `booking_id`, `full_name`, `gender`, `birth_year`, `id_number`, `contact`, `payment_status`, `special_request`)
+            VALUES ('".$customer->booking_id."',
                         '".$customer->full_name."',
                         '".$customer->gender."', 
                         '".$customer->birth_year."',
+                        '".$customer->id_number."',
                         '".$customer->contact."',
                         '".$customer->payment_status."',
                         '".$customer->special_request."' );";
@@ -78,29 +56,28 @@ class CustomerModel{
     }
     public function delete_customer($id){
         try{
-            $sql = "DELETE FROM custommer WHERE id = :id";
+            $sql = "DELETE FROM customer WHERE customer_id = :id";
             $stmt = $this->conn->prepare($sql);
-            $stmt ->bindParam(':id', $id, PDO::PARAM_INT);
-            $stmt->execute();
+            $stmt->execute(['id'=>$id]);
             return true;
         }catch (PDOException $err){
             echo "Lỗi : " . $err->getMessage();
             return false;
         }
     }
-    public function update(Customer $customer){
+    public function update_customer(Customer $customer){
         try{
             $id = (int)$customer->customer_id;
             $sql="UPDATE `customer`
-             SET `customer_id` = '".$customer->customer_id."',
-                 `booking_id` = '".$customer->booking_id."',
-                 `full_name` = '".$customer->full_name."',
-                 `gender` = '".$customer->gender."',
-                 `birth_year` = '".$customer->birth_year."',
-                 `contact` = '".$customer->contact."',
-                 `payment_status` = '".$customer->payment_status."',
-                 `special_request` = '".$customer->special_request."'
-                 WHERE `customer`.`id` = $id;";
+            SET  `booking_id`           = '".$customer->booking_id."',
+                 `full_name`            = '".$customer->full_name."',
+                 `gender`               = '".$customer->gender."',
+                 `birth_year`           = '".$customer->birth_year."',
+                 `id_number`           = '".$customer->id_number."',
+                 `contact`              = '".$customer->contact."',
+                 `payment_status`       = '".$customer->payment_status."',
+                 `special_request`      = ".($customer->special_request !== null ? "'".$customer->special_request."'" : "NULL")."
+                 WHERE `customer`.`customer_id` = $id;";
                 $data=$this->conn->exec($sql);
                 return $data;
             }catch (PDOException $err){

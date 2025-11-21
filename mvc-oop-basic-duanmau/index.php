@@ -32,10 +32,6 @@ match ($act) {
      'noidung'=>(new admincontroller())->tour(),
       
        'booking'=>(new admincontroller())->booking(),
-        'updateStatus'=>(new admincontroller())->updateStatus($id),
-
-
-
         'customer'=>(new admincontroller())->customer(),
         'partner'=>(new admincontroller())->partner(),
 
@@ -60,13 +56,13 @@ match ($act) {
     'update_guide' => (new admincontroller())->update_guide(),
 
 
-'header' => (new TourGuideController())->header(),
-'schedule' => (new TourGuideController())->lichlamviec(),
-'profile' => (new TourGuideController())->profile(),
-'tour_detail' => (new TourGuideController())->tour_detail(),
-'report' => (new TourGuideController())->report(),
-'check_in' => (new TourGuideController())->check_in(),
-'special_request' => (new TourGuideController())->special_request(),
+'header'=>(new TourGuideController())-> header(),
+    'schedule'=>(new TourGuideController())-> lichlamviec(),
+    'profile'=>(new TourGuideController())-> profile(),
+    'tour_detail'=>(new TourGuideController())-> tour_detail(),
+    'report'=>(new TourGuideController())-> report(),
+    'check_in'=>(new TourGuideController())-> check_in(),
+    'special_request'=>(new TourGuideController())-> special_request(),
 
 
 };
