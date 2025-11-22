@@ -87,9 +87,8 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
             <div class="mb-3">
                 <label for="gender" class="form-label">Giới tính</label>
                 <select class="form-select" name="gender" value="<?= $customer['gender'] ?>">
-                    <option value="Nam">Nam</option>
-                    <option value="Nữ">Nữ</option>
-                    <option value="Khác">Khác</option>
+                    <option value="1"<?= $customer['gender'] == 1 ? "selected" : "" ?>>Nam</option>
+                    <option value="2"<?= $customer['gender'] == 2 ? "selected" : "" ?>>Nữ</option>
                 </select>
             </div>
             <div class="mb-3">

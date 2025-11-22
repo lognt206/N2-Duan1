@@ -87,9 +87,8 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
             <div class="mb-3">
                 <label for="gender" class="form-label">Giới tính</label>
                 <select class="form-select" id="gender" name="gender">
-                    <option value="Nam">Nam</option>
-                    <option value="Nữ">Nữ</option>
-                    <option value="Khác">Khác</option>
+                    <option value="1">Nam</option>
+                    <option value="2">Nữ</option>
                 </select>
             </div>
             <div class="mb-3">
