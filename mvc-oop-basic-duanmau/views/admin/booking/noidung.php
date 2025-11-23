@@ -58,7 +58,7 @@ if (session_status() === PHP_SESSION_NONE) {
     <h3 class="mb-3"><i class="fa-solid fa-ticket"></i> Quản lý Đặt Tour</h3>
 
     <div class="d-flex justify-content-between mb-3">
-        <a href="?act=addbooking" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Thêm Đặt Tour</a>
+        <a href="?act=createbooking" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Thêm Đặt Tour</a>
         <form class="d-flex" method="GET" style="max-width:300px;">
             <input type="hidden" name="act" value="booking">
             <input type="text" name="keyword" class="form-control me-2" placeholder="Tìm kiếm...">
@@ -68,58 +68,60 @@ if (session_status() === PHP_SESSION_NONE) {
 
     <div class="table-responsive bg-white p-3 rounded shadow-sm">
         <table class="table table-bordered align-middle text-center">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Tuor</th>
-                    <th>khách hàng </th>
-                    <th>Hướng dẫn viên</th>
-                    <th>Ngày Đặt</th>
-                    <th>Số Người</th>
-                    <th>Loại Đặt</th>
-                    <th>Trạng Thái</th>
-                    <th>Ghi Chú</th>
-                    <th>Hành Động</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (!empty($booking)) : ?>
-                    <?php foreach ($booking as $b) : ?>
-                        <tr>
-                            <td><?= $b['booking_id'] ?></td>
-                            <td><?= $b['tour_name'] ?></td>
-                            <td><?= $b['customer_name'] ?></td>
-                            <td><?= $b['guide_name'] ?? '-' ?></td>
-                            <td><?= $b['booking_date'] ?></td>
-                            <td><?= $b['num_people'] ?></td>
-                            <td><?= $b['booking_type'] ?></td>
-
-                            <!-- Badge trạng thái có thể click -->
-                            <td>
-                                <a href="?act=updateStatus&id=<?= $b['booking_id'] ?>&status=<?= $b['status'] ?>">
-                                    <span class="badge <?= $b['status'] == 1 ? 'bg-success' : ($b['status'] == 2 ? 'bg-primary' : ($b['status']==3?'bg-danger':'bg-warning')) ?>">
-                                        <?= $b['status'] == 1 ? "Hoàn thành" : ($b['status'] == 2 ? "Đã cọc" : ($b['status']==3?"Đã hủy":"Chờ xác nhận")) ?>
-                                    </span>
-                                </a>
-                            </td>
-
-                            <td><?= $b['notes'] ?></td>
-                            <td>
-                                <a href="?act=editbooking&id=<?= $b['booking_id'] ?>" class="btn btn-sm btn-warning">
-                                    <i class="fa-solid fa-pen"></i>
-                                </a>
-                                <a href="?act=deletebooking&id=<?= $b['booking_id'] ?>" 
-                                   onclick="return confirm('Xóa đặt tour này?')" 
-                                   class="btn btn-sm btn-danger">
-                                    <i class="fa-solid fa-trash"></i>
-                                </a>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                <?php else : ?>
-                    <tr><td colspan="10" class="text-center text-muted">Không có dữ liệu đặt tour.</td></tr>
-                <?php endif; ?>
-            </tbody>
+           <thead>
+    <tr>
+        <th>ID</th>
+        <th>Tour</th>
+        <th>Khách hàng</th>
+        <th>Hướng dẫn viên</th>
+        <th>Ngày Đặt</th>
+        <th>Lịch khởi hành</th> <!-- thêm cột -->
+        <th>Số Người</th>
+        <th>Loại Đặt</th>
+        <th>Trạng Thái</th>
+        <th>Ghi Chú</th>
+        <th>Hành Động</th>
+    </tr>
+</thead>
+<tbody>
+<?php if (!empty($booking)) : ?>
+    <?php foreach ($booking as $b) : ?>
+        <tr>
+            <td><?= $b['booking_id'] ?></td>
+            <td><?= $b['tour_name'] ?></td>
+            <td><?= $b['customer_name'] ?></td>
+            <td><?= $b['guide_name'] ?? '-' ?></td>
+            <td><?= $b['booking_date'] ?></td>
+           <td>
+    <?= !empty($b['departure_date']) ? $b['departure_date'] : '-' ?>
+    <?= !empty($b['return_date']) ? ' → ' . $b['return_date'] : '' ?>
+</td>
+            <td><?= $b['num_people'] ?></td>
+            <td><?= $b['booking_type'] ?></td>
+            <td>
+                <a href="?act=updateStatus&id=<?= $b['booking_id'] ?>&status=<?= $b['status'] ?>">
+                    <span class="badge <?= $b['status'] == 1 ? 'bg-success' : ($b['status'] == 2 ? 'bg-primary' : ($b['status']==3?'bg-danger':'bg-warning')) ?>">
+                        <?= $b['status'] == 1 ? "Hoàn thành" : ($b['status'] == 2 ? "Đã cọc" : ($b['status']==3?"Đã hủy":"Chờ xác nhận")) ?>
+                    </span>
+                </a>
+            </td>
+            <td><?= $b['notes'] ?></td>
+            <td>
+                <a href="?act=updatebooking&id=<?= $b['booking_id'] ?>" class="btn btn-sm btn-warning">
+                    <i class="fa-solid fa-pen"></i>
+                </a>
+                <a href="?act=deletebooking&id=<?= $b['booking_id'] ?>" 
+                   onclick="return confirm('Xóa đặt tour này?')" 
+                   class="btn btn-sm btn-danger">
+                    <i class="fa-solid fa-trash"></i>
+                </a>
+            </td>
+        </tr>
+    <?php endforeach; ?>
+<?php else : ?>
+    <tr><td colspan="11" class="text-center text-muted">Không có dữ liệu đặt tour.</td></tr>
+<?php endif; ?>
+</tbody>
         </table>
     </div>
 </div>

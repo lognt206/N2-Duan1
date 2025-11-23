@@ -8,18 +8,21 @@ class BookingModel
         $this->conn = connectDB();
     }
 
-    // 1. Lấy tất cả booking
+    // Lấy tất cả booking, join cả tour, customer, guide, departure
     public function all()
     {
         $sql = "SELECT 
                     b.*, 
                     t.tour_name,
                     c.full_name AS customer_name,
-                    g.full_name AS guide_name
+                    g.full_name AS guide_name,
+                    d.departure_date,
+                    d.return_date
                 FROM booking b
                 JOIN tour t ON b.tour_id = t.tour_id
                 JOIN customer c ON b.customer_id = c.customer_id
                 LEFT JOIN tourguide g ON b.guide_id = g.guide_id
+                LEFT JOIN departure d ON b.departure_id = d.departure_id
                 ORDER BY b.booking_id DESC";
 
         $stmt = $this->conn->prepare($sql);
@@ -27,18 +30,21 @@ class BookingModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // 2. Lấy booking theo ID
+    // Lấy booking theo ID
     public function find($id)
     {
         $sql = "SELECT 
                     b.*, 
                     t.tour_name,
                     c.full_name AS customer_name,
-                    g.full_name AS guide_name
+                    g.full_name AS guide_name,
+                    d.departure_date,
+                    d.return_date
                 FROM booking b
                 JOIN tour t ON b.tour_id = t.tour_id
                 JOIN customer c ON b.customer_id = c.customer_id
                 LEFT JOIN tourguide g ON b.guide_id = g.guide_id
+                LEFT JOIN departure d ON b.departure_id = d.departure_id
                 WHERE b.booking_id = ?";
 
         $stmt = $this->conn->prepare($sql);
@@ -46,57 +52,58 @@ class BookingModel
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    // 3. Thêm booking
+    // Thêm booking
     public function insert($data)
     {
         $sql = "INSERT INTO booking 
-                    (tour_id, customer_id, guide_id, booking_date, num_people, booking_type, status, notes)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                    (tour_id, guide_id, departure_id, booking_date, num_people, booking_type, status, notes, customer_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         $stmt = $this->conn->prepare($sql);
-        $stmt->execute([
+        return $stmt->execute([
             $data['tour_id'],
+            !empty($data['guide_id']) ? $data['guide_id'] : null,
+            !empty($data['departure_id']) ? $data['departure_id'] : null,
+            $data['booking_date'] ?? null,
+            $data['num_people'] ?? null,
+            $data['booking_type'] ?? 1,
+            $data['status'] ?? 1,
+            $data['notes'] ?? null,
             $data['customer_id'],
-            $data['guide_id'] ?? null,
-            $data['booking_date'],
-            $data['num_people'],
-            $data['booking_type'],
-            $data['status'],
-            $data['notes']
         ]);
-
-        return $this->conn->lastInsertId();
     }
 
-    // 4. Cập nhật booking
+    // Cập nhật booking
     public function update($data)
     {
-        $sql = "UPDATE booking SET 
+        $sql = "UPDATE booking SET
                     tour_id = ?, 
-                    customer_id = ?, 
-                    guide_id = ?,
+                    guide_id = ?, 
+                    departure_id = ?,
                     booking_date = ?, 
                     num_people = ?, 
                     booking_type = ?, 
                     status = ?, 
-                    notes = ?
+                    notes = ?,
+                    customer_id = ?
                 WHERE booking_id = ?";
 
         $stmt = $this->conn->prepare($sql);
         return $stmt->execute([
             $data['tour_id'],
+            !empty($data['guide_id']) ? $data['guide_id'] : null,
+            !empty($data['departure_id']) ? $data['departure_id'] : null,
+            $data['booking_date'] ?? null,
+            $data['num_people'] ?? null,
+            $data['booking_type'] ?? 1,
+            $data['status'] ?? 1,
+            $data['notes'] ?? null,
             $data['customer_id'],
-            $data['guide_id'] ?? null,
-            $data['booking_date'],
-            $data['num_people'],
-            $data['booking_type'],
-            $data['status'],
-            $data['notes'],
             $data['booking_id']
         ]);
     }
 
-    // 5. Cập nhật trạng thái booking
+    // Update trạng thái
     public function updateStatus($id, $status)
     {
         $sql = "UPDATE booking SET status=? WHERE booking_id=?";
@@ -104,29 +111,30 @@ class BookingModel
         return $stmt->execute([$status, $id]);
     }
 
-    // 6. Xóa booking
+    // Xóa booking
     public function delete($id)
     {
         $sql = "DELETE FROM booking WHERE booking_id=?";
         $stmt = $this->conn->prepare($sql);
         return $stmt->execute([$id]);
     }
+public function guideAvailable($guide_id, $departure_id) {
+    $sql = "SELECT * FROM booking 
+            WHERE guide_id = ? 
+            AND departure_id = ?";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute([$guide_id, $departure_id]);
+    return $stmt->rowCount() == 0; // true nếu HDV rảnh
+}
+public function customerAvailable($customer_id, $departure_id) {
+    $sql = "SELECT * FROM booking 
+            WHERE customer_id = ? 
+            AND departure_id = ?";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute([$customer_id, $departure_id]);
+    return $stmt->rowCount() == 0; // true nếu khách rảnh
+}
 
-    // 7. Lấy booking theo customer
-    public function getByCustomer($customer_id)
-    {
-        $sql = "SELECT 
-                    b.*, 
-                    t.tour_name AS tour_name,
-                    g.full_name AS guide_name
-                FROM booking b
-                JOIN tour t ON b.tour_id = t.tour_id
-                LEFT JOIN tourguide g ON b.guide_id = g.guide_id
-                WHERE b.customer_id = ?
-                ORDER BY b.booking_id DESC";
 
-        $stmt = $this->conn->prepare($sql);
-        $stmt->execute([$customer_id]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
+
 }

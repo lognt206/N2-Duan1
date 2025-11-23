@@ -2,99 +2,129 @@
 class Departure{
     public $departure_id;
     public $tour_id;
-    public $departure_name;
+    public $departure_date;   // sửa từ departure_name
     public $return_date;
     public $meeting_point;
     public $guide_id;
     public $notes;
+     public $tour_name;
 }
+
 class DepartureModel{
-    public $conn;
+    private $conn;
+
     public function __construct(){
         $this->conn = connectDB();
     }
+
+    // Lấy tất cả lịch khởi hành
     public function all(){
         try {
-            $sql = "SELECT * FROM `departure`";
-            $data = $this->conn->query($sql)->fetchAll();
-            $danhsachdeparture = [];
-            foreach($data as $value){
-                $departure = new Departure();
-                $departure->departure_id          =$value['departure_id'];
-                $departure->tour_id               =$value['tour_id'];
-                $departure->departure_name        =$value['departure_name'];
-                $departure->meeting_point         =$value['meeting_point'];
-                $departure->guide_id              =$value['guide_id'];
-                $departure->notes                 =$value['notes'];
-                $danhsachdeparture[]=$departure;
+            $sql = "SELECT d.*, t.tour_name 
+            FROM departure d 
+            LEFT JOIN tour t ON d.tour_id = t.tour_id";
+            $data = $this->conn->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+            $list = [];
+            foreach($data as $row){
+                $dep = new Departure();
+                $dep->departure_id   = $row['departure_id'];
+                $dep->tour_id        = $row['tour_id'];
+                $dep->departure_date = $row['departure_date'] ?? ''; // sửa key
+                $dep->return_date    = $row['return_date'] ?? '';
+                $dep->meeting_point  = $row['meeting_point'];
+                $dep->guide_id       = $row['guide_id'];
+                $dep->notes          = $row['notes'];
+                $list[] = $dep;
             }
-            return $danhsachdeparture;
-        }catch (PDOException $err){
-            echo "Lỗi: ". $err->getMessage();
+            return $list;
+        } catch (PDOException $e){
+            echo "Lỗi: " . $e->getMessage();
         }
     }
 
+    // Lấy 1 lịch theo id
     public function find($id){
         try{
-            $sql = "SELECT * FROM `departure` WHERE id = $id";
-            $data = $this->conn->query($sql)->fetch();
-            if($data !== false){
-                $departure = new Departure();
-                $departure->departure_id          =$data['departure_id'];
-                $departure->tour_id               =$data['tour_id'];
-                $departure->departure_name        =$data['departure_name'];
-                $departure->meeting_point         =$data['meeting_point'];
-                $departure->guide_id              =$data['guide_id'];
-                $departure->notes                 =$data['notes'];
-                return $departure;
+            $sql = "SELECT * FROM `departure` WHERE departure_id = :id";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmt->execute();
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            if($row){
+                $dep = new Departure();
+                $dep->departure_id   = $row['departure_id'];
+                $dep->tour_id        = $row['tour_id'];
+                $dep->departure_date = $row['departure_date'] ?? '';
+                $dep->return_date    = $row['return_date'] ?? '';
+                $dep->meeting_point  = $row['meeting_point'];
+                $dep->guide_id       = $row['guide_id'];
+                $dep->notes          = $row['notes'];
+                return $dep;
             }
-        }catch (PDOException $err){
-            echo "Lỗi: ". $err->getMessage();
+            return null;
+        } catch (PDOException $e){
+            echo "Lỗi: " . $e->getMessage();
         }
     }
 
-    public function create(Departure $departure){
+    // Thêm lịch
+    public function create(Departure $dep){
         try{
-            $sql = "INSERT INTO `departure` (`departure_id`, `tour_id`, `departure_name`, `meeting_point`, `guide_id`, `notes`)
-            VALUES (NULL, '".$departure->departure_id."',
-                          '".$departure->tour_id."',
-                          '".$departure->departure_name."',
-                          '".$departure->meeting_point."',
-                          '".$departure->guide_id."',
-                          '".$departure->notes."',);";
-            $data = $this->conn->exec($sql);
-            return $data;
-        }catch (PDOException $err){
-            echo "Lỗi: ". $err->getMessage();
+            $sql = "INSERT INTO `departure` (tour_id, departure_date, return_date, meeting_point, guide_id, notes)
+                    VALUES (:tour_id, :departure_date, :return_date, :meeting_point, :guide_id, :notes)";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute([
+                ':tour_id'        => $dep->tour_id,
+                ':departure_date' => $dep->departure_date,
+                ':return_date'    => $dep->return_date,
+                ':meeting_point'  => $dep->meeting_point,
+                ':guide_id'       => $dep->guide_id,
+                ':notes'          => $dep->notes
+            ]);
+            return $this->conn->lastInsertId();
+        } catch (PDOException $e){
+            echo "Lỗi: " . $e->getMessage();
         }
     }
+
+    // Xóa lịch
     public function delete_departure($id){
         try{
-            $sql = "DELETE FROM departure WHERE id = :id";
+            $sql = "DELETE FROM `departure` WHERE departure_id = :id";
             $stmt = $this->conn->prepare($sql);
-            $stmt ->bindParam(':id', $id, PDO::PARAM_INT);
-            $stmt->execute();
-            return true;
-        }catch (PDOException $err){
-            echo "Lỗi : " . $err->getMessage();
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+            return $stmt->execute();
+        } catch (PDOException $e){
+            echo "Lỗi: " . $e->getMessage();
             return false;
         }
     }
-    public function update(Departure $departure){
+
+    // Cập nhật lịch
+    public function update(Departure $dep){
         try{
-            $id = (int)$departure->departure_id;
-            $sql = "UPDATE `departure`
-            SET `departure_id` = '".$departure->departure_id."',
-            `tour_id` = '".$departure->tour_id."',
-            `departure_name` = '".$departure->departure_name."',
-            `meeting_point` = '".$departure->meeting_point."',
-            `guide_id` = '".$departure->guide_id."',
-            `notes` = '".$departure->notes."'
-            WHERE `departure` .`id` = $id;";
-            $data = $this->conn->exec($sql);
-            return $data;
-        }catch (PDOException $err){
-            echo "Lỗi : " . $err->getMessage();
+            $sql = "UPDATE `departure` SET
+                        tour_id = :tour_id,
+                        departure_date = :departure_date,
+                        return_date = :return_date,
+                        meeting_point = :meeting_point,
+                        guide_id = :guide_id,
+                        notes = :notes
+                    WHERE departure_id = :id";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute([
+                ':tour_id'        => $dep->tour_id,
+                ':departure_date' => $dep->departure_date,
+                ':return_date'    => $dep->return_date,
+                ':meeting_point'  => $dep->meeting_point,
+                ':guide_id'       => $dep->guide_id,
+                ':notes'          => $dep->notes,
+                ':id'             => $dep->departure_id
+            ]);
+            return true;
+        } catch (PDOException $e){
+            echo "Lỗi: " . $e->getMessage();
+            return false;
         }
     }
 }
