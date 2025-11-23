@@ -71,8 +71,9 @@ if (session_status() === PHP_SESSION_NONE) {
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Tour ID</th>
-                    <th>User ID</th>
+                    <th>Tuor</th>
+                    <th>khách hàng </th>
+                    <th>Hướng dẫn viên</th>
                     <th>Ngày Đặt</th>
                     <th>Số Người</th>
                     <th>Loại Đặt</th>

@@ -6,99 +6,152 @@ require_once __DIR__ . '/../models/Guidemodel.php';
 require_once __DIR__ . '/../models/UserModel.php';
 require_once __DIR__ . '/../models/tourmodel.php';
 require_once __DIR__ . '/../models/CustomerModel.php';
+require_once __DIR__ . '/../models/BookingModel.php';
+require_once __DIR__ . '/../models/PartnerModel.php';
+require_once __DIR__ . '/../models/tourPartnerModel.php';
+
 class admincontroller {
  public $categoryModel;
 public $modelTour;
 public $modelTourGuide;
 public $modelCustomer;
+public $BookingModel;
+public $PartnerModel;
+public $UserModel;
+public $modelTourPartner;
+
 
 public function __construct() {
   $this->modelTour = new TourModel();
         $this->categoryModel = new CategoryModel();
     $this->modelTourGuide = new TourGuideModel();
     $this->modelCustomer = new CustomerModel();
+        $this->BookingModel = new BookingModel();
+        $this->PartnerModel = new PartnerModel();
+        $this->UserModel = new UserModel();
+        $this->modelTourPartner = new TourPartnerModel();
+
     }
-
-
-
 
 public function dashboard() {
         include "views/admin/dashboard.php";
     }
 
-public function tour() {
-    $tours = $this->modelTour->all();
+       public function tour() {
+        $tours = $this->modelTour->all();
+
+        // Lấy partner cho từng tour
+        foreach ($tours as &$tour) {
+            $tour['partners'] = $this->modelTourPartner->getPartnersByTour($tour['tour_id']);
+        }
+
         include "views/admin/tour/noidung.php";
     }
-public function create(){
+
+    // Hiển thị form thêm tour
+   public function create() {
+    $partners = $this->PartnerModel->all(); 
+    $categories = $this->categoryModel->all();
+    
     include "views/admin/tour/create.php";
 }
-public function store(){
-    $tour = new Tour();
-    $tour->tour_name = $_POST['tour_name'];
-    $tour->category_id = $_POST['tour_category'];
-    $tour->description  = $_POST['description'];
-    $tour->price        = $_POST['price'];
-    $tour->policy       = $_POST['policy'];
-    $tour->supplier     = $_POST['supplier'];
-    $tour->status       = $_POST['status'];
-    $this->modelTour->create($tour);
-    $tours = $this->modelTour->all();
-    include "views/admin/tour/noidung.php";
-    exit();
-}
-    public function delete(){
-    if(isset($_GET['id'])){
-        $id = (int)$_GET['id'];
-        $this->modelTour->delete($id);
+
+    // Lưu tour mới
+    public function store() {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+        $tour = new Tour();
+        $tour->tour_name   = $_POST['tour_name'] ?? "";
+        $tour->category_id = $_POST['tour_category'] ?? 1;
+        $tour->description = $_POST['description'] ?? "";
+        $tour->price       = $_POST['price'] ?? 0;
+        $tour->policy      = $_POST['policy'] ?? "";
+        $tour->status      = $_POST['status'] ?? 1;
+
+        // Tạo tour và lấy ID
+        $tour_id = $this->modelTour->create($tour);
+
+        if (!$tour_id) {
+            die("Không thể tạo tour, vui lòng kiểm tra database.");
+        }
+
+        // Thêm partner
+        $partner_ids = $_POST['supplier'] ?? [];
+        $this->handleTourPartners($tour_id, $partner_ids);
+
+        header("Location: index.php?act=tour");
+        exit;
     }
-    $tours = $this->modelTour->all();
-    include "views/admin/tour/noidung.php";
-    exit();
 }
 
-public function update()
-{
-    // Nếu POST -> xử lý cập nhật
+    // Cập nhật tour
+    public function update() {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (!isset($_POST['tour_id'])) {
-            echo "Lỗi: Không tìm thấy tour_id.";
+            echo "Không tìm thấy tour_id";
             exit();
         }
 
         $tour = new Tour();
-        $tour->tour_id      = $_POST['tour_id'];
-        $tour->tour_name    = $_POST['tour_name'] ?? "";
-        $tour->category_id  = $_POST['tour_category'] ?? "";
-        $tour->description  = $_POST['description'] ?? "";
-        $tour->price        = $_POST['price'] ?? 0;
-        $tour->policy       = $_POST['policy'] ?? "";
-        $tour->supplier     = $_POST['supplier'] ?? "";
-        $tour->status       = $_POST['status'] ?? 1;
+        $tour->tour_id     = $_POST['tour_id'];
+        $tour->tour_name   = $_POST['tour_name'] ?? "";
+        $tour->category_id = $_POST['tour_category'] ?? 1;
+        $tour->description = $_POST['description'] ?? "";
+        $tour->price       = $_POST['price'] ?? 0;
+        $tour->policy      = $_POST['policy'] ?? "";
+        $tour->status      = $_POST['status'] ?? 1;
 
+        // Cập nhật tour
         $this->modelTour->update($tour);
 
-        $tours = $this->modelTour->all();
-        include "views/admin/tour/noidung.php";
+        // Lấy partner từ form (multi-select)
+        $partner_ids = $_POST['supplier'] ?? [];
+        $this->handleTourPartners($tour->tour_id, $partner_ids);
+
+        header("Location: index.php?act=tour");
         exit();
     }
 
-    // Nếu GET -> load form edit
     if (isset($_GET['id'])) {
-        $id = (int)$_GET['id'];
-        $tour = $this->modelTour->find($id);
+        $tour_id = $_GET['id'];
+        $tour = $this->modelTour->find($tour_id);
+        $partners = $this->PartnerModel->all();
 
-        if (!$tour) {
-            echo "Không tìm thấy tour!";
-            exit();
+        // Lấy partner đã chọn của tour
+        $tour_partners = $this->modelTourPartner->getPartnersByTour($tour_id);
+        $selectedPartners = [];
+        if (!empty($tour_partners)) {
+            foreach ($tour_partners as $tp) {
+                $selectedPartners[] = $tp['partner_id'];
+            }
         }
 
         include "views/admin/tour/update.php";
         exit();
     }
+}
 
-    echo "Request không hợp lệ.";
+
+private function handleTourPartners($tour_id, $partner_ids) {
+
+    $this->modelTourPartner->deletePartnersByTour($tour_id);
+
+    if (!empty($partner_ids)) {
+        foreach ($partner_ids as $pid) {
+            $this->modelTourPartner->addPartnerToTour($tour_id, $pid);
+        }
+    }
+}
+
+
+public function delete() {
+    if (isset($_GET['id'])) {
+        $id = (int)$_GET['id'];
+        $this->modelTour->delete($id);
+    }
+    header("Location: index.php?act=tour");
+    exit;
 }
 
 public function guideadmin() {
