@@ -7,8 +7,9 @@ require_once __DIR__ . '/../models/UserModel.php';
 require_once __DIR__ . '/../models/tourmodel.php';
 require_once __DIR__ . '/../models/CustomerModel.php';
 require_once __DIR__ . '/../models/BookingModel.php';
-require_once __DIR__ . '/../models/PartnerModel.php';
 require_once __DIR__ . '/../models/tourPartnerModel.php';
+require_once __DIR__ . '/../models/DepartureModel.php';
+
 
 class admincontroller {
  public $categoryModel;
@@ -19,6 +20,8 @@ public $BookingModel;
 public $PartnerModel;
 public $UserModel;
 public $modelTourPartner;
+public $DepartureModel;
+
 
 
 public function __construct() {
@@ -30,6 +33,8 @@ public function __construct() {
         $this->PartnerModel = new PartnerModel();
         $this->UserModel = new UserModel();
         $this->modelTourPartner = new TourPartnerModel();
+                $this->DepartureModel = new DepartureModel();
+
 
     }
 
@@ -244,11 +249,174 @@ public function update_guide(){
         exit();
     }   
 }
-public function booking() {
-         $booking = $this->BookingModel->all();
 
-        include "views/admin/booking/noidung.php";
+
+
+public function booking()
+{
+    $booking = $this->BookingModel->all();
+    include "views/admin/booking/noidung.php";
+}
+public function createbooking()
+{
+    $tours = $this->modelTour->all();
+    $customers = $this->modelCustomer->allcustomer();
+    $guides = $this->modelTourGuide->allguide();
+    $departures = $this->DepartureModel->all(); 
+
+    include "views/admin/booking/createbooking.php";
+}
+
+public function storebooking()
+{
+    $tour_id      = $_POST['tour_id'];
+    $customer_ids = $_POST['customer_id']; // mảng nhiều khách
+    $guide_id     = $_POST['guide_id'] ?? null;
+    $departure_id = $_POST['departure_id'] ?? null;
+    $booking_date = $_POST['booking_date'];
+    $num_people   = $_POST['num_people'];
+    $booking_type = $_POST['booking_type'];
+    $status       = $_POST['status'];
+    $notes        = $_POST['notes'];
+
+    // Lưu lỗi riêng
+    $guide_error = '';
+    $customer_errors = [];
+
+    // 1. Check trùng lịch cho HDV
+    if ($guide_id && $departure_id) {
+    if (!$this->BookingModel->guideAvailable($guide_id, $departure_id)) {
+        $_SESSION['guide_error'] = "Hướng dẫn viên này đã trùng lịch làm việc!";
+        header("Location: ?act=createbooking");
+        exit;
     }
+}
+
+    // 2. Check trùng lịch cho từng khách hàng
+   foreach ($customer_ids as $customer_id) {
+    if (!$this->BookingModel->customerAvailable($customer_id, $departure_id)) {
+
+        $c = $this->modelCustomer->find_customer($customer_id);
+
+        $_SESSION['customer_errors'][] =
+            "Khách hàng " . ($c['full_name'] ?? '') . " đã trùng lịch!";
+
+        header("Location: ?act=createbooking");
+        exit;
+    }
+}
+
+    // Nếu có lỗi, lưu vào session và quay lại form
+    if ($guide_error || !empty($customer_errors)) {
+        $_SESSION['guide_error'] = $guide_error;
+        $_SESSION['customer_errors'] = $customer_errors;
+        header("Location: ?act=createbooking");
+        exit;
+    }
+
+    // 3. Nếu không có lỗi, lưu booking
+    foreach ($customer_ids as $customer_id) {
+        $data = [
+            'tour_id'      => $tour_id,
+            'customer_id'  => $customer_id,
+            'guide_id'     => $guide_id,
+            'departure_id' => $departure_id,
+            'booking_date' => $booking_date,
+            'num_people'   => $num_people,
+            'booking_type' => $booking_type,
+            'status'       => $status,
+            'notes'        => $notes,
+        ];
+        $this->BookingModel->insert($data);
+    }
+
+    $_SESSION['success'] = "Tạo booking thành công!";
+    header("Location: ?act=booking");
+    exit;
+}
+
+
+public function updatebooking() {
+    // Nếu POST -> lưu dữ liệu cập nhật
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if (!isset($_POST['booking_id'])) {
+            echo "Không tìm thấy booking_id";
+            exit;
+        }
+
+        $booking = [
+            'booking_id'   => $_POST['booking_id'],
+            'tour_id'      => $_POST['tour_id'] ?? null,
+            'customer_id'  => $_POST['customer_id'] ?? null,
+            'guide_id'     => $_POST['guide_id'] ?? null,
+            'departure_id' => $_POST['departure_id'] ?? null,
+            'booking_date' => $_POST['booking_date'] ?? null,
+            'num_people'   => $_POST['num_people'] ?? 1,
+            'booking_type' => $_POST['booking_type'] ?? 1,
+            'status'       => $_POST['status'] ?? 1,
+            'notes'        => $_POST['notes'] ?? '',
+        ];
+
+        // Gọi model để update
+        $this->BookingModel->update($booking);
+
+        header("Location: ?act=booking");
+        exit;
+    }
+
+    // Nếu GET -> load form
+    if (isset($_GET['id'])) {
+        $id = (int)$_GET['id'];
+        $booking = $this->BookingModel->find($id);
+        if (!$booking) {
+            echo "Không tìm thấy booking.";
+            exit;
+        }
+
+        // Lấy danh sách tour, guide, customer, departures để chọn
+        $tours = $this->modelTour->all();
+        $guides = $this->modelTourGuide->allguide();
+        $customers = $this->modelCustomer->allcustomer();
+        $departures = $this->DepartureModel->all();
+
+        include "views/admin/booking/updatebooking.php";
+        exit;
+    }
+}
+public function deletebooking()
+{
+    // Kiểm tra id tồn tại
+    if (!isset($_GET['id'])) {
+        $_SESSION['error'] = "Không tìm thấy booking để xóa!";
+        header("Location: ?act=booking");
+        exit;
+    }
+
+    $booking_id = (int)$_GET['id'];
+
+    // Gọi model để xóa
+    $deleted = $this->BookingModel->delete($booking_id);
+
+    if ($deleted) {
+        $_SESSION['success'] = "Xóa booking thành công!";
+    } else {
+        $_SESSION['error'] = "Xóa booking thất bại!";
+    }
+
+    header("Location: ?act=booking");
+    exit;
+}
+
+
+
+
+
+
+
+
+
+
+
 public function customer() {
     $customers = $this->modelCustomer->allcustomer();
         include "views/admin/customer/noidung.php";

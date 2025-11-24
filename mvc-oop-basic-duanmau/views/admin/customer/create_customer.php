@@ -78,7 +78,7 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
         <div class="col-md-6">
             <div class="mb-3">
                 <label for="booking_id" class="form-label">Mã Booking</label>
-                <input type="number" min = 1 class="form-control" id="booking_id" name="booking_id" placeholder="1">
+                <input type="number" min = 1 class="form-control" id="booking_id" name="booking_id" placeholder="1" required>
             </div>
             <div class="mb-3">
                 <label for="full_name" class="form-label">Họ và tên</label>

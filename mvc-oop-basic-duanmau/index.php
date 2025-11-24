@@ -33,6 +33,12 @@ match ($act) {
       
        'booking'=>(new admincontroller())->booking(),
               'updateStatus'=>(new admincontroller())->updateStatus($id),
+              'createbooking'     => (new admincontroller())->createbooking(), 
+'storebooking'   => (new admincontroller())->storebooking(),  
+'updatebooking'  => (new admincontroller())->updatebooking(), 
+'deletebooking'  => (new admincontroller())->deletebooking(), 
+
+
 
         'customer'=>(new admincontroller())->customer(),
  'create_customer' => (new admincontroller())->create_customer(),
