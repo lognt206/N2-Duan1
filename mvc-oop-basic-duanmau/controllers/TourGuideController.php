@@ -45,34 +45,33 @@ class TourGuideController
 
         $lich_lam_viec[] = $tour;
     }
-
-    require_once './views/guide/schedule.php';
+    require_once './views/guide/lich_lam_viec/schedule.php';
 }
 
 
 
     public function profile()
     {
-        require_once './views/guide/profile.php';
+        require_once './views/guide/thong_tin_ca_nhan/profile.php';
     }
 
     public function report()
     {
-        require_once './views/guide/report.php';
+        require_once './views/guide/nhat_ky/report.php';
     }
 
     public function tour_detail()
     {
-        require_once './views/guide/tour_detail.php';
+        require_once './views/guide/lich_lam_viec/tour_detail.php';
     }
 
     public function check_in()
     {
-        require_once './views/guide/check_in.php';
+        require_once './views/guide/lich_lam_viec/check_in.php';
     }
 
     public function special_request()
     {
-        require_once './views/guide/special_request.php';
+        require_once './views/guide/yeu_cau_dbiet/special_request.php';
     }
 }

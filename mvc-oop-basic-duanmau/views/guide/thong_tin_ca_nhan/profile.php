@@ -1,11 +1,3 @@
-<?php  
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-$nameUser = $_SESSION['user']['name'] ?? '';
-?>
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -34,6 +26,16 @@ $nameUser = $_SESSION['user']['name'] ?? '';
         .bg-danger { background-color: #dc3545 !important; }
         footer { width:100%; background:#fff; position:fixed; bottom:0; box-shadow:0 -2px 4px rgba(0,0,0,0.1); }
         #sidebar a i { color: #fff !important; }
+        .profile-header {background: linear-gradient(135deg, #000000ff, #125fabff);color: white;padding: 40px 20px;border-radius: 12px;text-align: center;margin-bottom: 30px;}
+        .profile-header img {width: 140px;height: 140px;object-fit: cover;border-radius: 50%;border: 4px solid #fff;margin-bottom: 15px;}
+        .profile-header h2 {font-weight: 600;margin-bottom: 5px;}
+        .info-card {background: white;border-radius: 15px;padding: 25px;box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);}
+        .info-card h5 {color: #000000ff;font-weight: 600;}
+        .info-item {margin-bottom: 10px;font-size: 16px;}
+        .info-item i {width: 25px;color: #d59d00ff;}
+        .edit-btn {background-color: #d59d00ff;color: white;border-radius: 25px;padding: 10px 20px;border: none;font-weight: 500;transition: 0.3s;}
+        .edit-btn:hover {background-color: #b98600;transform: scale(1.05);}
+        .info-card.text-center p strong { color: #092f68ff;}
     </style>
 </head>
 <body>
@@ -41,8 +43,8 @@ $nameUser = $_SESSION['user']['name'] ?? '';
 <!-- Sidebar -->
 <div id="sidebar">
     <h3 class="text-center py-3 border-bottom">Admin Panel</h3>
-    <a href="?act=header" class="bg-secondary"><i class="fa-solid fa-chart-line"></i>Dashboard</a>
-    <a href="?act=profile"><i class="fa-solid fa-user"></i> Thông tin cá nhân</a>
+    <a href="?act=header"><i class="fa-solid fa-chart-line"></i>Dashboard</a>
+    <a href="?act=profile" class="active"><i class="fa-solid fa-user"></i> Thông tin cá nhân</a>
     <a href="?act=schedule"><i class="fa-solid fa-calendar-day"></i> Lịch làm việc</a>
     <a href="?act=report"><i class="fa-solid fa-clipboard-list"></i> Nhật ký tour</a>
     <a href="?act=special_request"><i class="fa-solid fa-star"></i> Yêu cầu đặc biệt</a>
@@ -67,34 +69,44 @@ $nameUser = $_SESSION['user']['name'] ?? '';
 
     <!-- Dashboard Content -->
     <div class="container-fluid">
-        <h2 class="mb-4">Bảng điều khiển</h2>
-        <p>Chào mừng Guide đến với hệ thống tour du lịch!</p>
+        <section class="profile-header">
+          <img src="https://i.pravatar.cc/150?img=12" alt="Avatar Hướng dẫn viên">
+          <h2>Nguyễn Minh Tuấn</h2>
+          <p>Hướng dẫn viên du lịch chuyên nghiệp</p>
+        </section>
 
-        <div class="row">
-            <div class="col-md-3">
-                <div class="card-stats bg-primary">
-                    <h4>Tour Sắp tới</h4>
-                    <p>25</p>
-                </div>
+        <div class="row g-4">
+          <div class="col-lg-8">
+            <div class="info-card">
+              <h5><i class="fa-solid fa-id-card"></i> Thông tin cá nhân</h5>
+              <hr>
+              <div class="info-item"> Họ tên: Nguyễn Minh Tuấn</div>
+              <div class="info-item"> Tuổi: 29</div>
+              <div class="info-item"> SĐT: 0987 654 321</div>
+              <div class="info-item"> Email: tuannguyen@example.com</div> 
+              <div class="info-item"> Ngôn ngữ: Tiếng Việt, Tiếng Anh</div>
+              <div class="info-item"> Chứng chỉ: HDV quốc tế</div>
+              <div class="info-item"> Kinh nghiệm: 6 năm</div>
+              <div class="info-item"></i> Khu vực: Miền Trung - Tây Nguyên</div>
+              <hr>
+              <h5> Giới thiệu</h5>
+              <p>
+                Tôi là hướng dẫn viên du lịch với hơn 6 năm kinh nghiệm dẫn tour trong nước và quốc tế.
+                Luôn nhiệt huyết, thân thiện và sẵn sàng chia sẻ kiến thức văn hoá địa phương đến du khách.
+              </p>
+              <button class="edit-btn"><i class="fa-solid fa-pen"></i> Chỉnh sửa hồ sơ</button>
             </div>
-            <div class="col-md-3">
-                <div class="card-stats bg-success">
-                    <h4>Chi tiết lịch làm việc</h4>
-                    <p>12</p>
-                </div>
+          </div>
+
+          <div class="col-lg-4">
+            <div class="info-card text-center">
+              <h5><i class="fa-solid fa-star"></i> Thông tin nhanh</h5>
+              <hr>
+              <p><strong>Tour đã dẫn:</strong> 128</p>
+              <p><strong>Khách đánh giá trung bình:</strong><i class="fa-solid fa-star" style="color:#EB8317"></i>4.8 / 5</p>
+              <p><strong>Chuyên tuyến:</strong> Đà Nẵng - Hội An - Huế</p>
             </div>
-            <div class="col-md-3">
-                <div class="card-stats bg-warning">
-                    <h4>Tour đã hoàn thành</h4>
-                    <p>75</p>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card-stats bg-danger">
-                    <h4>Xem nhật ký tour</h4>
-                    <p>75</p>
-                </div>
-            </div>
+          </div>
         </div>
     </div>
 </div>
