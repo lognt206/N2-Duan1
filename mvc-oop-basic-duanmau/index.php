@@ -37,6 +37,7 @@ match ($act) {
 'storebooking'   => (new admincontroller())->storebooking(),  
 'updatebooking'  => (new admincontroller())->updatebooking(), 
 'deletebooking'  => (new admincontroller())->deletebooking(), 
+'bookingDetail'  => (new admincontroller())->bookingDetail(), 
 
 
 

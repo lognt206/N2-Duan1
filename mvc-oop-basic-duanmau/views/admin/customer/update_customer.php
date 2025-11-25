@@ -52,7 +52,6 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
 <a href="?act=booking"><i class="fa-solid fa-ticket"></i> Quản lý Đặt tour</a>
 <a href="?act=guideadmin"><i class="fa-solid fa-user-tie"></i> Quản lý Hướng dẫn viên</a>
 <a href="?act=partner"><i class="fa-solid fa-handshake"></i> Quản lý Đối tác</a>
-<a href="?act=departures"><i class="fa-solid fa-calendar"></i> Lịch khởi hành</a>
 <a href="?act=accoun"><i class="fa-solid fa-users"></i> Quản lý tài khoản </a>
 <a href="?act=logout"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
 </div>
@@ -74,52 +73,60 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
 <h3 class="mb-3"><i class="fa-solid fa-users"></i>Sửa thông tin khách hàng</h3>
 <form action="?act=update_customer" method="POST" enctype="multipart/form-data">
     <input type="hidden" name="customer_id" value="<?= $customer['customer_id'] ?>">
+
     <div class="row">
         <div class="col-md-6">
             <div class="mb-3">
-                <label for="booking_id" class="form-label">Mã Booking</label>
-                <input type="number" min="1" class="form-control" name="booking_id" value="<?= $customer['booking_id'] ?>">
-            </div>
-            <div class="mb-3">
                 <label for="full_name" class="form-label">Họ và tên</label>
-                <input type="text" class="form-control" name="full_name" required value="<?= $customer['full_name'] ?>">
+                <input type="text" class="form-control" name="full_name" required value="<?= htmlspecialchars($customer['full_name']) ?>">
             </div>
             <div class="mb-3">
                 <label for="gender" class="form-label">Giới tính</label>
-                <select class="form-select" name="gender" value="<?= $customer['gender'] ?>">
-                     <option value="1" <?= $customer['gender']=="1" ? "selected" : "" ?>>Nam</option>
-                    <option value="2" <?= $customer['gender']=="2" ? "selected" : "" ?>>Nữ</option>
+                <select class="form-select" name="gender">
+                    <option value="1" <?= $customer['gender']==1 ? "selected" : "" ?>>Nam</option>
+                    <option value="2" <?= $customer['gender']==2 ? "selected" : "" ?>>Nữ</option>
                 </select>
             </div>
             <div class="mb-3">
                 <label for="birth_year" class="form-label">Năm sinh</label>
-                <input type="number" class="form-control" name="birth_year" min="1900" max="2025" value="<?= $customer['birth_year'] ?>">
+                <input type="number" class="form-control" name="birth_year" min="1900" max="<?= date('Y') ?>" value="<?= $customer['birth_year'] ?>">
             </div>
             <div class="mb-3">
                 <label for="id_number" class="form-label">CMND/CCCD</label>
-                <input type="text" class="form-control" name="id_number" value="<?= $customer['id_number'] ?>">
+                <input type="text" class="form-control" name="id_number" value="<?= htmlspecialchars($customer['id_number']) ?>">
             </div>
         </div>
 
         <div class="col-md-6">
             <div class="mb-3">
                 <label for="contact" class="form-label">Liên hệ</label>
-                <input type="email" class="form-control" name="contact" value="<?= $customer['contact'] ?>">
+                <input type="text" class="form-control" name="contact" value="<?= htmlspecialchars($customer['contact']) ?>">
             </div>
             <div class="mb-3">
                 <label for="payment_status" class="form-label">Trạng thái thanh toán</label>
                 <select class="form-select" name="payment_status">
-                    <option value="1" <?= $customer['payment_status']=="1" ? "selected" : "" ?>>Đã thanh toán</option>
-                    <option value="2" <?= $customer['payment_status']=="2" ? "selected" : "" ?>>Chưa thanh toán</option>
+                    <option value="1" <?= $customer['payment_status']==1 ? "selected" : "" ?>>Đã thanh toán</option>
+                    <option value="0" <?= $customer['payment_status']==0 ? "selected" : "" ?>>Chưa thanh toán</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="group_id" class="form-label">Nhóm khách</label>
+                <select class="form-select" name="group_id" required>
+                    <option value="">-- Chọn nhóm --</option>
+                    <?php foreach ($groups as $group): ?>
+                        <option value="<?= $group['group_id'] ?>" <?= $customer['group_id']==$group['group_id'] ? "selected" : "" ?>>
+                            <?= htmlspecialchars($group['group_name']) ?>
+                        </option>
+                    <?php endforeach; ?>
                 </select>
             </div>
             <div class="mb-3">
                 <label for="special_request" class="form-label">Yêu cầu đặc biệt</label>
-                <textarea class="form-control" name="special_request" rows="3" ><?= $customer['special_request'] ?? "" ?></textarea>
+                <textarea class="form-control" name="special_request" rows="3"><?= htmlspecialchars($customer['special_request'] ?? "") ?></textarea>
             </div>
         </div>
     </div>
-    
+
     <div class="text-end mb-5">
         <button type="submit" class="btn btn-success"><i class="fa-solid fa-save"></i> Lưu Khách hàng</button>
         <a href="?act=customer" class="btn btn-secondary"><i class="fa-solid fa-times"></i> Hủy</a>
