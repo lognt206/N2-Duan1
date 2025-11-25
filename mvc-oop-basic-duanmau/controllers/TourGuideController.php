@@ -2,10 +2,12 @@
 class TourGuideController
 {
     public $modelTourGuide;
+    public $UserModel;
 
     public function __construct()
     {
         $this->modelTourGuide = new TourGuideModel();
+
     }
 
     public function header()
@@ -51,7 +53,16 @@ class TourGuideController
 
 
     public function profile()
-    {
+    {   //ktra đăng nhập, k có user đó thì về login
+        session_start();
+        if(!isset($_SESSION['user'])){
+            header("Location:?act=login");
+            exit;
+        }
+        //lấy user_id đã lưu khi login vào
+        $user_id = $_SESSION['user']['user_id'];
+        $tourguideModel = new TourGuideModel();
+        $tourguide = $this->modelTourGuide->find_guide($user_id);
         require_once './views/guide/thong_tin_ca_nhan/profile.php';
     }
 

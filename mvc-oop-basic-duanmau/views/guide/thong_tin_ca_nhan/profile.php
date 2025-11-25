@@ -15,7 +15,7 @@
         #sidebar { min-width: 250px; max-width: 250px; background: #343a40; color: #fff; }
         #sidebar a { color: #fff; text-decoration: none; display: block; padding: 12px 20px; }
         #sidebar a:hover, #sidebar a.active { background: #495057; }
-        #content { flex: 1; padding: 20px; background: #f8f9fa; }
+        #content { flex: 1; padding: 20px; background: #f8f9fa; margin-bottom: 30px;}
         .topbar { height: 60px; background: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
         .topbar .user { display: flex; align-items: center; }
         .topbar .user img { width: 40px; height: 40px; border-radius: 50%; margin-right: 10px; }
@@ -35,7 +35,7 @@
         .info-item i {width: 25px;color: #d59d00ff;}
         .edit-btn {background-color: #d59d00ff;color: white;border-radius: 25px;padding: 10px 20px;border: none;font-weight: 500;transition: 0.3s;}
         .edit-btn:hover {background-color: #b98600;transform: scale(1.05);}
-        .info-card.text-center p strong { color: #092f68ff;}
+        .info-card.text-center p strong { color: #000000ff;}
     </style>
 </head>
 <body>
@@ -61,7 +61,7 @@
             </a>
         </div>
         <div class="user">
-            <img src="uploads/logo.png" alt="User">
+            <img src="<?= $tourguide['photo'] ?? 'HDV'?>" alt="User">
             <span><?= $nameUser = $_SESSION['user']['username'] ?? '';?></span>
             <a href="?act=login" class="btn btn-sm btn-outline-danger ms-3">Đăng xuất</a>
         </div>
@@ -70,8 +70,8 @@
     <!-- Dashboard Content -->
     <div class="container-fluid">
         <section class="profile-header">
-          <img src="https://i.pravatar.cc/150?img=12" alt="Avatar Hướng dẫn viên">
-          <h2>Nguyễn Minh Tuấn</h2>
+          <img src="<?= $tourguide['photo'] ?? 'HDV'?>" alt="Avatar Hướng dẫn viên">
+          <h2><?= $tourguide['full_name'] ?? 'Chưa cập nhật' ?></h2>
           <p>Hướng dẫn viên du lịch chuyên nghiệp</p>
         </section>
 
@@ -80,18 +80,17 @@
             <div class="info-card">
               <h5><i class="fa-solid fa-id-card"></i> Thông tin cá nhân</h5>
               <hr>
-              <div class="info-item"> Họ tên: Nguyễn Minh Tuấn</div>
-              <div class="info-item"> Tuổi: 29</div>
-              <div class="info-item"> SĐT: 0987 654 321</div>
-              <div class="info-item"> Email: tuannguyen@example.com</div> 
-              <div class="info-item"> Ngôn ngữ: Tiếng Việt, Tiếng Anh</div>
-              <div class="info-item"> Chứng chỉ: HDV quốc tế</div>
-              <div class="info-item"> Kinh nghiệm: 6 năm</div>
-              <div class="info-item"></i> Khu vực: Miền Trung - Tây Nguyên</div>
+                <div class="info-item"> Họ tên: <?= $tourguide['full_name'] ?? 'Chưa cập nhật'?></div>
+                <div class="info-item"> Ngày tháng năm sinh: <?= $tourguide['birth_date'] ?? 'Chưa cập nhật' ?></div>
+                <div class="info-item"> Sức khỏe: <?= $tourguide['health_condition'] ?? 'Chưa cập nhật' ?></div>
+                <div class="info-item"> SĐT: <?= $tourguide['contact'] ?? 'Chưa cập nhật' ?></div>
+                <div class="info-item"> Ngôn ngữ: <?= $tourguide['languages'] ?? 'Chưa cập nhật' ?></div>
+                <div class="info-item"> Chứng chỉ: <?= $tourguide['certificate'] ?? 'Chưa cập nhật' ?></div>
+                <div class="info-item"> Kinh nghiệm: <?= $tourguide['experience'] ?? 'Chưa cập nhật' ?> năm</div>          
               <hr>
               <h5> Giới thiệu</h5>
               <p>
-                Tôi là hướng dẫn viên du lịch với hơn 6 năm kinh nghiệm dẫn tour trong nước và quốc tế.
+                Tôi là hướng dẫn viên du lịch với <?= $tourguide['experience'] ?? 'Chưa cập nhật' ?> năm kinh nghiệm dẫn tour trong nước và quốc tế.
                 Luôn nhiệt huyết, thân thiện và sẵn sàng chia sẻ kiến thức văn hoá địa phương đến du khách.
               </p>
               <button class="edit-btn"><i class="fa-solid fa-pen"></i> Chỉnh sửa hồ sơ</button>
@@ -103,8 +102,8 @@
               <h5><i class="fa-solid fa-star"></i> Thông tin nhanh</h5>
               <hr>
               <p><strong>Tour đã dẫn:</strong> 128</p>
-              <p><strong>Khách đánh giá trung bình:</strong><i class="fa-solid fa-star" style="color:#EB8317"></i>4.8 / 5</p>
-              <p><strong>Chuyên tuyến:</strong> Đà Nẵng - Hội An - Huế</p>
+              <p><strong>Khách đánh giá trung bình:</strong><i class="fa-solid fa-star" style="color:#EB8317"> </i><?= $tourguide['rating'] ?? 'Chưa cập nhật' ?>/5</p>
+              <p><strong>Chuyên tuyến:</strong> <?= $tourguide['category'] ==1 ? 'Nội địa' : 'Quốc tế' ?></p>
             </div>
           </div>
         </div>

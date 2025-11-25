@@ -31,15 +31,17 @@ class TourGuideModel {
         }
     }
 
-    public function find_guide($id){
+    public function find_guide($user_id){
         try{
-            $sql = "SELECT * FROM `tourguide` WHERE guide_id = :id";
+            // ? vì PDO tự động điền user_id khi hdv đăng nhập vào
+            $sql = "SELECT * FROM `tourguide` WHERE user_id = ?";
             $stmt = $this->conn->prepare($sql);
-            $stmt->execute([':id'=> $id]);
-            $guide = $stmt->fetch();
+            $stmt->execute([$user_id]);
+            $guide = $stmt->fetch(PDO::FETCH_ASSOC);
             return $guide;
         }catch (PDOException $err) {
             echo "Lỗi : " . $err->getMessage();
+            return null;
         }
     }
 
