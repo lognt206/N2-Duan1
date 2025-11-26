@@ -121,13 +121,13 @@ $nameUser = htmlspecialchars($nameUser);
                 <a href="?act=dashboard" class="text-decoration-none text-dark">
                     <i class="fa-solid fa-plane-departure"></i> Guide Panel
                 </a>
-            </div>
+          </div> 
             <div class="user">
-                <img src="uploads/logo.png" alt="User">
-                <span><?= $nameUser ?></span>
-                <a href="?act=login" class="btn btn-sm btn-outline-danger ms-3">Đăng xuất</a>
-            </div>
+            <img src="<?= $tourguide['photo'] ?? 'HDV'?>" alt="User">
+            <span><?= $nameUser = $_SESSION['user']['username'] ?? '';?></span>
+            <a href="?act=login" class="btn btn-sm btn-outline-danger ms-3">Đăng xuất</a>
         </div>
+    </div>
 
         <div class="container-fluid">
             <h2 class="page-title">Lịch làm việc của tôi</h2>
@@ -147,57 +147,42 @@ $nameUser = htmlspecialchars($nameUser);
                 </div>
             </div>
 
-            <table class="data-table tour-schedule-table">
-                <thead>
-                    <tr>
-                        <th>Mã Tour</th>
-                        <th>Tên Tour</th>
-                        <th>Ngày Bắt đầu</th>
-                        <th>Ngày Kết thúc</th>
-                        <th>Địa điểm tập trung</th>
-                        <th>Tình trạng</th>
-                        <th>Hành động</th>
-                    </tr>
-                </thead>
-                <tbody>
-                <?php if (!empty($lich_lam_viec)): ?>
-                    <?php foreach ($lich_lam_viec as $tour): ?>
-                        <tr data-status="<?= htmlspecialchars($tour['status']) ?>">
-                            <td><?= htmlspecialchars($tour['departure_id']) ?></td>
-                            <td><?= htmlspecialchars($tour['tour_name']) ?></td>
-                            <td><?= htmlspecialchars($tour['departure_date']) ?></td>
-                            <td><?= htmlspecialchars($tour['return_date']) ?></td>
-                            <td><?= htmlspecialchars($tour['meeting_point']) ?></td>
-                            <td>
-                                <?php
-                                    $statusText = '';
-                                    $statusClass = '';
-                                    switch($tour['status']){
-                                        case 1: $statusText = 'Sắp khởi hành'; $statusClass='upcoming'; break;
-                                        case 2: $statusText = 'Đang thực hiện'; $statusClass='in_progress'; break;
-                                        case 3: $statusText = 'Đã hoàn thành'; $statusClass='completed'; break;
-                                        default: $statusText = 'Đã hủy'; $statusClass='cancelled';
-                                    }
-                                ?>
-                                <span class="status-badge <?= $statusClass ?>"><?= $statusText ?></span>
-                            </td>
-                            <td>
-                                <a href="?act=tour_detail&id=<?= htmlspecialchars($tour['departure_id']) ?>" class="btn-action">
-                                    <i class="fa-solid fa-eye"></i>
-                                </a>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <tr>
-                        <td colspan="7" class="text-center text-muted">
-                            Bạn không có tour nào trong lịch làm việc.
-                        </td>
-                    </tr>
-                <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
+    <table class="data-table tour-schedule-table">
+      <thead>
+        <tr>
+          <th>Mã Tour</th>
+          <th>Tên Tour</th>
+          <th>Ngày Bắt đầu</th>
+          <th>Ngày kết thúc</th>
+          <th>Địa điểm tập trung</th>
+          <th>Tình trạng</th>
+          <th>Hành động</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php if(!empty($lich_lam_viec)): ?>
+          <?php foreach($lich_lam_viec as $tour): ?>
+            <tr data-status="<?=$tour['trangthai'] ?>">
+              <td><?=$tour['Ma_Tour'] ?></td>
+              <td><?=$tour['Ten_Tour'] ?></td>
+              <td><?=$tour['Ngay_Bat_Dau'] ?></td>
+              <td><?=$tour['Ngay_Ket_Thuc'] ?></td>
+              <td><?=$tour['Dia_Diem_Tap_Trung'] ?></td>
+              <td>
+                <span class="status-badge <?=$tour['Trang_Thai'] ?>">
+                  <?=$tour['tinh_trang'] ?>
+                </span>
+              </td>
+              <td><a href="?act=tour_detail&id=<?=$tour['Ma_Tour'] ?>" class="btn-action">Xem chi tiết</a></td>
+            </tr>
+          <?php endforeach; ?>
+        <?php else: ?>
+          <tr>
+            <td colspan="7" class="text-center text-muted">Bạn không có tour nào trong lịch làm việc.</td>
+          </tr>
+        <?php endif; ?>
+      </tbody>
+    </table>
     </div>
 </div>
 
