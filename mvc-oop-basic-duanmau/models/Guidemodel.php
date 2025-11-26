@@ -103,26 +103,5 @@ class TourGuideModel {
         return $stmt->rowCount();
     }
 
-    // ===== Thêm phương thức lấy lịch làm việc HDV =====
-    // public function getLichLamViec($guide_id = null) {
-    //     try {
-    //         $sql = "SELECT t.tour_id, t.tour_name, t.departure_date, t.return_date
-    //                 FROM tour t
-    //                 INNER JOIN tour_guide tg ON t.tour_id = tg.tour_id";
-
-    //         if ($guide_id !== null) {
-    //             $sql .= " WHERE tg.guide_id = :guide_id";
-    //             $stmt = $this->conn->prepare($sql);
-    //             $stmt->bindParam(':guide_id', $guide_id, PDO::PARAM_INT);
-    //             $stmt->execute();
-    //             return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    //         } else {
-    //             return $this->conn->query($sql)->fetchAll(PDO::FETCH_ASSOC);
-    //         }
-    //     } catch (PDOException $err) {
-    //         echo "Lỗi getLichLamViec: " . $err->getMessage();
-    //         return [];
-    //     }
-    // }
 }
 ?>

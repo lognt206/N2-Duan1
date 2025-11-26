@@ -1,13 +1,16 @@
 <?php
+require_once __DIR__ . '/../models/ScheduleModel.php';
+require_once __DIR__ . '/../models/Guidemodel.php';
 class TourGuideController
 {
     public $modelTourGuide;
     public $UserModel;
+    public $ScheduleModel;
 
     public function __construct()
     {
+        $this->ScheduleModel = new ScheduleModel();
         $this->modelTourGuide = new TourGuideModel();
-
     }
 
     public function header()
@@ -18,20 +21,24 @@ class TourGuideController
 
     public function lichlamviec()
 {
-    $guideId = $_SESSION['guide_id'] ?? 201;
+    $guideId = $_SESSION['guide_id'] ?? 3;
 
     // Gọi phương thức từ model để lấy tour của guide này
-    $tours = $this->modelTourGuide->allguide($guideId); // cần tạo phương thức trong model
+    $tours = $this->ScheduleModel->Scheduleguideid($guideId); // cần tạo phương thức trong model
 
     $today = date('Y-m-d');
     $lich_lam_viec = [];
 
     foreach ($tours as $tour) {
         // tránh warning nếu cột null hoặc không tồn tại
-        $bdau  = $tour['departure_date'] ?? null;
-        $kthuc = $tour['return_date'] ?? null;
-
-        if (!$bdau || !$kthuc) {
+        $bdau  = $tour['Ngay_Bat_Dau'] ?? null;
+        $kthuc = $tour['Ngay_Ket_Thuc'] ?? null;
+        $scheduleStatus = $tour['Trang_Thai_Schedule'] ?? null;
+        if ($scheduleStatus == 3) {
+            $tour['tinh_trang'] = "Đã hủy";
+            $tour['trangthai'] = "cancelled"; 
+        }
+        elseif (!$bdau || !$kthuc) {
             $tour['tinh_trang'] = "Chưa có dữ liệu";
             $tour['trangthai'] = "unknown";
         } elseif ($kthuc < $today) {
@@ -67,7 +74,7 @@ class TourGuideController
     }
 
     public function report()
-    {
+    {   
         require_once './views/guide/nhat_ky/report.php';
     }
 

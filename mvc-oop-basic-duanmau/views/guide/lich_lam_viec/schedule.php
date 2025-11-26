@@ -76,7 +76,7 @@ $nameUser = $_SESSION['user']['name'] ?? '';
             </a>
         </div>
         <div class="user">
-            <img src="uploads/logo.png" alt="User">
+            <img src="<?= $tourguide['photo'] ?? 'HDV'?>" alt="User">
             <span><?= $nameUser = $_SESSION['user']['username'] ?? '';?></span>
             <a href="?act=login" class="btn btn-sm btn-outline-danger ms-3">Đăng xuất</a>
         </div>
@@ -114,36 +114,27 @@ $nameUser = $_SESSION['user']['name'] ?? '';
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td>...</td>
-          <td>...</td>
-          <td>...</td>
-          <td>...</td>
-          <td>...</td>
-          <td>...</td>
-          <td><a href="?act=tour_detail"><i class="fa-solid fa-eye"></a></td>
-        </tr>
-        <!-- <?php if(!empty($lich_lam_viec)): ?>
+        <?php if(!empty($lich_lam_viec)): ?>
           <?php foreach($lich_lam_viec as $tour): ?>
-            <tr data-status="<?= htmlspecialchars($tour['trangthai']) ?>">
-              <td><?= htmlspecialchars($tour['departure_id']) ?></td>
-              <td><?= htmlspecialchars($tour['tour_name']) ?></td>
-              <td><?= htmlspecialchars($tour['departure_date']) ?></td>
-              <td><?= htmlspecialchars($tour['return_date']) ?></td>
-              <td><?= htmlspecialchars($tour['meeting_point']) ?></td>
+            <tr data-status="<?=$tour['trangthai'] ?>">
+              <td><?=$tour['Ma_Tour'] ?></td>
+              <td><?=$tour['Ten_Tour'] ?></td>
+              <td><?=$tour['Ngay_Bat_Dau'] ?></td>
+              <td><?=$tour['Ngay_Ket_Thuc'] ?></td>
+              <td><?=$tour['Dia_Diem_Tap_Trung'] ?></td>
               <td>
-                <span class="status-badge <?= htmlspecialchars($tour['trangthai']) ?>">
-                  <?= htmlspecialchars($tour['tinh_trang']) ?>
+                <span class="status-badge <?=$tour['Trang_Thai'] ?>">
+                  <?=$tour['tinh_trang'] ?>
                 </span>
               </td>
-              <td><a href="tour_detail.php?id=<?= htmlspecialchars($tour['departure_id']) ?>" class="btn-action">Xem chi tiết</a></td>
+              <td><a href="?act=tour_detail&id=<?=$tour['Ma_Tour'] ?>" class="btn-action">Xem chi tiết</a></td>
             </tr>
           <?php endforeach; ?>
         <?php else: ?>
           <tr>
             <td colspan="7" class="text-center text-muted">Bạn không có tour nào trong lịch làm việc.</td>
           </tr>
-        <?php endif; ?> -->
+        <?php endif; ?>
       </tbody>
     </table>
     </div>
