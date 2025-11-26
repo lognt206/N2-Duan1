@@ -37,6 +37,7 @@ match ($act) {
 'storebooking'   => (new admincontroller())->storebooking(),  
 'updatebooking'  => (new admincontroller())->updatebooking(), 
 'deletebooking'  => (new admincontroller())->deletebooking(), 
+'bookingDetail'  => (new admincontroller())->bookingDetail(), 
 
 
 
@@ -69,7 +70,7 @@ match ($act) {
 
 
 'header'=>(new TourGuideController())-> header(),
-    'schedule'=>(new TourGuideController())-> lichlamviec(),
+    'schedule'=>(new TourGuideController())-> schedule(),
     'profile'=>(new TourGuideController())-> profile(),
     'tour_detail'=>(new TourGuideController())-> tour_detail(),
     'report'=>(new TourGuideController())-> report(),

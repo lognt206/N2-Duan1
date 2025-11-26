@@ -44,7 +44,6 @@
     <a href="?act=booking"><i class="fa-solid fa-ticket"></i> Quản lý Đặt Tour</a>
     <a href="?act=guideadmin"><i class="fa-solid fa-user-tie"></i> Quản lý Hướng dẫn viên</a>
     <a href="?act=partner"><i class="fa-solid fa-handshake"></i> Quản lý Đối tác</a>
-    <a href="?act=departures"><i class="fa-solid fa-calendar"></i> Lịch khởi hành</a>
     <a href="?act=accoun" class="bg-secondary"><i class="fa-solid fa-users"></i> Quản lý tài khoản</a>
     <a href="?act=login"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
 </div>
@@ -78,7 +77,6 @@
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Username</th>
                     <th>Họ tên</th>
                     <th>Email</th>
                     <th>Phone</th>
@@ -93,7 +91,6 @@
                     <?php foreach ($accounts as $acc) : ?>
                         <tr>
                             <td><?= $acc->user_id ?></td>
-                            <td><?= $acc->username ?></td>
                             <td><?= $acc->full_name ?></td>
                             <td><?= $acc->email ?></td>
                             <td><?= $acc->phone ?></td>

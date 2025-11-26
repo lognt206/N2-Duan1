@@ -1,3 +1,14 @@
+<?php  
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Lấy tên hướng dẫn viên từ session, nếu chưa có thì mặc định là "Hướng dẫn viên"
+$nameUser = $_SESSION['user']['full_name'] ?? 'Hướng dẫn viên';
+
+// Dùng htmlspecialchars để tránh lỗi HTML injection
+$nameUser = htmlspecialchars($nameUser);
+?>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -42,7 +53,7 @@
 
 <!-- Sidebar -->
 <div id="sidebar">
-    <h3 class="text-center py-3 border-bottom">Admin Panel</h3>
+    <h3 class="text-center py-3 border-bottom">Guide Panel</h3>
     <a href="?act=header"><i class="fa-solid fa-chart-line"></i>Dashboard</a>
     <a href="?act=profile" class="active"><i class="fa-solid fa-user"></i> Thông tin cá nhân</a>
     <a href="?act=schedule"><i class="fa-solid fa-calendar-day"></i> Lịch làm việc</a>
@@ -57,7 +68,7 @@
     <div class="topbar">
         <div class="logo">
             <a href="?act=dashboard" class="text-decoration-none text-dark">
-                <i class="fa-solid fa-plane-departure"></i> Admin Panel
+                <i class="fa-solid fa-plane-departure"></i> Guide Panel
             </a>
         </div>
         <div class="user">
