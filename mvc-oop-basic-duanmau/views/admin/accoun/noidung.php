@@ -77,7 +77,6 @@
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Username</th>
                     <th>Họ tên</th>
                     <th>Email</th>
                     <th>Phone</th>
@@ -92,7 +91,6 @@
                     <?php foreach ($accounts as $acc) : ?>
                         <tr>
                             <td><?= $acc->user_id ?></td>
-                            <td><?= $acc->username ?></td>
                             <td><?= $acc->full_name ?></td>
                             <td><?= $acc->email ?></td>
                             <td><?= $acc->phone ?></td>

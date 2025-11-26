@@ -327,7 +327,7 @@ public function booking()
 public function createbooking()
 {
     $tours = $this->modelTour->all();
-    $groups = $this->BookingModel->allGroups(); // lấy danh sách tệp khách hàng
+$customerGroups = $this->CustomerGroupModel->all();
     $guides = $this->modelTourGuide->allguide();
     $departures = $this->DepartureModel->all(); 
 
@@ -414,7 +414,7 @@ public function updatebooking()
         $booking = $this->BookingModel->detail($id);
         $tours = $this->modelTour->all();
         $guides = $this->modelTourGuide->allguide();
-        $groups = $this->BookingModel->allGroups(); // danh sách tệp khách
+        $groups = $this->BookingModel->all(); // danh sách tệp khách
         $departures = $this->DepartureModel->all();
 
         include "views/admin/booking/updatebooking.php";
@@ -444,6 +444,22 @@ public function bookingDetail() {
     include "views/admin/booking/detail.php"; 
 }
 
+public function deletebooking()
+{
+    if (!isset($_GET['id'])) {
+        header("Location: ?act=booking");
+        exit;
+    }
+
+    $id = $_GET['id'];
+
+    // gọi model xóa booking
+    $this->BookingModel->delete($id);
+
+    $_SESSION['success'] = "Xóa đặt tour thành công!";
+    header("Location: ?act=booking");
+    exit;
+}
 
 
 
@@ -659,28 +675,33 @@ public function category_update($id) {
 
 public function accoun() {
     $err = "";
-        $accounts = $this->UserModel->all();
+    $accounts = $this->UserModel->all(); 
 
-        if (isset($_POST['tim'])) {
-            $user = $_POST['user'];
-            if (empty($user)) {
-                $err = "bạn chưa nhập tên người dùng";
-            }
+    $ketqua = []; // khởi tạo mảng kết quả
 
-            foreach ($accounts as $tt) {
-                if (stripos($tt->email, $user) !== false || stripos($tt->name, $user) !== false) {
-                    $ketqua[] = $tt;
-                }
-            }
+    if (isset($_POST['tim'])) {
+        $user = trim($_POST['user'] ?? '');
+        if ($user === '') {
+            $err = "Bạn chưa nhập tên người dùng";
+        }
 
-            if (empty($ketqua)) {
-                $err = "không tìm thấy";
-            } else {
-                $accounts = $ketqua;
+        foreach ($accounts as $tt) {
+            // Tìm theo email hoặc full_name
+            if (stripos($tt->email, $user) !== false || stripos($tt->full_name, $user) !== false) {
+                $ketqua[] = $tt;
             }
         }
-        include "views/admin/accoun/noidung.php";
+
+        if (empty($ketqua)) {
+            $err = "Không tìm thấy";
+        } else {
+            $accounts = $ketqua;
+        }
     }
+
+    include "views/admin/accoun/noidung.php";
+}
+
 public function account_toggle($id) {
     $user = $this->UserModel->find($id);
 

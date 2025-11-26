@@ -38,6 +38,7 @@ class BookingModel
     // Chi tiết booking
    public function detail($id)
 {
+    // Lấy thông tin booking + tour + guide + departure + nhóm
     $sql = "SELECT 
                 b.*,
                 t.tour_name,
@@ -60,9 +61,13 @@ class BookingModel
     $stmt->execute([$id]);
     $booking = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // Lấy danh sách khách trong nhóm nếu group_id tồn tại
-    if (!empty($booking['group_id'])) {
-        $stmt2 = $this->conn->prepare("SELECT full_name FROM customer WHERE group_id = ?");
+    // Lấy danh sách khách hàng chi tiết trong nhóm
+    if ($booking && !empty($booking['group_id'])) {
+        $stmt2 = $this->conn->prepare("
+            SELECT customer_id, full_name, gender, birth_year, id_number, contact, payment_status, special_request, group_id
+            FROM customer
+            WHERE group_id = ?
+        ");
         $stmt2->execute([$booking['group_id']]);
         $booking['customers'] = $stmt2->fetchAll(PDO::FETCH_ASSOC);
     } else {
@@ -134,6 +139,18 @@ public function updateStatus($booking_id, $status)
     $sql = "UPDATE booking SET status = ? WHERE booking_id = ?";
     $stmt = $this->conn->prepare($sql);
     return $stmt->execute([$status, $booking_id]);
+}
+public function guideAvailable($guide_id, $departure_id)
+{
+    $sql = "SELECT COUNT(*) FROM booking 
+            WHERE guide_id = ? 
+              AND departure_id = ?";
+
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute([$guide_id, $departure_id]);
+
+    $count = $stmt->fetchColumn();
+    return $count == 0; // TRUE nếu HDV chưa bị trùng lịch
 }
 
 }

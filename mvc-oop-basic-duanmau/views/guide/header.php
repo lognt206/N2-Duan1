@@ -3,7 +3,11 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-$nameUser = $_SESSION['user']['name'] ?? '';
+// Lấy tên hướng dẫn viên từ session, nếu chưa có thì mặc định là "Hướng dẫn viên"
+$nameUser = $_SESSION['user']['full_name'] ?? 'Hướng dẫn viên';
+
+// Dùng htmlspecialchars để tránh lỗi HTML injection
+$nameUser = htmlspecialchars($nameUser);
 ?>
 
 <!DOCTYPE html>
@@ -40,8 +44,9 @@ $nameUser = $_SESSION['user']['name'] ?? '';
 
 <!-- Sidebar -->
 <div id="sidebar">
-    <h3 class="text-center py-3 border-bottom">Admin Panel</h3>
-    <a href="?act=header" class="bg-secondary"><i class="fa-solid fa-chart-line"></i>Dashboard</a>
+    <h3 class="text-center py-3 border-bottom">Guide Panel</h3>
+
+    <a href="?act=header" class="bg-secondary"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
     <a href="?act=profile"><i class="fa-solid fa-user"></i> Thông tin cá nhân</a>
     <a href="?act=schedule"><i class="fa-solid fa-calendar-day"></i> Lịch làm việc</a>
     <a href="?act=report"><i class="fa-solid fa-clipboard-list"></i> Nhật ký tour</a>
@@ -55,12 +60,15 @@ $nameUser = $_SESSION['user']['name'] ?? '';
     <div class="topbar">
         <div class="logo">
             <a href="?act=dashboard" class="text-decoration-none text-dark">
-                <i class="fa-solid fa-plane-departure"></i> Admin Panel
+                <i class="fa-solid fa-plane-departure"></i> Guide Panel
             </a>
         </div>
         <div class="user">
             <img src="uploads/logo.png" alt="User">
-            <span><?= $nameUser = $_SESSION['user']['username'] ?? '';?></span>
+
+            <!-- Hiển thị đúng tên hướng dẫn viên -->
+            <span><?= $nameUser ?></span>
+
             <a href="?act=login" class="btn btn-sm btn-outline-danger ms-3">Đăng xuất</a>
         </div>
     </div>
@@ -68,7 +76,7 @@ $nameUser = $_SESSION['user']['name'] ?? '';
     <!-- Dashboard Content -->
     <div class="container-fluid">
         <h2 class="mb-4">Bảng điều khiển</h2>
-        <p>Chào mừng Guide đến với hệ thống tour du lịch!</p>
+        <p>Chào mừng <?= $nameUser ?> đến với hệ thống tour du lịch!</p>
 
         <div class="row">
             <div class="col-md-3">

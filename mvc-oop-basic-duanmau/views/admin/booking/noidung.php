@@ -97,7 +97,9 @@ if (session_status() === PHP_SESSION_NONE) {
                             <?= !empty($b['return_date']) ? ' → ' . $b['return_date'] : '' ?>
                         </td>
                         <td><?= $b['num_people'] ?></td>
-                        <td><?= $b['booking_type'] ?></td>
+                        <td>
+                     <?= isset($b['booking_type']) ? ($b['booking_type']==1 ? 'Trực tiếp' : ($b['booking_type']==2 ? 'Online' : '-')) : '-' ?>
+                        </td>
                         <td>
                             <a href="?act=updateStatus&id=<?= $b['booking_id'] ?>&status=<?= $b['status'] ?>">
                                 <span class="badge <?= $b['status'] == 1 ? 'bg-success' : ($b['status'] == 2 ? 'bg-primary' : ($b['status']==3?'bg-danger':'bg-warning')) ?>">

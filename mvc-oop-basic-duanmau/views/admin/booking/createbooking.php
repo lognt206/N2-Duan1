@@ -90,16 +90,17 @@ if(isset($_SESSION['success']) && $_SESSION['success'] != '') {
                 </div>
 
                 <div class="col-md-6">
-                    <label class="form-label">Khách hàng</label>
-                    <select name="customer_id[]" class="form-control" multiple required>
-                        <?php foreach ($customers as $c): ?>
-                            <option value="<?= $c['customer_id'] ?>" 
-                                <?= (isset($_SESSION['old']['customer_id']) && in_array($c['customer_id'], $_SESSION['old']['customer_id'])) ? 'selected' : '' ?>>
-                                <?= $c['full_name'] ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                    <small class="text-muted">Chọn nhiều khách bằng Ctrl (Windows) hoặc Cmd (Mac)</small>
+                   <label class="form-label">Nhóm khách</label>
+<select name="group_id" class="form-control" required>
+    <option value="">-- Chọn nhóm khách --</option>
+    <?php foreach ($customerGroups as $grp): ?>
+        <option value="<?= $grp['group_id'] ?>"
+            <?= (isset($_SESSION['old']['group_id']) && $_SESSION['old']['group_id'] == $grp['group_id']) ? 'selected' : '' ?>>
+            <?= $grp['group_name'] ?> (<?= $grp['total_members'] ?? '' ?> khách)
+        </option>
+    <?php endforeach; ?>
+</select>
+
                 </div>
             </div>
 

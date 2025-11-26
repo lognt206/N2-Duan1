@@ -151,7 +151,9 @@ function addItinerary(itinerary_id = '', day_number = '', start_time = '', end_t
             <div class="itinerary-item">
                 <input type="hidden" name="itinerary[<?= $i['itinerary_id'] ?? '' ?>][id]" value="<?= $i['itinerary_id'] ?? '' ?>">
                 <input type="number" name="itinerary[<?= $i['itinerary_id'] ?? '' ?>][day_number]" placeholder="Ngày" class="form-control" style="width:80px" value="<?= $i['day_number'] ?? '' ?>" required>
-                <input type="time" name="itinerary[<?= $i['itinerary_id'] ?? '' ?>][start_time]" class="form-control" value="<?= $i['start_time'] ?? '' ?>" required>
+
+                <input type="time" name="itinerary[<?= $i['itinerary_id'] ?? '' ?>][start_time]" class="form-control" value="<?= $i['start_time'] ?? '' ?>" required >
+
                 <input type="time" name="itinerary[<?= $i['itinerary_id'] ?? '' ?>][end_time]" class="form-control" value="<?= $i['end_time'] ?? '' ?>" required>
                 <input type="text" name="itinerary[<?= $i['itinerary_id'] ?? '' ?>][activity]" placeholder="Hoạt động" class="form-control" value="<?= htmlspecialchars($i['activity'] ?? '') ?>" required>
                 <input type="text" name="itinerary[<?= $i['itinerary_id'] ?? '' ?>][location]" placeholder="Địa điểm" class="form-control" value="<?= htmlspecialchars($i['location'] ?? '') ?>" required>

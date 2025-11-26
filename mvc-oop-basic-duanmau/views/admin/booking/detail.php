@@ -58,24 +58,44 @@ if (session_status() === PHP_SESSION_NONE) {
         <div class="card-body">
             <h5 class="card-title mb-3"><?= $booking['tour_name'] ?></h5>
 
-          <div class="row mb-2">
-    <div class="col-md-4 fw-bold">danh sách khách :</div>
-    <div class="col-md-8">
+         <div class="row mb-2">
+    <div class="col-md-12 fw-bold">Danh sách khách:</div>
+    <div class="col-md-12">
         <?php if (!empty($booking['customers'])): ?>
-            <ul class="mb-0">
-                <?php foreach ($booking['customers'] as $c): ?>
-                    <li><?= htmlspecialchars($c['full_name']) ?></li>
-                     <td><?= isset($customer['gender']) ? ($customer['gender']==1 ? "Nam" : "Nữ") : "Chưa xác định" ?></td>
-                <td><?= $customer['birth_year'] ?? "Chưa xác định" ?></td>
-                <td><?= htmlspecialchars($customer['id_number'] ?? '') ?></td>
-                <td><?= htmlspecialchars($customer['contact'] ?? '') ?></td>
-                <?php endforeach; ?>
-            </ul>
+            <table class="table table-bordered table-striped mt-2">
+                <thead>
+                    <tr class="table-secondary">
+                        <th>#</th>
+                        <th>Họ và tên</th>
+                        <th>Giới tính</th>
+                        <th>Năm sinh</th>
+                        <th>Số CMND</th>
+                        <th>Liên hệ</th>
+                        <th>Trạng thái thanh toán</th>
+                        <th>Yêu cầu đặc biệt</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($booking['customers'] as $index => $c): ?>
+                        <tr>
+                            <td><?= $index + 1 ?></td>
+                            <td><?= htmlspecialchars($c['full_name']) ?></td>
+                            <td><?= isset($c['gender']) ? ($c['gender'] == 1 ? "Nam" : "Nữ") : "Chưa xác định" ?></td>
+                            <td><?= $c['birth_year'] ?? "Chưa xác định" ?></td>
+                            <td><?= htmlspecialchars($c['id_number'] ?? '-') ?></td>
+                            <td><?= htmlspecialchars($c['contact'] ?? '-') ?></td>
+                            <td><?= isset($c['payment_status']) ? ($c['payment_status'] ? "Đã thanh toán" : "Chưa thanh toán") : "-" ?></td>
+                            <td><?= htmlspecialchars($c['special_request'] ?? '-') ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
         <?php else: ?>
-            -
+            <p>- Không có khách hàng -</p>
         <?php endif; ?>
     </div>
 </div>
+
 
 
 

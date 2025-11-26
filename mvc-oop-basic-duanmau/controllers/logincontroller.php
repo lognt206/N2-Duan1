@@ -1,73 +1,97 @@
 <?php
-// require_once __DIR__ . '/../models/ProductModel.php';
 require_once __DIR__ . '/../models/UserModel.php';
-// require_once __DIR__ . '/../models/CommentModel.php';
-// require_once __DIR__ . '/../models/CategoryModel.php';
-class logincontroller {
-    // public $productModel;
-    public $userModel;
-    // public $commentModel;
-    // public $categoryModel;
+require_once __DIR__ . '/../models/Guidemodel.php';
 
-    public function __construct(){
-        // $this->productModel  = new ProductModel();
-        $this->userModel     = new UserModel();
-        // $this->commentModel  = new CommentModel();
-        // $this->categoryModel = new CategoryModel();
+class logincontroller {
+
+    public $userModel;
+    public $guideModel;
+
+    const ROLE_ADMIN = 1;
+    const ROLE_GUIDE = 2;
+
+    public function __construct() {
+        $this->userModel  = new UserModel();
+        $this->guideModel = new TourGuideModel();
     }
 
-
- public function home(){
+    public function home() {
         include "views/dangnhap/home.php";
     }
-  public function login(){
-    session_start();
-    $loi = "";
-    if(isset($_POST['dangnhap'])){
-        $email    = trim($_POST['email']);
-        $password = trim($_POST['password']);
 
-        // Lấy user theo email
-        $user = $this->userModel->findByEmail($email);
+    public function login() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
 
-        if($user){
-            // Kiểm tra tài khoản đã kích hoạt (status = 1)
-            if(isset($user->status) && $user->status != 1){
-                $loi = "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị.";
-            } else {
-                // Kiểm tra mật khẩu
-                if(password_verify($password, $user->password)){ //password_verify
-                    // Lưu thông tin user vào session
-                    $_SESSION['user'] = [
-                        'user_id'   => $user->user_id,
-                        'username' => $user->username,
-                        'role' => $user->role
-                    ];
-                    // Chuyển hướng theo role
-                    if($user->role == 1){
-                        header("Location:?act=dashboard");
-                        exit;
-                    } else {
-                        header("Location:?act=header");
-                        exit;
-                    }
-                } else {
-                    $loi = "Mật khẩu không đúng.";
+        $loi = "";
+
+        if(isset($_POST['dangnhap'])) {
+            $email    = trim($_POST['email'] ?? '');
+            $password = trim($_POST['password'] ?? '');
+
+            if($email === '' || $password === '') {
+                $loi = "Vui lòng nhập email và mật khẩu.";
+                include "views/dangnhap/login.php";
+                return;
+            }
+
+            // Lấy thông tin user theo email
+            $user = $this->userModel->findByEmail($email);
+
+            if(!$user) {
+                $loi = "Email không tồn tại.";
+                include "views/dangnhap/login.php";
+                return;
+            }
+
+            // Kiểm tra mật khẩu (hash)
+            if (!password_verify($password, $user->password)) {
+                $loi = "Mật khẩu không đúng.";
+                include "views/dangnhap/login.php";
+                return;
+            }
+
+            // --- Lưu session chung ---
+            $_SESSION['user'] = [
+                'user_id'   => $user->user_id,
+                'role'      => (int)$user->role,
+                'full_name' => $user->full_name,
+                'email'     => $user->email
+            ];
+
+            // Nếu là hướng dẫn viên
+            if($_SESSION['user']['role'] === self::ROLE_GUIDE) {
+                $guide = $this->guideModel->getByUserId($user->user_id);
+
+                if($guide) {
+                    $guideObj = is_array($guide) ? (object)$guide : $guide;
+                    $_SESSION['user']['full_name'] = $guideObj->full_name;
+                    $_SESSION['user']['guide_id']  = $guideObj->guide_id;
+                    $_SESSION['user']['photo']     = $guideObj->photo ?? null;
+                    $_SESSION['user']['languages'] = $guideObj->languages ?? null;
                 }
             }
-        } else {
-            $loi = "Email không tồn tại.";
+
+            // Chuyển hướng theo role
+            if($_SESSION['user']['role'] === self::ROLE_ADMIN) {
+                header("Location:?act=dashboard");
+                exit;
+            } else {
+                header("Location:?act=header");
+                exit;
+            }
         }
+
+        include "views/dangnhap/login.php";
     }
-    include "views/dangnhap/login.php";
-}
 
-
-
-    public function dangxuat(){
-        session_start();
+    public function dangxuat() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
         session_destroy();
-        header("Location: ?act=login"); 
+        header("Location: ?act=login");
         exit;
     }
 }
