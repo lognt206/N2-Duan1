@@ -100,6 +100,14 @@ class TourGuideModel {
         $stmt->execute([':id' => $id]);
         return $stmt->rowCount();
     }
+public function getByUserId($user_id)
+{
+    $sql = "SELECT * FROM tourguide WHERE user_id = :user_id LIMIT 1";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute(['user_id' => $user_id]);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
 
     // ===== Thêm phương thức lấy lịch làm việc HDV =====
     // public function getLichLamViec($guide_id = null) {

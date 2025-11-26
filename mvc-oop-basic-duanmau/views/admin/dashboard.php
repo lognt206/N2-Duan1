@@ -50,7 +50,6 @@
     <a href="?act=booking"><i class="fa-solid fa-ticket"></i> Quản lý Đặt Tour</a>
     <a href="?act=guideadmin"><i class="fa-solid fa-user-tie"></i> Quản lý Hướng dẫn viên</a>
     <a href="?act=partner" ><i class="fa-solid fa-handshake"></i> Quản lý Đối tác</a>
-    <a href="?act=departures"><i class="fa-solid fa-calendar"></i> Lịch khởi hành</a>
     <a href="?act=accoun"><i class="fa-solid fa-users"></i> Quản lý tài khoản </a>
     <a href="?act=login"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
 </div>
@@ -66,7 +65,7 @@
         </div>
         <div class="user">
             <img src="uploads/logo.png" alt="User">
-            <span><?= $nameUser = $_SESSION['user']['username'] ?? '';?></span>
+            <span><?= $nameUser = $_SESSION['user']['full_name'] ?? '';?></span>
             <a href="?act=login" class="btn btn-sm btn-outline-danger ms-3">Đăng xuất</a>
         </div>
     </div>

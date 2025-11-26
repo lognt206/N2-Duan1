@@ -38,6 +38,11 @@ $nameUser = htmlspecialchars($nameUser);
         .bg-danger { background-color: #dc3545 !important; }
         footer { width:100%; background:#fff; position:fixed; bottom:0; box-shadow:0 -2px 4px rgba(0,0,0,0.1); }
         #sidebar a i { color: #fff !important; }
+        .text-primary{font-weight: 500; color: #212529 !important;}
+        .form-section { border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin-bottom: 50px;}
+        .form-section legend { font-weight: 400; color: #000000ff;}
+        .btn-submit { background-color: #d59d00ff; color: #fff; border: none; padding: 12px 40px; border-radius: 6px; margin-bottom: 50px;}
+        .btn-submit:hover { background-color: #c02600ff; transform: translateY(-2px);}
     </style>
 </head>
 <body>
@@ -45,11 +50,10 @@ $nameUser = htmlspecialchars($nameUser);
 <!-- Sidebar -->
 <div id="sidebar">
     <h3 class="text-center py-3 border-bottom">Guide Panel</h3>
-
-    <a href="?act=header" class="bg-secondary"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+    <a href="?act=header"><i class="fa-solid fa-chart-line"></i>Dashboard</a>
     <a href="?act=profile"><i class="fa-solid fa-user"></i> Thông tin cá nhân</a>
     <a href="?act=schedule"><i class="fa-solid fa-calendar-day"></i> Lịch làm việc</a>
-    <a href="?act=report"><i class="fa-solid fa-clipboard-list"></i> Nhật ký tour</a>
+    <a href="?act=report" class="active"><i class="fa-solid fa-clipboard-list"></i> Nhật ký tour</a>
     <a href="?act=special_request"><i class="fa-solid fa-star"></i> Yêu cầu đặc biệt</a>
     <a href="?act=login"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
 </div>
@@ -65,45 +69,52 @@ $nameUser = htmlspecialchars($nameUser);
         </div>
         <div class="user">
             <img src="uploads/logo.png" alt="User">
-
-            <!-- Hiển thị đúng tên hướng dẫn viên -->
-            <span><?= $nameUser ?></span>
-
+                <span><?= $nameUser ?></span>
             <a href="?act=login" class="btn btn-sm btn-outline-danger ms-3">Đăng xuất</a>
         </div>
     </div>
 
     <!-- Dashboard Content -->
     <div class="container-fluid">
-        <h2 class="mb-4">Bảng điều khiển</h2>
-        <p>Chào mừng <?= $nameUser ?> đến với hệ thống tour du lịch!</p>
+        <h2 class="text-primary mb-3">Cập nhật tình trạng Tour</h2>
+        <p>Tour: <strong>Lucca Bike Tour - HL25</strong> | Ngày: 02 Thg 10, 2025</p>
 
-        <div class="row">
-            <div class="col-md-3">
-                <div class="card-stats bg-primary">
-                    <h4>Tour Sắp tới</h4>
-                    <p>25</p>
-                </div>
+        <form action="process_report.php" method="POST">
+          <input type="hidden" name="tour_id" value="HL25">
+
+          <fieldset class="form-section">
+            <legend>1. Trạng thái Tour</legend>
+            <div class="mb-3">
+              <label for="status" class="form-label">Chọn trạng thái:</label>
+              <select id="status" name="status" class="form-select" required>
+                <option value="completed"> Đã hoàn thành</option>
+                <option value="in_progress"> Đang thực hiện</option>
+                <option value="incident"> Có sự cố</option>
+                <option value="cancelled"><i class="alert-triangle"></i> Đã hủy</option>
+              </select>
             </div>
-            <div class="col-md-3">
-                <div class="card-stats bg-success">
-                    <h4>Chi tiết lịch làm việc</h4>
-                    <p>12</p>
-                </div>
+          </fieldset>
+
+          <fieldset class="form-section">
+            <legend>2. Báo cáo & Ghi chú</legend>
+            <div class="mb-3">
+              <label for="notes" class="form-label">Tóm tắt & ghi chú:</label>
+              <textarea id="notes" name="notes" class="form-control" rows="6" placeholder="Nhận xét khách hàng và đánh giá cá nhân"></textarea>
             </div>
-            <div class="col-md-3">
-                <div class="card-stats bg-warning">
-                    <h4>Tour đã hoàn thành</h4>
-                    <p>75</p>
-                </div>
+          </fieldset>
+
+          <fieldset class="form-section">
+            <legend>3. Chi tiết Sự cố (nếu có)</legend>
+            <div class="mb-3">
+              <label for="incident_detail" class="form-label">Mô tả sự cố:</label>
+              <textarea id="incident_detail" name="incident_detail" class="form-control" rows="5" placeholder="Mô tả chi tiết sự cố nếu có"></textarea>
             </div>
-            <div class="col-md-3">
-                <div class="card-stats bg-danger">
-                    <h4>Xem nhật ký tour</h4>
-                    <p>75</p>
-                </div>
-            </div>
-        </div>
+          </fieldset>
+
+          <div class="text-center">
+            <button type="submit" class="btn btn-submit">Gửi Báo cáo</button>
+          </div>
+        </form>
     </div>
 </div>
 

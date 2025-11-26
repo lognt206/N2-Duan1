@@ -1,5 +1,5 @@
-
-<?php if (session_status() === PHP_SESSION_NONE) {
+<?php 
+if (session_status() === PHP_SESSION_NONE) {  
     session_start();
 }
 ?>
@@ -11,129 +11,144 @@
 <title>Thêm tour mới</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
 <style>
-body { display: flex; min-height: 100vh; margin: 0; font-family: Arial, sans-serif; }
-/* Sidebar */
+body { display: flex; flex-direction: column; min-height: 100vh; margin: 0; font-family: Arial, sans-serif; }
+#main { display: flex; flex: 1; }
 #sidebar { min-width: 250px; background: #343a40; color: #fff; }
 #sidebar h3 { text-align: center; padding: 12px 0; border-bottom: 1px solid #495057; }
 #sidebar a { color: #fff; text-decoration: none; display: block; padding: 12px 20px; }
 #sidebar a:hover { background: #495057; }
 #sidebar a.active { background: #6c757d; }
-
-/* Content */
 #content { flex: 1; padding: 20px; background: #f8f9fa; }
-
-/* Topbar */
 .topbar { height: 60px; background: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
 .topbar .logo { display: flex; align-items: center; font-weight: bold; }
 .topbar .user { display: flex; align-items: center; }
 .topbar .user img { width: 40px; height: 40px; border-radius: 50%; margin-right: 10px; }
-
-/* Table */
-.table-responsive { background: #fff; padding: 20px; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
-.table th { background: #343a40; color: #fff; text-align: center; }
-.table td { vertical-align: middle; text-align: center; }
-.btn-sm { padding: 4px 8px; }
-.badge { font-size: 12px; }
-
-/* Status badges */
-.badge.Available { background: #198754; }
-.badge.Closed { background: #6c757d; }
-
-/* Footer */
-footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box-shadow: 0 -2px 4px rgba(0,0,0,0.1); position: fixed; bottom: 0; }
+.itinerary-item { margin-bottom: 10px; display: flex; gap: 10px; }
+footer { text-align: center; padding: 15px 0; background: #343a40; color: #fff; }
+.img-preview { width: 150px; margin-top: 10px; }
 </style>
+<script>
+function addItinerary() {
+    const container = document.getElementById('itinerary-container');
+    const index = container.children.length;
+    const div = document.createElement('div');
+    div.classList.add('itinerary-item');
+    div.innerHTML = `
+        <input type="number" name="itinerary[${index}][day_number]" placeholder="Ngày" class="form-control" style="width:80px" required>
+        <input type="text" name="itinerary[${index}][activity]" placeholder="Hoạt động" class="form-control" required>
+        <input type="text" name="itinerary[${index}][location]" placeholder="Địa điểm" class="form-control" required>
+        <input type="time" name="itinerary[${index}][start_time]" class="form-control" required>
+        <input type="time" name="itinerary[${index}][end_time]" class="form-control" required>
+        <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove()">Xóa</button>
+    `;
+    container.appendChild(div);
+}
+
+function previewImage(event) {
+    const preview = document.getElementById('image-preview');
+    preview.src = URL.createObjectURL(event.target.files[0]);
+    preview.style.display = 'block';
+}
+</script>
 </head>
 <body>
 
-<!-- Sidebar -->
-<div id="sidebar">
-<h3>Admin Panel</h3>
-<a href="?act=dashboard"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
-<a href="?act=tour" class="active"><i class="fa-solid fa-plane"></i> Quản lý Tour</a>
-  <a href="?act=category"><i class="fa-solid fa-plane"></i> Quản lý danh mục Tour</a>
-<a href="?act=customer"><i class="fa-solid fa-users"></i> Quản lý Khách hàng</a>
-<a href="?act=booking"><i class="fa-solid fa-ticket"></i> Quản lý Đặt tour</a>
-<a href="?act=guideadmin"><i class="fa-solid fa-user-tie"></i> Quản lý Hướng dẫn viên</a>
-<a href="?act=partner"><i class="fa-solid fa-handshake"></i> Quản lý Đối tác</a>
-<a href="?act=departures"><i class="fa-solid fa-calendar"></i> Lịch khởi hành</a>
-<a href="?act=accoun"><i class="fa-solid fa-users"></i> Quản lý tài khoản </a>
-<a href="?act=logout"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
-</div>
+<div id="main">
+    <!-- Sidebar -->
+    <div id="sidebar">
+        <h3>Admin Panel</h3>
+        <a href="?act=dashboard"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+        <a href="?act=tour" class="active"><i class="fa-solid fa-plane"></i> Quản lý Tour</a>
+        <a href="?act=category"><i class="fa-solid fa-plane"></i> Quản lý danh mục Tour</a>
+        <a href="?act=customer"><i class="fa-solid fa-users"></i> Quản lý Khách hàng</a>
+        <a href="?act=booking"><i class="fa-solid fa-ticket"></i> Quản lý Đặt tour</a>
+        <a href="?act=guideadmin"><i class="fa-solid fa-user-tie"></i> Quản lý Hướng dẫn viên</a>
+        <a href="?act=partner"><i class="fa-solid fa-handshake"></i> Quản lý Đối tác</a>
+        <a href="?act=accoun"><i class="fa-solid fa-users"></i> Quản lý tài khoản </a>
+        <a href="?act=logout"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
+    </div>
 
-<!-- Content -->
-<div id="content">
-<div class="topbar">
-<div class="logo">
-<i class="fa-solid fa-plane-departure me-2"></i>
-<span>Admin Panel</span>
-</div>
-<div class="user">
-<img src="https://via.placeholder.com/40" alt="User">
-<span><?= $nameUser = $_SESSION['user']['username'] ?? '';?></span>
-<a href="?act=logout" class="btn btn-sm btn-outline-danger ms-3">Đăng xuất</a>
-</div>
-</div>
+    <!-- Content -->
+    <div id="content">
+        <div class="topbar">
+            <div class="logo"><i class="fa-solid fa-plane-departure me-2"></i>Admin Panel</div>
+            <div class="user">
+                <img src="https://via.placeholder.com/40" alt="User">
+                <span><?= $_SESSION['user']['username'] ?? '';?></span>
+                <a href="?act=logout" class="btn btn-sm btn-outline-danger ms-3">Đăng xuất</a>
+            </div>
+        </div>
 
-<h3 class="mb-3"><i class="fa-solid fa-plane"></i> Thêm Tour mới</h3>
-<form action="index.php?act=store" method="POST" enctype="multipart/form-data">
-    <div class="row">
-        <div class="col 1">
-            <h5 class="mb-3">Thông tin cơ bản</h5>
-                <div class="mb-3">
-                    <label for="tour_name" class="form-label">Tên tour</label>
-                    <input type="text" class="form-control" id="tour_name" name="tour_name" >
-                </div>
-                <div class="mb-3">
-                    <label for="tour_category" class="form-label">Danh mục tour</label>
-                    <select class="form-select" id="tour_category" name="tour_category">
-                        <option value="1">Tour trong nước</option>
-                        <option value="2">Tour ngoài nước</option>
-                        <option value="3">Tour khác</option>
+        <h3 class="mb-3"><i class="fa-solid fa-plane"></i> Thêm Tour mới</h3>
+        <form action="index.php?act=store" method="POST" enctype="multipart/form-data">
+            <div class="row">
+                <div class="col-6">
+                    <h5>Thông tin cơ bản</h5>
+                    <div class="mb-3">
+                        <label>Tên tour</label>
+                        <input type="text" name="tour_name" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Danh mục tour</label>
+                        <select name="tour_category" class="form-select">
+                            <option value="1">Tour trong nước</option>
+                            <option value="2">Tour ngoài nước</option>
+                            <option value="3">Tour khác</option>
                         </select>
+                    </div>
+                    <div class="mb-3">
+                        <label>Mô tả</label>
+                        <input type="text" name="description" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label>Giá (VNĐ)</label>
+                        <input type="text" name="price" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label>Ảnh tour</label>
+                        <input type="file" name="image" class="form-control" accept="image/*" onchange="previewImage(event)">
+                        <img id="image-preview" class="img-preview" style="display:none;" alt="Preview">
+                    </div>
                 </div>
-                <div class="mb-3">
-                    <label for="description" class="form-label">mô tả</label>
-                    <input type="text" class="form-control" id="description" name="description" >
-                </div>
-                <div class="mb-3">
-                    <label for="price" class="form-label">Giá (VNĐ)</label>
-                    <input type="text" class="form-control" id="price" name="price" >
-                </div>
-        </div>
 
-        <div class="col 1">
-            <h5 class="mb-3">Thông tin khác</h5>
-                <div class="mb-3">
-                    <label for="policy" class="form-label">Chính sách </label>
-                    <input type="text" class="form-control" id="policy" name="policy" >
+                <div class="col-6">
+                    <h5>Thông tin khác</h5>
+                    <div class="mb-3">
+                        <label>Chính sách</label>
+                        <input type="text" name="policy" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label>Nhà cung cấp</label>
+                        <select name="supplier[]" multiple class="form-select">
+                            <?php foreach($partners as $p): ?>
+                                <option value="<?= $p->partner_id ?>"><?= $p->partner_name ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <small class="text-muted">Giữ Ctrl để chọn nhiều đối tác</small>
+                    </div>
+                    <div class="mb-3">
+                        <label>Tình trạng</label>
+                        <select name="status" class="form-select">
+                            <option value="1">Còn mở</option>
+                            <option value="0">Đã đóng</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="mb-3">
-                    <label for="supplier" class="form-label">Nhà cung cấp</label>
-                    <input type="text" class="form-control" id="supplier" name="supplier" >
-                </div>
-                <div class="mb-3">
-                    <label for="status" class="form-label">Tình trạng</label>
-                    <select class="form-select" name="status" id="status">
-                        <option value="1">Còn mở</option>
-                        <option value="0">Đã đóng</option>
-                    </select>
-                </div>
-        </div>
-    </div>
-    
-    <div class="text-end mb-5">
-        <button type="submit" class="btn btn-success"><i class="fa-solid fa-save"></i> Lưu Tour</button>
-        <button type="button" class="btn btn-secondary"><a href="?act=tour"style="color:white;">Hủy</a> </button>
-    </div>
-</form>
+            </div>
 
+            <h5>Hành trình Tour</h5>
+            <div id="itinerary-container" class="mb-3"></div>
+            <button type="button" class="btn btn-primary btn-sm mb-3" onclick="addItinerary()">Thêm ngày/hoạt động</button>
+
+            <div class="text-end">
+                <button type="submit" class="btn btn-success"><i class="fa-solid fa-save"></i> Lưu Tour</button>
+                <a href="?act=tour" class="btn btn-secondary"><i class="fa-solid fa-ban"></i> Hủy</a>
+            </div>
+        </form>
+    </div>
 </div>
 
-<footer>
-&copy; 2025 Công ty Du lịch. All rights reserved.
-</footer>
-
+<footer>&copy; 2025 Công ty Du lịch. All rights reserved.</footer>
 </body>
 </html>

@@ -32,7 +32,20 @@ match ($act) {
      'noidung'=>(new admincontroller())->tour(),
       
        'booking'=>(new admincontroller())->booking(),
+              'updateStatus'=>(new admincontroller())->updateStatus($id),
+              'createbooking'     => (new admincontroller())->createbooking(), 
+'storebooking'   => (new admincontroller())->storebooking(),  
+'updatebooking'  => (new admincontroller())->updatebooking(), 
+'deletebooking'  => (new admincontroller())->deletebooking(), 
+'bookingDetail'  => (new admincontroller())->bookingDetail(), 
+
+
+
         'customer'=>(new admincontroller())->customer(),
+ 'create_customer' => (new admincontroller())->create_customer(),
+    'delete_customer' => (new admincontroller())->delete_customer(),
+    'update_customer' => (new admincontroller())->update_customer(),
+
         'partner'=>(new admincontroller())->partner(),
 
         'accoun'=>(new admincontroller())->accoun(),
@@ -57,7 +70,7 @@ match ($act) {
 
 
 'header'=>(new TourGuideController())-> header(),
-    'schedule'=>(new TourGuideController())-> lichlamviec(),
+    'schedule'=>(new TourGuideController())-> schedule(),
     'profile'=>(new TourGuideController())-> profile(),
     'tour_detail'=>(new TourGuideController())-> tour_detail(),
     'report'=>(new TourGuideController())-> report(),

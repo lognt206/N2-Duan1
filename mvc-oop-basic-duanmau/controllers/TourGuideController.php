@@ -1,78 +1,87 @@
 <?php
+require_once __DIR__ . '/../models/ScheduleModel.php';
+
 class TourGuideController
 {
     public $modelTourGuide;
+    public $ScheduleModel;
 
     public function __construct()
     {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
         $this->modelTourGuide = new TourGuideModel();
+        $this->ScheduleModel = new ScheduleModel();
     }
 
+    // ----------------------------
+    // DASHBOARD
+    // ----------------------------
     public function header()
     {
-        $title = "Đây là trang chủ hdv";
+        $title = "Trang chủ hướng dẫn viên";
         require_once './views/guide/header.php';
     }
 
-    public function lichlamviec()
-{
-    $guideId = $_SESSION['guide_id'] ?? 201;
-
-    // Gọi phương thức từ model để lấy tour của guide này
-    $tours = $this->modelTourGuide->allguide($guideId); // cần tạo phương thức trong model
-
-    $today = date('Y-m-d');
-    $lich_lam_viec = [];
-
-    foreach ($tours as $tour) {
-        // tránh warning nếu cột null hoặc không tồn tại
-        $bdau  = $tour['departure_date'] ?? null;
-        $kthuc = $tour['return_date'] ?? null;
-
-        if (!$bdau || !$kthuc) {
-            $tour['tinh_trang'] = "Chưa có dữ liệu";
-            $tour['trangthai'] = "unknown";
-        } elseif ($kthuc < $today) {
-            $tour['tinh_trang'] = "Đã hoàn thành";
-            $tour['trangthai'] = "completed";
-        } elseif ($bdau <= $today && $kthuc >= $today) {
-            $tour['tinh_trang'] = "Đang thực hiện";
-            $tour['trangthai'] = "in_progress";
-        } else {
-            $tour['tinh_trang'] = "Sắp khởi hành";
-            $tour['trangthai'] = "upcoming";
+    // ----------------------------
+    // LỊCH LÀM VIỆC
+    // ----------------------------
+    public function schedule()
+    {
+        if (!isset($_SESSION['user'])) {
+            header("Location: ?act=login");
+            exit;
         }
 
-        $lich_lam_viec[] = $tour;
+        // Lấy ID hướng dẫn viên
+        $guide_id = $_SESSION['user']['user_id'];
+
+        // Lấy lịch làm việc từ Model
+        $lich_lam_viec = $this->ScheduleModel->getByGuide($guide_id);
+
+        // Gửi sang view
+        include "views/guide/lich_lam_viec/schedule.php";
     }
 
-    require_once './views/guide/schedule.php';
-}
-
-
-
+    // ----------------------------
+    // TRANG CÁ NHÂN
+    // ----------------------------
     public function profile()
     {
-        require_once './views/guide/profile.php';
+        require_once './views/guide/thong_tin_ca_nhan/profile.php';
     }
 
+    // ----------------------------
+    // NHẬT KÝ TOUR
+    // ----------------------------
     public function report()
     {
-        require_once './views/guide/report.php';
+        require_once './views/guide/nhat_ky/report.php';
     }
 
+    // ----------------------------
+    // CHI TIẾT TOUR
+    // ----------------------------
     public function tour_detail()
     {
-        require_once './views/guide/tour_detail.php';
+        require_once './views/guide/lich_lam_viec/tour_detail.php';
     }
 
+    // ----------------------------
+    // CHECK IN TOUR
+    // ----------------------------
     public function check_in()
     {
-        require_once './views/guide/check_in.php';
+        require_once './views/guide/lich_lam_viec/check_in.php';
     }
 
+    // ----------------------------
+    // YÊU CẦU ĐẶC BIỆT
+    // ----------------------------
     public function special_request()
     {
-        require_once './views/guide/special_request.php';
+        require_once './views/guide/yeu_cau_dbiet/special_request.php';
     }
 }
