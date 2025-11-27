@@ -44,8 +44,33 @@ class admincontroller {
 
     }
 public function dashboard() {
-        include "views/admin/dashboard.php";
+    // Tổng số tour
+    $totalTours = $this->modelTour->countTours();
+
+    // Tổng số khách hàng
+    $totalCustomers = $this->modelCustomer->count();
+
+    // Tổng số booking
+    $totalBookings = $this->BookingModel->count();
+
+    // Tổng doanh thu (tính theo số lượng khách * giá tour)
+    $totalRevenue = $this->BookingModel->sumRevenue();
+
+    // Dữ liệu biểu đồ doanh thu theo từng tour
+    $chartLabels = [];
+    $chartValues = [];
+    $tours = $this->modelTour->all();
+
+    foreach ($tours as $tour) {
+        $chartLabels[] = $tour['tour_name'];
+        $chartValues[] = $this->BookingModel->sumRevenueByTour($tour['tour_id']);
     }
+
+    // Load view dashboard
+    include "views/admin/dashboard.php";
+}
+
+
     public function tour() {
         $tours = $this->modelTour->all();
 

@@ -10,6 +10,8 @@ require_once './commons/function.php'; // Hàm hỗ trợ
 require_once './controllers/admincontroller.php';
 require_once './controllers/logincontroller.php';
 require_once './controllers/TourGuideController.php';
+
+
 // Require toàn bộ file Models
 // require_once './models/ProductModel.php';
 require_once './models/GuideModel.php';
@@ -76,6 +78,9 @@ match ($act) {
     'report'=>(new TourGuideController())-> report(),
     'check_in'=>(new TourGuideController())-> check_in(),
     'special_request'=>(new TourGuideController())-> special_request(),
+//báo cáo 
+
+
 
 
 };

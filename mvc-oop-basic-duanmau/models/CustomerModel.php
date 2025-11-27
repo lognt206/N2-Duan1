@@ -118,5 +118,14 @@ class CustomerModel {
             throw new Exception("Lỗi cập nhật khách hàng: " . $err->getMessage());
         }
     }
+public function count() {
+    $sql = "SELECT COUNT(*) as total FROM customer";
+    $stmt = $this->conn->query($sql);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $row['total'] ?? 0;
+}
+
+
+
 }
 ?>

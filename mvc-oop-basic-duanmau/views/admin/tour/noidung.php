@@ -86,7 +86,7 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
 <th>Tên Tour</th>
 <th>Loại Tour</th>
 <th>Mô tả</th>
-<th>Giá (VNĐ)</th>
+<th>Giá tour(VNĐ)</th>
 <th>Chính sách</th>
 <th>Nhà cung cấp</th>
 <th>Hành trình</th>
