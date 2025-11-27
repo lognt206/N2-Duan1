@@ -121,13 +121,13 @@ $nameUser = htmlspecialchars($nameUser);
                 <a href="?act=dashboard" class="text-decoration-none text-dark">
                     <i class="fa-solid fa-plane-departure"></i> Guide Panel
                 </a>
-            </div>
+          </div> 
             <div class="user">
-                <img src="uploads/logo.png" alt="User">
-                <span><?= $nameUser ?></span>
-                <a href="?act=login" class="btn btn-sm btn-outline-danger ms-3">Đăng xuất</a>
-            </div>
+            <img src="<?= $tourguide['photo'] ?? 'HDV'?>" alt="User">
+            <span><?= $nameUser = $_SESSION['user']['username'] ?? '';?></span>
+            <a href="?act=login" class="btn btn-sm btn-outline-danger ms-3">Đăng xuất</a>
         </div>
+    </div>
 
         <div class="container-fluid">
             <h2 class="page-title">Lịch làm việc của tôi</h2>
@@ -146,7 +146,6 @@ $nameUser = htmlspecialchars($nameUser);
                     <button class="btn-search"><i class="fa-solid fa-search"></i></button>
                 </div>
             </div>
-
             <table class="data-table tour-schedule-table">
                 <thead>
                     <tr>
@@ -201,6 +200,7 @@ $nameUser = htmlspecialchars($nameUser);
                 </tbody>
             </table>
         </div>
+
     </div>
 </div>
 

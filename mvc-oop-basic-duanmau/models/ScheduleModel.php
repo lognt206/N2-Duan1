@@ -1,5 +1,13 @@
 <?php
-class ScheduleModel {
+class Schedule{
+    public $schedule_id;
+    public $guide_id;
+    public $tour_id;
+    public $departure_id;
+    public $status;
+    public $created_at;
+}
+class ScheduleModel{
     public $conn;
     public function __construct() {
         $this->conn = connectDB();
@@ -16,10 +24,11 @@ class ScheduleModel {
                 WHERE b.guide_id = :guide_id
                 ORDER BY d.departure_date ASC";
 
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bindParam(':guide_id', $guide_id, PDO::PARAM_INT);
-        $stmt->execute();
 
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute(['guide_id'=>$guide_id]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }
+
+?>
