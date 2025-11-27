@@ -177,5 +177,16 @@ class TourModel {
             return 0;
         }
     }
+
+public function countTours() {
+    $sql = "SELECT COUNT(*) as total FROM tour";
+    $stmt = $this->conn->query($sql);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $row['total'] ?? 0;
+}
+
+
+
+
 }
 ?>

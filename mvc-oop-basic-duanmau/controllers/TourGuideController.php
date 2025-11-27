@@ -56,7 +56,7 @@ class TourGuideController
         }
 
         // Lấy ID hướng dẫn viên
-        $guide_id = $_SESSION['user']['user_id'];
+        $guide_id = $_SESSION['user']['guide_id'];
 
         // Lấy lịch làm việc từ Model
         $lich_lam_viec = $this->ScheduleModel->getByGuide($guide_id);

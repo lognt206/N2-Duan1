@@ -153,5 +153,36 @@ public function guideAvailable($guide_id, $departure_id)
     return $count == 0; // TRUE nếu HDV chưa bị trùng lịch
 }
 
+
+
+public function count() {
+    $sql = "SELECT COUNT(*) as total FROM booking";
+    $stmt = $this->conn->query($sql);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $row['total'] ?? 0;
+}
+
+public function sumRevenue() {
+    $sql = "SELECT SUM(b.num_people * t.price) AS totalRevenue
+            FROM booking b
+            JOIN tour t ON b.tour_id = t.tour_id
+            WHERE b.status = 1"; // chỉ tính booking đã xác nhận
+    $stmt = $this->conn->query($sql);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $row['totalRevenue'] ?? 0;
+}
+
+
+public function sumRevenueByTour($tour_id) {
+    $sql = "SELECT SUM(b.num_people * t.price) AS totalRevenue
+            FROM booking b
+            JOIN tour t ON b.tour_id = t.tour_id
+            WHERE b.tour_id = :tour_id";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute(['tour_id' => $tour_id]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $row['totalRevenue'] ?? 0;
+}
+
 }
 ?>
