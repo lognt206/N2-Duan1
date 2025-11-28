@@ -69,14 +69,14 @@ match ($act) {
     'create_guide' => (new admincontroller())->create_guide(),
     'delete_guide' => (new admincontroller())->delete_guide(),
     'update_guide' => (new admincontroller())->update_guide(),
-
+    //lọc ra cutsomer trong tour
 
 'header'=>(new TourGuideController())-> header(),
     'schedule'=>(new TourGuideController())-> schedule(),
     'profile'=>(new TourGuideController())-> profile(),
     'tour_detail'=>(new TourGuideController())-> tour_detail(),
     'report'=>(new TourGuideController())-> report(),
-    'check_in'=>(new TourGuideController())-> check_in(),
+    'check_in'=>(new TourGuideController())-> check_in($_GET['tour_id'] ?? null),
     'special_request'=>(new TourGuideController())-> special_request(),
 //báo cáo 
 

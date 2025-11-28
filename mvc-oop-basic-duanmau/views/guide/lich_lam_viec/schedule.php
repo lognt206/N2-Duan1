@@ -123,8 +123,8 @@ $nameUser = htmlspecialchars($nameUser);
                 </a>
           </div> 
             <div class="user">
-            <img src="<?= $tourguide['photo'] ?? 'HDV'?>" alt="User">
-            <span><?= $nameUser = $_SESSION['user']['username'] ?? '';?></span>
+                 <img src="uploads/logo.png" alt="User">
+                <span><?= $nameUser ?></span>
             <a href="?act=login" class="btn btn-sm btn-outline-danger ms-3">Đăng xuất</a>
         </div>
     </div>
@@ -136,10 +136,11 @@ $nameUser = htmlspecialchars($nameUser);
             <div class="filter-controls">
                 <div class="status-filters">
                     <button class="filter-btn active" data-status="all">Tất cả Tour</button>
-                    <button class="filter-btn" data-status="upcoming">Sắp khởi hành</button>
-                    <button class="filter-btn" data-status="in_progress">Đang thực hiện</button>
-                    <button class="filter-btn" data-status="completed">Đã hoàn thành</button>
-                    <button class="filter-btn" data-status="cancelled">Đã hủy</button>
+                     <button class="filter-btn" data-status="cancelled">Sắp khởi hành</button>
+                     <button class="filter-btn" data-status="in_progress">Đang thực hiện</button>
+                    <button class="filter-btn" data-status="upcoming"> Đã hoàn thành</button>
+                    <button class="filter-btn" data-status="completed">Đã hủy</button>
+                   
                 </div>
                 <div class="search-box">
                     <input type="text" placeholder="Tìm kiếm theo mã tour, tên tour...">

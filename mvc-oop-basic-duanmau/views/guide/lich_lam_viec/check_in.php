@@ -90,7 +90,7 @@ $nameUser = htmlspecialchars($nameUser);
     <!-- Dashboard Content -->
     <div class="container-fluid">
         <h2> Điểm danh khách hàng tour</h2>
-    <p class="tour-info">Tour: <strong>Lucca Bike Tour - HL25</strong> | Ngày: 02/10/2025</p>
+    <p class="tour-info">Tour: <strong><?= $tour_detail_data['tour_name'] ?? 'N/A' ?></strong> | Ngày: 02/10/2025</p>
 
     <div class="summary-box">
       <span>Tổng khách: <strong>40</strong></span>
@@ -103,42 +103,30 @@ $nameUser = htmlspecialchars($nameUser);
       <button class="btn-primary"> Lưu</button>
     </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th>STT</th>
-          <th>Tên khách</th>
-          <th>Mã booking</th>
-          <th>SĐT</th>
-          <th class="text-center">Check-in</th>
-          <th>Ghi chú</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>1</td>
-          <td>Nguyễn Văn A</td>
-          <td>BOOKING-12345</td>
-          <td>0901 xxx 999</td>
-          <td class="text-center">
-            <input type="checkbox" class="checkin-toggle" id="guest1" checked>
-            <label for="guest1" class="toggle-label"></label>
-          </td>
-          <td>Đã thanh toán</td>
-        </tr>
-        <tr>
-          <td>2</td>
-          <td>Trần Thị B</td>
-          <td>BOOKING-56789</td>
-          <td>0902 xxx 888</td>
-          <td class="text-center">
-            <input type="checkbox" class="checkin-toggle" id="guest2">
-            <label for="guest2" class="toggle-label"></label>
-          </td>
-          <td>Chưa đến</td>
-        </tr>
-      </tbody>
-    </table>
+     <table class="table table-bordered align-middle text-center data-table guest-table">
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Họ và tên</th>
+                            <th>Giới tính</th>
+                            <th>Năm sinh</th>
+                            <th>Liên hệ</th>
+                            <th>Yêu cầu đặc biệt</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($tour_detail_data['customers'] ?? [] as $index => $data): ?>
+                        <tr>
+                            <td><?= $index + 1 ?></td>
+                            <td><?= htmlspecialchars($data['full_name']) ?></td>
+                            <td><?= isset($data['gender']) ? ($data['gender'] == 1 ? "Nam" : "Nữ") : "Chưa xác định" ?></td>
+                            <td><?= $data['birth_year'] ?? "Chưa xác định" ?></td>
+                            <td><?= htmlspecialchars($data['contact'] ?? '-') ?></td>
+                            <td><?= htmlspecialchars($data['special_request'] ?? '-') ?></td>
+                        </tr>
+                        <?php endforeach; ?>
+                        </tbody>
+                </table>
         
     </div>
 </div>

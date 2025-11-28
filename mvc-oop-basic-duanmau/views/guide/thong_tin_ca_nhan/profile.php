@@ -72,8 +72,8 @@ $nameUser = htmlspecialchars($nameUser);
             </a>
         </div>
         <div class="user">
-            <img src="<?= $tourguide['photo'] ?? 'HDV'?>" alt="User">
-            <span><?= $nameUser = $_SESSION['user']['username'] ?? '';?></span>
+          <img src="uploads/logo.png" alt="User">
+                <span><?= $nameUser ?></span>
             <a href="?act=login" class="btn btn-sm btn-outline-danger ms-3">Đăng xuất</a>
         </div>
     </div>

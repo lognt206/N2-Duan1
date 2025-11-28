@@ -1,16 +1,25 @@
 <?php
 require_once __DIR__ . '/../models/ScheduleModel.php';
 require_once __DIR__ . '/../models/Guidemodel.php';
+require_once __DIR__ . '/../models/BookingModel.php';
+require_once __DIR__ . '/../models/tourmodel.php';
+require_once __DIR__ . '/../models/CustomerModel.php';
 class TourGuideController
 {
     public $modelTourGuide;
     public $UserModel;
     public $ScheduleModel;
+    public $BookingModel;
+    public $modelTour;
+    public $modelCustomer;
 
     public function __construct()
     {
         $this->ScheduleModel = new ScheduleModel();
         $this->modelTourGuide = new TourGuideModel();
+        $this->BookingModel = new BookingModel();
+        $this->modelTour = new TourModel();
+        $this->modelCustomer = new CustomerModel();
     }
 
     // ----------------------------
@@ -22,26 +31,27 @@ class TourGuideController
         require_once './views/guide/header.php';
     }
 
-    public function lichlamviec()
-{
-    $guideId = $_SESSION['guide_id'] ?? 3;
+    public function schedule() {
+    session_start();
 
-    // Gọi phương thức từ model để lấy tour của guide này
-    $tours = $this->ScheduleModel->Scheduleguideid($guideId); // cần tạo phương thức trong model
+    // Lấy guide_id từ session (hoặc mặc định 3 nếu chưa login)
+    $guideId = $_SESSION['user']['guide_id'] ?? 3;
+
+    // Lấy lịch làm việc từ model 1 lần duy nhất
+    $tours = $this->ScheduleModel->getByGuide($guideId);
 
     $today = date('Y-m-d');
-    $lich_lam_viec = [];
 
-    foreach ($tours as $tour) {
-        // tránh warning nếu cột null hoặc không tồn tại
-        $bdau  = $tour['Ngay_Bat_Dau'] ?? null;
-        $kthuc = $tour['Ngay_Ket_Thuc'] ?? null;
-        $scheduleStatus = $tour['Trang_Thai_Schedule'] ?? null;
+    // Thêm trạng thái cho từng tour
+    foreach ($tours as &$tour) {
+        $bdau  = $tour['departure_date'] ?? null;
+        $kthuc = $tour['return_date'] ?? null;
+        $scheduleStatus = $tour['schedule_status'] ?? null;
+
         if ($scheduleStatus == 3) {
             $tour['tinh_trang'] = "Đã hủy";
-            $tour['trangthai'] = "cancelled"; 
-        }
-        elseif (!$bdau || !$kthuc) {
+            $tour['trangthai'] = "cancelled";
+        } elseif (!$bdau || !$kthuc) {
             $tour['tinh_trang'] = "Chưa có dữ liệu";
             $tour['trangthai'] = "unknown";
         } elseif ($kthuc < $today) {
@@ -54,16 +64,12 @@ class TourGuideController
             $tour['tinh_trang'] = "Sắp khởi hành";
             $tour['trangthai'] = "upcoming";
         }
-
-        // Lấy ID hướng dẫn viên
-        $guide_id = $_SESSION['user']['guide_id'];
-
-        // Lấy lịch làm việc từ Model
-        $lich_lam_viec = $this->ScheduleModel->getByGuide($guide_id);
-
-        // Gửi sang view
-        include "views/guide/lich_lam_viec/schedule.php";
     }
+
+    // Gửi dữ liệu sang view
+    $lich_lam_viec = $tours;
+    include "views/guide/lich_lam_viec/schedule.php";
+}
 
     // ----------------------------
     // TRANG CÁ NHÂN
@@ -95,14 +101,34 @@ class TourGuideController
     // ----------------------------
     public function tour_detail()
     {
+        $booking_id = $_GET['id'] ?? null;
+        if($booking_id){
+            $tour_detail_data = $this->BookingModel->detail($booking_id);
+        }else{
+            echo "Không tìm thấy Chi tiết tour";
+            exit;
+        }
+
         require_once './views/guide/lich_lam_viec/tour_detail.php';
     }
 
     // ----------------------------
     // CHECK IN TOUR
     // ----------------------------
-    public function check_in()
-    {
+    public function check_in($tour_id = null)
+    {   
+        if($tour_id === null){
+            $tour_id=$_GET['tour_id'] ?? null;
+        }
+        if($tour_id === null){
+            echo "Không tìm thấy ID tour";
+            exit;
+        }
+       $tour_detail = $this->BookingModel->detail($tour_id);
+
+        // Nếu null/false thì gán mảng rỗng để tránh cảnh báo
+        $tour_detail_data = $tour_detail ?: [];
+        
         require_once './views/guide/lich_lam_viec/check_in.php';
     }
 
