@@ -110,6 +110,17 @@ public function getByUserId($user_id)
     return $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
+    //lấy customer theo tour
+    public function customer_tour($tour_id){
+        $sql = "SELECT c.full_name, c.gender, c.birth_year, c.contact, c.payment_status, c.special_request
+                FROM booking b
+                JOIN customer_group cg ON b.group_id=cg.group_id
+                JOIN customer c ON c.group_id=cg.group_id
+                WHERE b.tour_id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([$tour_id]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
 }
 ?>

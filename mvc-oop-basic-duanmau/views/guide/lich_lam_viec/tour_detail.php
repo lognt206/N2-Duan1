@@ -65,6 +65,7 @@ $nameUser = htmlspecialchars($nameUser);
         .guest-actions { margin-top: 20px; text-align: right;}
         .itinerary-list { margin-top: 15px; padding-left: 20px;}
         .itinerary-list li { margin-bottom: 10px; line-height: 1.5;}
+        .table th { background: #343a40; color: white; }
     </style>
 </head>
 <body>
@@ -98,7 +99,7 @@ $nameUser = htmlspecialchars($nameUser);
 
     <!-- Dashboard Content -->
     <div class="container-fluid">
-        <h2 class="page-main-title">Chi tiết Tour: Lucca Bike Tour - HL25</h2>
+        <h2 class="page-main-title">Chi tiết Tour: <?= $tour_detail_data['tour_name'] ?></h2>
         <p class="tour-status">Trạng thái: <span class="status-badge upcoming">Sắp khởi hành</span></p>
 
         <div class="quick-actions">
@@ -111,7 +112,7 @@ $nameUser = htmlspecialchars($nameUser);
                 Thông tin chung
             </button>
             <button class="tab-button" onclick="showTab('guests')">
-                 Danh sách khách (40 người)
+                 Danh sách khách (<?= $tour_detail_data['num_people'] ?> người)
             </button>
             <button class="tab-button" onclick="showTab('itinerary')">
                  Lộ trình chi tiết
@@ -123,60 +124,53 @@ $nameUser = htmlspecialchars($nameUser);
             <div id="info" class="tab-pane active">
                 <div class="info-grid">
                     <div class="info-item">
-                        <span class="label">Ngày Tour:</span>
-                        <span class="value">Tuesday, 02 Oct 2025</span>
+                        <span class="label">Ngày bắt đầu Tour:</span>
+                        <span class="value"><?= $tour_detail_data['departure_date'] ?></span>
                     </div>
                     <div class="info-item">
-                        <span class="label">Thời gian:</span>
-                        <span class="value">15:00 PM</span>
+                        <span class="label">Ngày kết thúc Tour:</span>
+                        <span class="value"><?= $tour_detail_data['return_date'] ?></span>
                     </div>
                     <div class="info-item">
-                        <span class="label">Thời lượng:</span>
-                        <span class="value">15 giờ 45 phút</span>
+                        <span class="label">Điểm gặp gỡ:</span>
+                        <span class="value"><?= $tour_detail_data['meeting_point'] ?></span>
                     </div>
                     <div class="info-item">
-                        <span class="label">Ngôn ngữ:</span>
-                        <span class="value">English, Italian</span>
+                        <span class="label">Số người:</span>
+                        <span class="value"><?= $tour_detail_data['num_people'] ?></span>
                     </div>
-                    <div class="info-item">
-                        <span class="label">Vận chuyển:</span>
-                        <span class="value">Bus (Xe 45 chỗ - Biển số: 51F-123.45)</span>
-                    </div>
-                    <div class="info-item full-width">
-                        <span class="label">Điểm tập trung:</span>
-                        <span class="value">Khách sạn XYZ, 123 Đường ABC.</span>
                     </div>
                 </div>
             </div>
             
             <div id="guests" class="tab-pane hidden">
                 <h3>Danh sách khách hàng</h3>
-                <table class="data-table guest-table">
+                <table class="table table-bordered align-middle text-center data-table guest-table">
                     <thead>
                         <tr>
                             <th>STT</th>
-                            <th>Tên Khách</th>
-                            <th>Số điện thoại</th>
-                            <th>Trạng thái</th>
+                            <th>Họ và tên</th>
+                            <th>Giới tính</th>
+                            <th>Năm sinh</th>
+                            <th>Liên hệ</th>
+                            <th>Yêu cầu đặc biệt</th>
                         </tr>
                     </thead>
                     <tbody>
+                        <?php foreach ($tour_detail_data['customers'] as $index => $data): ?>
                         <tr>
-                            <td>1</td>
-                            <td>NGUYỄN VĂN A</td>
-                            <td>0901 xxx 999</td>
-                            <td><span class="status-checkin">Đã Check-in</span></td>
+                            <td><?= $index + 1 ?></td>
+                            <td><?= htmlspecialchars($data['full_name']) ?></td>
+                            <td><?= isset($data['gender']) ? ($data['gender'] == 1 ? "Nam" : "Nữ") : "Chưa xác định" ?></td>
+                            <td><?= $data['birth_year'] ?? "Chưa xác định" ?></td>
+                            <td><?= htmlspecialchars($data['contact'] ?? '-') ?></td>
+                            <td><?= htmlspecialchars($data['special_request'] ?? '-') ?></td>
                         </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>TRẦN THỊ B</td>
-                            <td>0902 xxx 888</td>
-                            <td><span class="status-pending">Chờ Check-in</span></td>
-                        </tr>
+                        <?php endforeach; ?>
                         </tbody>
                 </table>
                 <div class="guest-actions">
-                    <button class="btn-back"><a href="?act=check_in">Mở công cụ Điểm danh</a></button>
+                    <button class="btn-back"><a href="?act=check_in&tour_id=<?= $tour_detail_data['tour_id'] ?>">Mở công cụ Điểm danh</a></button>
                 </div>
             </div>
 

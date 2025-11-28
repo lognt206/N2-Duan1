@@ -1,16 +1,25 @@
 <?php
 require_once __DIR__ . '/../models/ScheduleModel.php';
 require_once __DIR__ . '/../models/Guidemodel.php';
+require_once __DIR__ . '/../models/BookingModel.php';
+require_once __DIR__ . '/../models/tourmodel.php';
+require_once __DIR__ . '/../models/CustomerModel.php';
 class TourGuideController
 {
     public $modelTourGuide;
     public $UserModel;
     public $ScheduleModel;
+    public $BookingModel;
+    public $modelTour;
+    public $modelCustomer;
 
     public function __construct()
     {
         $this->ScheduleModel = new ScheduleModel();
         $this->modelTourGuide = new TourGuideModel();
+        $this->BookingModel = new BookingModel();
+        $this->modelTour = new TourModel();
+        $this->modelCustomer = new CustomerModel();
     }
 
     // ----------------------------
@@ -92,14 +101,34 @@ class TourGuideController
     // ----------------------------
     public function tour_detail()
     {
+        $booking_id = $_GET['id'] ?? null;
+        if($booking_id){
+            $tour_detail_data = $this->BookingModel->detail($booking_id);
+        }else{
+            echo "Không tìm thấy Chi tiết tour";
+            exit;
+        }
+
         require_once './views/guide/lich_lam_viec/tour_detail.php';
     }
 
     // ----------------------------
     // CHECK IN TOUR
     // ----------------------------
-    public function check_in()
-    {
+    public function check_in($tour_id = null)
+    {   
+        if($tour_id === null){
+            $tour_id=$_GET['tour_id'] ?? null;
+        }
+        if($tour_id === null){
+            echo "Không tìm thấy ID tour";
+            exit;
+        }
+       $tour_detail = $this->BookingModel->detail($tour_id);
+
+        // Nếu null/false thì gán mảng rỗng để tránh cảnh báo
+        $tour_detail_data = $tour_detail ?: [];
+        
         require_once './views/guide/lich_lam_viec/check_in.php';
     }
 
