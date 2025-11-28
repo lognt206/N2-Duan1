@@ -71,14 +71,13 @@ public function dashboard() {
 }
 
 
-    public function tour() {
+    public function tour(){
         $tours = $this->modelTour->all();
 
-        foreach ($tours as &$tour) {
-            $tour['partners'] = $this->modelTourPartner->getPartnersByTour($tour['tour_id']);
-            $tour['itineraries'] = $this->itineraryModel->getByTour($tour['tour_id']);
-            $tour['images'] = $this->modelTourImage->getImagesByTour($tour['tour_id']);
-        }
+       foreach ($tours as &$tour) {
+    $tour['partners'] = $this->modelTourPartner->getPartnersByTour($tour['tour_id']);
+    $tour['itineraries'] = $this->itineraryModel->getByTour($tour['tour_id']);
+}
 
         include "views/admin/tour/noidung.php";
     }
@@ -147,7 +146,7 @@ public function dashboard() {
                 $this->itineraryModel->create($itinerary);
             }
 
-            header("Location: index.php?act=tour");
+           header("Location: index.php?act=tour");
             exit;
         }
     }
@@ -250,6 +249,8 @@ public function delete() {
     header("Location: index.php?act=tour");
     exit;
 }
+
+
 
 public function guideadmin() {
     $guides = $this->modelTourGuide->allguide();

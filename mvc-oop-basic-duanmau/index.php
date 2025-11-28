@@ -22,16 +22,13 @@ $id = $_GET['id'] ?? null;
 // Để bảo bảo tính chất chỉ gọi 1 hàm Controller để xử lý request thì mình sử dụng match
 
 match ($act) {
-    // Trang chủ
     // '/'=>(new logincontroller())->home(),
     '/'          => (new logincontroller())->login(),
 'dangxuat'          => (new logincontroller())->dangxuat(),
     'login'          => (new logincontroller())->login(),
 
-    //  '/'=>(new admincontroller())->dashboard(),
      'dashboard'=>(new admincontroller())->dashboard(),
     'tour'=>(new admincontroller())->tour(),
-     'noidung'=>(new admincontroller())->tour(),
       
        'booking'=>(new admincontroller())->booking(),
               'updateStatus'=>(new admincontroller())->updateStatus($id),

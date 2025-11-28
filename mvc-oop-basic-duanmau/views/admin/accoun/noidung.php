@@ -65,11 +65,10 @@
     <h3 class="mb-3"><i class="fa-solid fa-users"></i> Quản lý tài khoản</h3>
 
     <div class="d-flex justify-content-between mb-3">
-        <form class="d-flex" style="max-width:300px;">
-            <input type="text" name="keyword" class="form-control me-2"
-                   placeholder="Tìm kiếm...">
+        <!-- <form class="d-flex" style="max-width:300px;">
+            <input type="text" name="keyword" class="form-control me-2"placeholder="Tìm kiếm...">
             <button class="btn btn-outline-secondary"><i class="fa-solid fa-search"></i></button>
-        </form>
+        </form> -->
     </div>
 
     <div class="table-responsive bg-white p-3 rounded shadow-sm">

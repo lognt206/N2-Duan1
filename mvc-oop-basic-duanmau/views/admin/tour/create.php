@@ -35,9 +35,9 @@ function addItinerary() {
     const div = document.createElement('div');
     div.classList.add('itinerary-item');
     div.innerHTML = `
-        <input type="number" name="itinerary[${index}][day_number]" placeholder="Ngày" class="form-control" style="width:80px" required>
-        <input type="text" name="itinerary[${index}][activity]" placeholder="Hoạt động" class="form-control" required>
-        <input type="text" name="itinerary[${index}][location]" placeholder="Địa điểm" class="form-control" required>
+        <input type="number" name="itinerary[${index}][day_number]" placeholder="Ngày" class="form-control" style="width:80px" min="1" required>
+        <input type="text" name="itinerary[${index}][activity]" placeholder="Hoạt động" class="form-control" required maxlength="100">
+        <input type="text" name="itinerary[${index}][location]" placeholder="Địa điểm" class="form-control" required maxlength="100">
         <input type="time" name="itinerary[${index}][start_time]" class="form-control" required>
         <input type="time" name="itinerary[${index}][end_time]" class="form-control" required>
         <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove()">Xóa</button>
@@ -47,9 +47,52 @@ function addItinerary() {
 
 function previewImage(event) {
     const preview = document.getElementById('image-preview');
-    preview.src = URL.createObjectURL(event.target.files[0]);
+    const file = event.target.files[0];
+    if(file && file.size > 2*1024*1024){ // 2MB
+        alert('Kích thước ảnh không được vượt quá 2MB.');
+        event.target.value = '';
+        preview.style.display = 'none';
+        return;
+    }
+    preview.src = URL.createObjectURL(file);
     preview.style.display = 'block';
 }
+
+// Validate toàn bộ form trước khi submit
+document.addEventListener('DOMContentLoaded', function(){
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e){
+        let valid = true;
+
+        // Validate itinerary
+        const itineraries = document.querySelectorAll('#itinerary-container .itinerary-item');
+        itineraries.forEach((item, index) => {
+            const day = item.querySelector(`input[name="itinerary[${index}][day_number]"]`);
+            const start = item.querySelector(`input[name="itinerary[${index}][start_time]"]`);
+            const end = item.querySelector(`input[name="itinerary[${index}][end_time]"]`);
+
+            if(parseInt(day.value) <= 0){
+                alert(`Ngày ở mục ${index+1} phải lớn hơn 0`);
+                valid = false;
+                return;
+            }
+            if(start.value >= end.value){
+                alert(`Thời gian bắt đầu phải trước thời gian kết thúc ở mục ${index+1}`);
+                valid = false;
+                return;
+            }
+        });
+
+        // Validate select supplier
+        const supplier = form.querySelector('select[name="supplier[]"]');
+        if(!supplier.value){
+            alert('Vui lòng chọn ít nhất một nhà cung cấp.');
+            valid = false;
+        }
+
+        if(!valid) e.preventDefault();
+    });
+});
 </script>
 </head>
 <body>
@@ -87,27 +130,29 @@ function previewImage(event) {
                     <h5>Thông tin cơ bản</h5>
                     <div class="mb-3">
                         <label>Tên tour</label>
-                        <input type="text" name="tour_name" class="form-control" required>
+                        <input type="text" name="tour_name" class="form-control" maxlength="100" pattern="^[a-zA-Z0-9\sÀ-ỹ.,!?-]+$" required
+                        title="Tên tour chỉ gồm chữ, số, khoảng trắng và ký tự .,!?-">
                     </div>
                     <div class="mb-3">
                         <label>Danh mục tour</label>
-                        <select name="tour_category" class="form-select">
+                        <select name="tour_category" class="form-select" required>
+                            <option value="">-- Chọn danh mục --</option>
                             <option value="1">Tour trong nước</option>
-                            <option value="2">Tour ngoài nước</option>
+                            <option value="2">Tour nước ngoài </option>
                             <option value="3">Tour khác</option>
                         </select>
                     </div>
                     <div class="mb-3">
                         <label>Mô tả</label>
-                        <input type="text" name="description" class="form-control">
+                        <input type="text" name="description" class="form-control" maxlength="200">
                     </div>
                     <div class="mb-3">
                         <label>Giá (VNĐ)</label>
-                        <input type="text" name="price" class="form-control">
+                        <input type="number" name="price" class="form-control" min="0" step="1000" required>
                     </div>
                     <div class="mb-3">
                         <label>Ảnh tour</label>
-                        <input type="file" name="image" class="form-control" accept="image/*" onchange="previewImage(event)">
+                        <input type="file" name="image" class="form-control" accept="image/*" onchange="previewImage(event)" required>
                         <img id="image-preview" class="img-preview" style="display:none;" alt="Preview">
                     </div>
                 </div>
@@ -116,11 +161,11 @@ function previewImage(event) {
                     <h5>Thông tin khác</h5>
                     <div class="mb-3">
                         <label>Chính sách</label>
-                        <input type="text" name="policy" class="form-control">
+                        <input type="text" name="policy" class="form-control" maxlength="200">
                     </div>
                     <div class="mb-3">
                         <label>Nhà cung cấp</label>
-                        <select name="supplier[]" multiple class="form-select">
+                        <select name="supplier[]" multiple class="form-select" required>
                             <?php foreach($partners as $p): ?>
                                 <option value="<?= $p->partner_id ?>"><?= $p->partner_name ?></option>
                             <?php endforeach; ?>
@@ -129,7 +174,8 @@ function previewImage(event) {
                     </div>
                     <div class="mb-3">
                         <label>Tình trạng</label>
-                        <select name="status" class="form-select">
+                        <select name="status" class="form-select" required>
+                            <option value="">-- Chọn tình trạng --</option>
                             <option value="1">Còn mở</option>
                             <option value="0">Đã đóng</option>
                         </select>

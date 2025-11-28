@@ -22,30 +22,19 @@ class TourModel {
         $this->conn = connectDB();
     }
 
-    // Lấy tất cả tour kèm tên danh mục và nhà cung cấp
-    public function all() {
-        $sql = "SELECT t.*, tc.category_name
-                FROM tour t
-                LEFT JOIN tourcategory tc ON t.category_id = tc.category_id
-                ORDER BY t.tour_id DESC";
-        $tours = $this->conn->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+   public function all() {
+    $sql = "SELECT t.*, tc.category_name
+            FROM tour t
+            LEFT JOIN tourcategory tc ON t.category_id = tc.category_id
+            ORDER BY t.tour_id DESC"; // KHÔNG GROUP BY, KHÔNG JOIN partner
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 
-        foreach ($tours as &$tour) {
-            $tour_id = $tour['tour_id'];
 
-            // Lấy nhà cung cấp
-            $stmt = $this->conn->prepare("SELECT p.partner_id, p.partner_name 
-                                          FROM tour_partner tp
-                                          JOIN partner p ON tp.partner_id = p.partner_id
-                                          WHERE tp.tour_id = :tour_id");
-            $stmt->execute(['tour_id' => $tour_id]);
-            $partners = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            $tour['supplier_ids'] = array_column($partners, 'partner_id');
-            $tour['supplier_names'] = array_column($partners, 'partner_name');
-        }
 
-        return $tours;
-    }
+
 
     // Lấy 1 tour theo id
     public function find($id) {
@@ -87,32 +76,38 @@ class TourModel {
     // Thêm tour
     public function create(Tour $tour) {
         try {
-            $this->conn->beginTransaction();
+           $this->conn->beginTransaction();
 
-            $sql = "INSERT INTO tour(tour_name, category_id, description, price, policy, status, image)
-                    VALUES(:tour_name, :category_id, :description, :price, :policy, :status, :image)";
-            $stmt = $this->conn->prepare($sql);
-            $stmt->execute([
-                ":tour_name" => $tour->tour_name,
-                ":category_id" => $tour->category_id,
-                ":description" => $tour->description,
-                ":price" => $tour->price,
-                ":policy" => $tour->policy,
-                ":status" => $tour->status,
-                ":image" => $tour->image
-            ]);
-            $tour_id = $this->conn->lastInsertId();
+// 1. Thêm tour
+$sql = "INSERT INTO tour(tour_name, category_id, description, price, policy, status, image)
+        VALUES(:tour_name, :category_id, :description, :price, :policy, :status, :image)";
+$stmt = $this->conn->prepare($sql);
+$stmt->execute([
+    ":tour_name" => $tour->tour_name,
+    ":category_id" => $tour->category_id,
+    ":description" => $tour->description,
+    ":price" => $tour->price,
+    ":policy" => $tour->policy,
+    ":status" => $tour->status,
+    ":image" => $tour->image
+]);
 
-            // Thêm nhà cung cấp
-            if (!empty($tour->supplier_ids)) {
-                $sql2 = "INSERT INTO tour_partner(tour_id, partner_id) VALUES (:tour_id, :partner_id)";
-                $stmt2 = $this->conn->prepare($sql2);
-                foreach ($tour->supplier_ids as $partner_id) {
-                    $stmt2->execute(['tour_id' => $tour_id, 'partner_id' => $partner_id]);
-                }
-            }
+$tour_id = $this->conn->lastInsertId();
 
-            $this->conn->commit();
+// 2. Thêm nhiều nhà cung cấp cho tour này
+if (!empty($tour->supplier_ids)) {
+    $sql2 = "INSERT INTO tour_partner(tour_id, partner_id) VALUES (:tour_id, :partner_id)";
+    $stmt2 = $this->conn->prepare($sql2);
+
+    // tránh trùng partner_id
+    $unique_suppliers = array_unique($tour->supplier_ids);
+
+    foreach ($unique_suppliers as $partner_id) {
+        $stmt2->execute([':tour_id' => $tour_id, ':partner_id' => $partner_id]);
+    }
+}
+
+$this->conn->commit();
             return $tour_id;
         } catch (PDOException $err) {
             $this->conn->rollBack();

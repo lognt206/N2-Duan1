@@ -80,10 +80,10 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
 
 <div class="d-flex justify-content-between mb-3">
 <a href="index.php?act=create_guide" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Thêm HDV mới</a>
-<form class="d-flex" style="max-width:300px;">
+<!-- <form class="d-flex" style="max-width:300px;">
 <input type="text" class="form-control me-2" placeholder="Tìm kiếm...">
 <button class="btn btn-outline-secondary"><i class="fa-solid fa-search"></i></button>
-</form>
+</form> -->
 </div>
 
 <div class="table-responsive">

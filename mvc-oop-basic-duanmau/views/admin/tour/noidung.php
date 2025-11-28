@@ -71,10 +71,10 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
 
 <div class="d-flex justify-content-between mb-3">
 <a href="index.php?act=create" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Thêm Tour mới</a>
-<form class="d-flex" style="max-width:300px;">
+<!-- <form class="d-flex" style="max-width:300px;">
 <input type="text" class="form-control me-2" placeholder="Tìm kiếm...">
 <button class="btn btn-outline-secondary"><i class="fa-solid fa-search"></i></button>
-</form>
+</form> -->
 </div>
 
 <div class="table-responsive">
@@ -112,14 +112,7 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
         <td><?= number_format($tour['price'], 0, ',', '.') ?>₫</td>
         <td><?= $tour['policy'] ?></td>
         <td>
-            <?php 
-            if (!empty($tour['partners'])) {
-                $names = array_map(fn($p) => $p['partner_name'], $tour['partners']);
-                echo implode(', ', $names);
-            } else {
-                echo "<span class='text-muted'>Chưa có nhà cung cấp</span>";
-            }
-            ?>
+            <?= !empty($tour['partners']) ? implode(', ', array_map(fn($p) => $p['partner_name'], $tour['partners'])) : "<span class='text-muted'>Chưa có nhà cung cấp</span>" ?>
         </td>
         <td class="itinerary-list">
             <?php if(!empty($tour['itineraries'])): ?>
@@ -133,12 +126,9 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
             <?php endif; ?>
         </td>
         <td>
-            <?php 
-            $status_code = (int)$tour['status'];
-            $status_text = $status_code === 1 ? "Còn mở" : "Đã đóng";
-            $status_class = $status_code === 1 ? 'Available' : 'Closed';
-            ?>
-            <span class="badge <?= $status_class ?>"><?= $status_text ?></span>
+            <span class="badge <?= (int)$tour['status']===1 ? 'Available' : 'Closed' ?>">
+                <?= (int)$tour['status']===1 ? 'Còn mở' : 'Đã đóng' ?>
+            </span>
         </td>
         <td>
             <a href="?act=update&id=<?= $tour['tour_id'] ?>" class="btn btn-sm btn-warning"><i class="fa-solid fa-pen"></i></a>
