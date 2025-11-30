@@ -148,5 +148,16 @@ class DepartureModel{
             return false;
         }
     }
+    public function insert($data){
+    $dep = new Departure();
+    $dep->tour_id        = $data['tour_id'];
+    $dep->departure_date = $data['departure_date'] ?? null;
+    $dep->return_date    = $data['return_date'] ?? null;
+    $dep->meeting_point  = $data['meeting_point'] ?? null;
+    $dep->guide_id       = $data['guide_id'] ?? null;
+    $dep->notes          = $data['notes'] ?? null;
+
+    return $this->create($dep);
+}
 }
 ?>

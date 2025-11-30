@@ -56,7 +56,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
     <div class="card shadow-sm">
         <div class="card-body">
-            <h5 class="card-title mb-3"><?= $booking['tour_name'] ?></h5>
+            <h2 class="card-title mb-3"><?= $booking['tour_name'] ?></h2>
 
          <div class="row mb-2">
     <div class="col-md-12 fw-bold">Danh sách khách:</div>
@@ -128,9 +128,14 @@ if (session_status() === PHP_SESSION_NONE) {
             </div>
 
             <div class="row mb-2">
-                <div class="col-md-4 fw-bold">Loại đặt:</div>
-                <div class="col-md-8"><?= $booking['booking_type'] ?></div>
-            </div>
+    <div class="col-md-4 fw-bold">Loại đặt:</div>
+    <div class="col-md-8">
+        <?= isset($booking['booking_type']) 
+            ? ($booking['booking_type']==1 ? 'Trực tiếp' : ($booking['booking_type']==2 ? 'Online' : '-')) 
+            : '-' ?>
+    </div>
+</div>
+
 
             <div class="row mb-2">
                 <div class="col-md-4 fw-bold">Trạng thái:</div>

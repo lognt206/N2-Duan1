@@ -43,7 +43,7 @@ class TourGuideController
     $today = date('Y-m-d');
 
     // Thêm trạng thái cho từng tour
-    foreach ($tours as &$tour) {
+    foreach ($tours as $tour) {
         $bdau  = $tour['departure_date'] ?? null;
         $kthuc = $tour['return_date'] ?? null;
         $scheduleStatus = $tour['schedule_status'] ?? null;

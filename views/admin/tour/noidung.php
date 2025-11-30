@@ -88,7 +88,7 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
 <th>Mô tả</th>
 <th>Giá tour(VNĐ)</th>
 <th>Chính sách</th>
-<th>Nhà cung cấp</th>
+<th>Đối Tác</th>
 <th>Hành trình</th>
 <th>Tình trạng</th>
 <th>Hành động</th>
@@ -112,7 +112,13 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
         <td><?= number_format($tour['price'], 0, ',', '.') ?>₫</td>
         <td><?= $tour['policy'] ?></td>
         <td>
-            <?= !empty($tour['partners']) ? implode(', ', array_map(fn($p) => $p['partner_name'], $tour['partners'])) : "<span class='text-muted'>Chưa có nhà cung cấp</span>" ?>
+          <?php if (!empty($tour['partners'])): ?>
+    <?php foreach ($tour['partners'] as $p): ?>
+        <span class="badge bg-info text-dark me-1"><?= htmlspecialchars($p) ?></span>
+    <?php endforeach; ?>
+<?php else: ?>
+    <span class="text-muted">Không có đối tác</span>
+<?php endif; ?>
         </td>
         <td class="itinerary-list">
             <?php if(!empty($tour['itineraries'])): ?>

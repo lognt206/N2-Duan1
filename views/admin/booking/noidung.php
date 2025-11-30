@@ -93,9 +93,9 @@ if (session_status() === PHP_SESSION_NONE) {
                         <td><?= $b['guide_name'] ?? '-' ?></td>
                         <td><?= $b['booking_date'] ?></td>
                         <td>
-                            <?= !empty($b['departure_date']) ? $b['departure_date'] : '-' ?>
-                            <?= !empty($b['return_date']) ? ' → ' . $b['return_date'] : '' ?>
-                        </td>
+    <?= !empty($b['departure_date']) ? $b['departure_date'] : '-' ?>
+    <?= !empty($b['return_date']) ? ' → ' . $b['return_date'] : '' ?>
+</td>
                         <td><?= $b['num_people'] ?></td>
                         <td>
                      <?= isset($b['booking_type']) ? ($b['booking_type']==1 ? 'Trực tiếp' : ($b['booking_type']==2 ? 'Online' : '-')) : '-' ?>

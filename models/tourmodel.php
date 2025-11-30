@@ -23,16 +23,41 @@ class TourModel {
     }
 
    public function all() {
-    $sql = "SELECT t.*, tc.category_name
-            FROM tour t
-            LEFT JOIN tourcategory tc ON t.category_id = tc.category_id
-            ORDER BY t.tour_id DESC"; // KHÔNG GROUP BY, KHÔNG JOIN partner
+    $sql = "
+        SELECT 
+            t.tour_id,
+            t.tour_name,
+            t.category_id,
+            tc.category_name,
+            t.description,
+            t.price,
+            t.policy,
+            t.status,
+            t.image,
+            GROUP_CONCAT(p.partner_name SEPARATOR '||') AS partners
+        FROM tour t
+        LEFT JOIN tourcategory tc ON t.category_id = tc.category_id
+        LEFT JOIN tour_partner tp ON t.tour_id = tp.tour_id
+        LEFT JOIN partner p ON tp.partner_id = p.partner_id
+        GROUP BY t.tour_id
+        ORDER BY t.tour_id DESC
+    ";
+
     $stmt = $this->conn->prepare($sql);
     $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // ✨ Chuyển partners từ chuỗi → Mảng
+    foreach ($data as &$row) {
+        if (!empty($row["partners"])) {
+            $row["partners"] = explode("||", $row["partners"]);
+        } else {
+            $row["partners"] = [];
+        }
+    }
+
+    return $data;
 }
-
-
 
 
 
