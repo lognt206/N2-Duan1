@@ -4,6 +4,7 @@ require_once __DIR__ . '/../models/Guidemodel.php';
 require_once __DIR__ . '/../models/BookingModel.php';
 require_once __DIR__ . '/../models/tourmodel.php';
 require_once __DIR__ . '/../models/CustomerModel.php';
+require_once __DIR__ . '/../models/itineraryModel.php';
 class TourGuideController
 {
     public $modelTourGuide;
@@ -12,6 +13,7 @@ class TourGuideController
     public $BookingModel;
     public $modelTour;
     public $modelCustomer;
+    public $itineraryModel;
 
     public function __construct()
     {
@@ -20,6 +22,7 @@ class TourGuideController
         $this->BookingModel = new BookingModel();
         $this->modelTour = new TourModel();
         $this->modelCustomer = new CustomerModel();
+        $this->itineraryModel = new itineraryModel();
     }
 
     // ----------------------------
@@ -35,7 +38,7 @@ class TourGuideController
     session_start();
 
     // Lấy guide_id từ session (hoặc mặc định 3 nếu chưa login)
-    $guideId = $_SESSION['user']['guide_id'] ?? 3;
+    $guideId = $_SESSION['user']['guide_id'] ?? 0;
 
     // Lấy lịch làm việc từ model 1 lần duy nhất
     $tours = $this->ScheduleModel->getByGuide($guideId);
@@ -46,12 +49,13 @@ class TourGuideController
     foreach ($tours as $tour) {
         $bdau  = $tour['departure_date'] ?? null;
         $kthuc = $tour['return_date'] ?? null;
-        $scheduleStatus = $tour['schedule_status'] ?? null;
+       // $scheduleStatus = $tour['schedule_status'] ?? 0;
 
-        if ($scheduleStatus == 3) {
-            $tour['tinh_trang'] = "Đã hủy";
-            $tour['trangthai'] = "cancelled";
-        } elseif (!$bdau || !$kthuc) {
+        // if ($scheduleStatus == 3) {
+        //     $tour['tinh_trang'] = "Đã hủy";
+        //     $tour['trangthai'] = "cancelled";
+        // } else
+        if (!$bdau || !$kthuc) {
             $tour['tinh_trang'] = "Chưa có dữ liệu";
             $tour['trangthai'] = "unknown";
         } elseif ($kthuc < $today) {
@@ -100,37 +104,52 @@ class TourGuideController
     // CHI TIẾT TOUR
     // ----------------------------
     public function tour_detail()
-    {
-        $booking_id = $_GET['id'] ?? null;
-        if($booking_id){
-            $tour_detail_data = $this->BookingModel->detail($booking_id);
-        }else{
-            echo "Không tìm thấy Chi tiết tour";
-            exit;
-        }
+{
+    $booking_id = $_GET['id'] ?? null;
 
-        require_once './views/guide/lich_lam_viec/tour_detail.php';
+    if ($booking_id) {
+
+        // SỬA LỖI Ở ĐÂY
+        // Dùng đúng hàm có trong BookingModel
+        $tour_detail_data = $this->BookingModel->getBookingFullDetail($booking_id);
+
+    } else {
+        echo "Không tìm thấy Chi tiết tour";
+        exit;
     }
+
+    // lấy lịch trình theo tour
+    $tour_detail_data['itineraries'] = [];
+    $tour_id = $tour_detail_data['tour_id'] ?? null;
+
+    if ($tour_id) {
+        $tour_detail_data['itineraries'] = $this->itineraryModel->getByTour($tour_id);
+    }
+
+    require_once './views/guide/lich_lam_viec/tour_detail.php';
+}
 
     // ----------------------------
     // CHECK IN TOUR
     // ----------------------------
-    public function check_in($tour_id = null)
-    {   
-        if($tour_id === null){
-            $tour_id=$_GET['tour_id'] ?? null;
-        }
-        if($tour_id === null){
-            echo "Không tìm thấy ID tour";
-            exit;
-        }
-       $tour_detail = $this->BookingModel->detail($tour_id);
-
-        // Nếu null/false thì gán mảng rỗng để tránh cảnh báo
-        $tour_detail_data = $tour_detail ?: [];
-        
-        require_once './views/guide/lich_lam_viec/check_in.php';
-    }
+    // public function check_in()
+    // {   
+    //     session_start();
+    //     $tour_id = $_GET['tour_id'] ?? null;
+    //     if(!$tour_id){
+    //         echo "Không tìm thấy tour";
+    //         exit;
+    //     }
+    //     //sd tourmodel để lấy ra chi tiết tour
+    //     $tourModel = new TourModel();
+    //     $tour_detail_data = $this->modelTour->find($tour_id);
+    //     if(!$tour_detail_data){
+    //         echo "Tour không tồn tại";
+    //         exit;
+    //     }
+    //     $customers = $this->modelTourGuide->customer_tour($tour_id);
+    //     require_once './views/guide/lich_lam_viec/check_in.php';
+    // }
 
     // ----------------------------
     // YÊU CẦU ĐẶC BIỆT

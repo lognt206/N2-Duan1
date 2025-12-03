@@ -1,7 +1,6 @@
 <?php 
 class Customer {
     public $customer_id;
-    public $group_id;
     public $full_name;
     public $gender;
     public $birth_year;
@@ -19,14 +18,32 @@ class CustomerModel {
     }
 
     // Lấy toàn bộ khách hàng
-    public function allcustomer(): array {
+    public function allcustomer() {
+    $sql = "SELECT customer_id, full_name, gender, birth_year, id_number, contact, payment_status, special_request FROM customer";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+
+    // Lấy khách hàng chưa có booking trùng lịch
+    public function availableCustomers($departure_id = null, $booking_date = null): array {
         try {
-            $sql = "SELECT c.*, cg.group_name 
-                    FROM customer c
-                    LEFT JOIN customer_group cg ON c.group_id = cg.group_id";
-            return $this->conn->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+            $sql = "SELECT * FROM customer c
+                    WHERE c.customer_id NOT IN (
+                        SELECT b.customer_id 
+                        FROM booking b
+                        WHERE (:departure_id IS NULL OR b.departure_id = :departure_id)
+                          AND (:booking_date IS NULL OR b.booking_date = :booking_date)
+                    )";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute([
+                ':departure_id' => $departure_id,
+                ':booking_date' => $booking_date
+            ]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $err) {
-            throw new Exception("Lỗi lấy khách hàng: " . $err->getMessage());
+            throw new Exception("Lỗi lấy khách hàng chưa có booking: " . $err->getMessage());
         }
     }
 
@@ -45,36 +62,26 @@ class CustomerModel {
 
     // Thêm khách hàng
     public function create_customer(Customer $customer): int {
-    try {
-        if (empty($customer->group_id)) {
-            throw new Exception("Nhóm khách bắt buộc phải chọn!");
+        try {
+            $sql = "INSERT INTO customer 
+                (full_name, gender, birth_year, id_number, contact, payment_status, special_request)
+                VALUES 
+                (:full_name, :gender, :birth_year, :id_number, :contact, :payment_status, :special_request)";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute([
+                'full_name'       => $customer->full_name ?? null,
+                'gender'          => $customer->gender ?? null,
+                'birth_year'      => $customer->birth_year ?? null,
+                'id_number'       => $customer->id_number ?? null,
+                'contact'         => $customer->contact ?? null,
+                'payment_status'  => $customer->payment_status ?? 0,
+                'special_request' => $customer->special_request ?? null
+            ]);
+            return (int)$this->conn->lastInsertId();
+        } catch (PDOException $err) {
+            throw new Exception("Lỗi tạo khách hàng: " . $err->getMessage());
         }
-
-        $sql = "INSERT INTO customer 
-            (group_id, full_name, gender, birth_year, id_number, contact, payment_status, special_request)
-            VALUES 
-            (:group_id, :full_name, :gender, :birth_year, :id_number, :contact, :payment_status, :special_request)";
-
-        $stmt = $this->conn->prepare($sql);
-
-        $stmt->execute([
-            'group_id'        => $customer->group_id,
-            'full_name'       => $customer->full_name ?? null,
-            'gender'          => $customer->gender ?? null,
-            'birth_year'      => $customer->birth_year ?? null,
-            'id_number'       => $customer->id_number ?? null,
-            'contact'         => $customer->contact ?? null,
-            'payment_status'  => $customer->payment_status ?? 0,
-            'special_request' => $customer->special_request ?? null
-        ]);
-
-        return (int)$this->conn->lastInsertId();
-
-    } catch (PDOException $err) {
-        throw new Exception("Lỗi tạo khách hàng: " . $err->getMessage());
     }
-}
-
 
     // Xóa khách hàng
     public function delete_customer(int $id): bool {
@@ -91,7 +98,6 @@ class CustomerModel {
     public function update_customer(Customer $customer): bool {
         try {
             $sql = "UPDATE customer SET 
-                        group_id = :group_id,
                         full_name = :full_name,
                         gender = :gender,
                         birth_year = :birth_year,
@@ -100,11 +106,8 @@ class CustomerModel {
                         payment_status = :payment_status,
                         special_request = :special_request
                     WHERE customer_id = :customer_id";
-
             $stmt = $this->conn->prepare($sql);
-
             return $stmt->execute([
-                'group_id'        => $customer->group_id,
                 'full_name'       => $customer->full_name ?? null,
                 'gender'          => $customer->gender ?? null,
                 'birth_year'      => $customer->birth_year ?? null,
@@ -118,13 +121,24 @@ class CustomerModel {
             throw new Exception("Lỗi cập nhật khách hàng: " . $err->getMessage());
         }
     }
-public function count() {
-    $sql = "SELECT COUNT(*) as total FROM customer";
-    $stmt = $this->conn->query($sql);
-    $row = $stmt->fetch(PDO::FETCH_ASSOC);
-    return $row['total'] ?? 0;
-}
 
+    public function count(): int {
+        $sql = "SELECT COUNT(*) as total FROM customer";
+        $stmt = $this->conn->query($sql);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row['total'] ?? 0;
+    }
+    
+// Tìm khách theo contact (số điện thoại / thông tin liên lạc)
+public function findByContact(string $contact): ?array {
+    $sql = "SELECT * FROM customer WHERE contact = :contact LIMIT 1";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute([
+        ':contact' => $contact
+    ]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $result ?: null;
+}
 
 
 }

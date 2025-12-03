@@ -40,17 +40,36 @@ public function all(){
             echo "Lỗi : " . $err->getMessage();
         }
     }
-public function delete_danhmuc($id){        //thêm danh mục
-            try{
-                $sql="DELETE FROM tourcategory WHERE `tourcategory`.`category_id` = $id";
-                $data=$this->conn->exec($sql);
-                return $data;
 
-            }catch (PDOException $err) {
-            echo "Lỗi truy vấn sản phẩm: " . $err->getMessage();
-        }
-        }
+// xóa danh mục 
+public function delete($id)
+{
+    try {
+        $sql = "DELETE FROM tourcategory WHERE category_id = :id";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindValue(':id', (int)$id, PDO::PARAM_INT);
+        return $stmt->execute();
+    } catch (PDOException $e) {
+        return false;
+    }
+}
 
+
+
+
+        public function isUsed($category_id) {
+    try {
+        $sql = "SELECT COUNT(*) AS total FROM `tour` WHERE category_id = :id";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindValue(':id', (int)$category_id, PDO::PARAM_INT);
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return (isset($row['total']) && (int)$row['total'] > 0);
+    } catch (PDOException $e) {
+        // nếu muốn debug: echo $e->getMessage();
+        return false; // coi như không được dùng (an toàn hơn)
+    }
+}
         public function find($id){//tìm
             try{
                 $sql="SELECT * FROM `tourcategory` WHERE category_id = $id";
