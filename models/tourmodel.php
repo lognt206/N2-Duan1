@@ -22,42 +22,38 @@ class TourModel {
         $this->conn = connectDB();
     }
 
-   public function all() {
-    $sql = "
-        SELECT 
-            t.tour_id,
-            t.tour_name,
-            t.category_id,
-            tc.category_name,
-            t.description,
-            t.price,
-            t.policy,
-            t.status,
-            t.image,
-            GROUP_CONCAT(p.partner_name SEPARATOR '||') AS partners
-        FROM tour t
-        LEFT JOIN tourcategory tc ON t.category_id = tc.category_id
-        LEFT JOIN tour_partner tp ON t.tour_id = tp.tour_id
-        LEFT JOIN partner p ON tp.partner_id = p.partner_id
-        GROUP BY t.tour_id
-        ORDER BY t.tour_id DESC
-    ";
+   public function all(){
+    $sql = "SELECT t.*, c.category_name, 
+            GROUP_CONCAT(DISTINCT p.partner_name) AS partners
+            FROM tour t
+            LEFT JOIN tourcategory c ON t.category_id = c.category_id
+            LEFT JOIN tour_partner tp ON t.tour_id = tp.tour_id
+            LEFT JOIN partner p ON tp.partner_id = p.partner_id
+            GROUP BY t.tour_id";
 
     $stmt = $this->conn->prepare($sql);
     $stmt->execute();
-    $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $tours = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // ✨ Chuyển partners từ chuỗi → Mảng
-    foreach ($data as &$row) {
-        if (!empty($row["partners"])) {
-            $row["partners"] = explode("||", $row["partners"]);
+    foreach($tours as &$tour){
+        // 🔥 LẤY DANH SÁCH HÀNH TRÌNH THEO tour_id
+        $itinerarySql = "SELECT * FROM itinerary WHERE tour_id = :tour_id ORDER BY day_number ASC";
+        $itStmt = $this->conn->prepare($itinerarySql);
+        $itStmt->bindParam(':tour_id', $tour['tour_id']);
+        $itStmt->execute();
+        $tour['itineraries'] = $itStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // 🔥 Xử lý đối tác (chuẩn mảng)
+        if (!empty($tour['partners'])) {
+            $tour['partners'] = explode(',', $tour['partners']);
         } else {
-            $row["partners"] = [];
+            $tour['partners'] = [];
         }
     }
 
-    return $data;
+    return $tours;
 }
+
 
 
 

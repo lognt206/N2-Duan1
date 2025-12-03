@@ -20,8 +20,7 @@ if (session_status() === PHP_SESSION_NONE) {
         #content { flex: 1; padding: 20px; background: #f8f9fa; }
         .topbar { height: 60px; background: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
         .topbar .user img { width: 40px; height: 40px; border-radius: 50%; margin-right: 10px; }
-        footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; 
-                 box-shadow: 0 -2px 4px rgba(0,0,0,0.1); position: fixed; bottom: 0; }
+        footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box-shadow: 0 -2px 4px rgba(0,0,0,0.1); position: fixed; bottom: 0; }
     </style>
 </head>
 <body>
@@ -47,7 +46,7 @@ if (session_status() === PHP_SESSION_NONE) {
         </div>
         <div class="user d-flex align-items-center">
             <img src="uploads/logo.png" alt="User">
-            <span><?= $_SESSION['user']['username'] ?? '' ?></span>
+            <span><?= $_SESSION['user']['full_name'] ?? ''; ?></span>
             <a href="?act=login" class="btn btn-sm btn-outline-danger ms-3">Đăng xuất</a>
         </div>
     </div>
@@ -56,105 +55,115 @@ if (session_status() === PHP_SESSION_NONE) {
 
     <div class="card shadow-sm">
         <div class="card-body">
-            <h2 class="card-title mb-3"><?= $booking['tour_name'] ?></h2>
+            <h2 class="card-title mb-3"><?= htmlspecialchars($booking['tour_name']) ?></h2>
 
-         <div class="row mb-2">
-    <div class="col-md-12 fw-bold">Danh sách khách:</div>
-    <div class="col-md-12">
-        <?php if (!empty($booking['customers'])): ?>
-            <table class="table table-bordered table-striped mt-2">
-                <thead>
-                    <tr class="table-secondary">
-                        <th>#</th>
-                        <th>Họ và tên</th>
-                        <th>Giới tính</th>
-                        <th>Năm sinh</th>
-                        <th>Số CMND</th>
-                        <th>Liên hệ</th>
-                        <th>Trạng thái thanh toán</th>
-                        <th>Yêu cầu đặc biệt</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($booking['customers'] as $index => $c): ?>
-                        <tr>
-                            <td><?= $index + 1 ?></td>
-                            <td><?= htmlspecialchars($c['full_name']) ?></td>
-                            <td><?= isset($c['gender']) ? ($c['gender'] == 1 ? "Nam" : "Nữ") : "Chưa xác định" ?></td>
-                            <td><?= $c['birth_year'] ?? "Chưa xác định" ?></td>
-                            <td><?= htmlspecialchars($c['id_number'] ?? '-') ?></td>
-                            <td><?= htmlspecialchars($c['contact'] ?? '-') ?></td>
-                            <td><?= isset($c['payment_status']) ? ($c['payment_status'] ? "Đã thanh toán" : "Chưa thanh toán") : "-" ?></td>
-                            <td><?= htmlspecialchars($c['special_request'] ?? '-') ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        <?php else: ?>
-            <p>- Không có khách hàng -</p>
-        <?php endif; ?>
-    </div>
-</div>
+            <!-- DANH SÁCH KHÁCH -->
+            <div class="row mb-3">
+                <div class="col-md-12 fw-bold">Danh sách khách:</div>
+                <div class="col-md-12">
+                    <?php if (!empty($booking['customers'])): ?>
+                        <table class="table table-bordered table-striped mt-2">
+                            <thead>
+                                <tr class="table-secondary">
+                                    <th>#</th>
+                                    <th>Họ và tên</th>
+                                    <th>Giới tính</th>
+                                    <th>Năm sinh</th>
+                                    <th>Số CMND</th>
+                                    <th>Liên hệ</th>
+                                    <th>Trạng thái thanh toán</th>
+                                    <th>Yêu cầu đặc biệt</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($booking['customers'] as $index => $c): ?>
+                                    <tr>
+                                        <td><?= $index + 1 ?></td>
+                                        <td><?= htmlspecialchars($c['full_name']) ?></td>
+                                        <td><?= isset($c['gender']) ? ($c['gender']==1?"Nam":"Nữ"):"Chưa xác định" ?></td>
+                                        <td><?= $c['birth_year'] ?? "Chưa xác định" ?></td>
+                                        <td><?= htmlspecialchars($c['id_number'] ?? '-') ?></td>
+                                        <td><?= htmlspecialchars($c['contact'] ?? '-') ?></td>
+                                        <td><?= isset($c['payment_status']) ? ($c['payment_status']?"Đã thanh toán":"Chưa thanh toán") : "-" ?></td>
+                                        <td><?= htmlspecialchars($c['special_request'] ?? '-') ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    <?php else: ?>
+                        <p>- Không có khách hàng -</p>
+                    <?php endif; ?>
+                </div>
+            </div>
 
-
-
-
+            <!-- HƯỚNG DẪN VIÊN -->
             <div class="row mb-2">
                 <div class="col-md-4 fw-bold">Hướng dẫn viên:</div>
-                <div class="col-md-8"><?= $booking['guide_name'] ?? '-' ?></div>
+                <div class="col-md-8"><?= htmlspecialchars($booking['guide_name'] ?? '-') ?></div>
             </div>
 
+            <!-- ĐỐI TÁC -->
+            <div class="row mb-2">
+                <div class="col-md-4 fw-bold">Đối tác:</div>
+                <div class="col-md-8">
+                    <?php if(!empty($booking['partners'])): ?>
+                        <ul class="mb-0">
+                        <?php foreach($booking['partners'] as $p): ?>
+                            <li><?= htmlspecialchars($p['partner_name']) ?></li>
+                        <?php endforeach; ?>
+                        </ul>
+                    <?php else: ?>
+                        -
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <!-- LỊCH TRÌNH -->
             <div class="row mb-2">
                 <div class="col-md-4 fw-bold">Ngày đặt:</div>
-                <div class="col-md-8"><?= $booking['booking_date'] ?></div>
+                <div class="col-md-8"><?= htmlspecialchars($booking['booking_date']) ?></div>
             </div>
-
             <div class="row mb-2">
                 <div class="col-md-4 fw-bold">Lịch khởi hành:</div>
                 <div class="col-md-8">
-                    <?= !empty($booking['departure_date']) ? $booking['departure_date'] : '-' ?>
-                    <?= !empty($booking['return_date']) ? ' → ' . $booking['return_date'] : '' ?>
+                    <?= htmlspecialchars($booking['departure_date'] ?? '-') ?>
+                    <?= !empty($booking['return_date']) ? ' → '.htmlspecialchars($booking['return_date']) : '' ?>
                 </div>
             </div>
-
             <div class="row mb-2">
                 <div class="col-md-4 fw-bold">Điểm gặp gỡ:</div>
-                <div class="col-md-8"><?= $booking['meeting_point'] ?? '-' ?></div>
+                <div class="col-md-8"><?= htmlspecialchars($booking['meeting_point'] ?? '-') ?></div>
             </div>
 
+            <!-- THÔNG TIN KHÁC -->
             <div class="row mb-2">
                 <div class="col-md-4 fw-bold">Số người:</div>
-                <div class="col-md-8"><?= $booking['num_people'] ?></div>
+                <div class="col-md-8"><?= (int)($booking['num_people'] ?? 0) ?></div>
             </div>
-
             <div class="row mb-2">
-    <div class="col-md-4 fw-bold">Loại đặt:</div>
-    <div class="col-md-8">
-        <?= isset($booking['booking_type']) 
-            ? ($booking['booking_type']==1 ? 'Trực tiếp' : ($booking['booking_type']==2 ? 'Online' : '-')) 
-            : '-' ?>
-    </div>
-</div>
-
-
+                <div class="col-md-4 fw-bold">Loại đặt:</div>
+                <div class="col-md-8">
+                    <?= isset($booking['booking_type']) 
+                        ? ($booking['booking_type']==1 ? 'Trực tiếp' : ($booking['booking_type']==2 ? 'Online' : '-')) 
+                        : '-' ?>
+                </div>
+            </div>
             <div class="row mb-2">
                 <div class="col-md-4 fw-bold">Trạng thái:</div>
                 <div class="col-md-8">
-                    <span class="badge <?= $booking['status'] == 1 ? 'bg-success' : ($booking['status'] == 2 ? 'bg-primary' : ($booking['status']==3?'bg-danger':'bg-warning')) ?>">
-                        <?= $booking['status'] == 1 ? "Hoàn thành" : ($booking['status'] == 2 ? "Đã cọc" : ($booking['status']==3?"Đã hủy":"Chờ xác nhận")) ?>
+                    <span class="badge <?= $booking['status']==1?'bg-success':($booking['status']==2?'bg-primary':($booking['status']==3?'bg-danger':'bg-warning')) ?>">
+                        <?= $booking['status']==1?"Hoàn thành":($booking['status']==2?"Đã cọc":($booking['status']==3?"Đã hủy":"Chờ xác nhận")) ?>
                     </span>
                 </div>
             </div>
-
             <div class="row mb-2">
                 <div class="col-md-4 fw-bold">Ghi chú:</div>
-                <div class="col-md-8"><?= $booking['notes'] ?? '-' ?></div>
+                <div class="col-md-8"><?= htmlspecialchars($booking['notes'] ?? '-') ?></div>
             </div>
 
             <a href="?act=booking" class="btn btn-secondary mt-3"><i class="fa-solid fa-arrow-left"></i> Quay lại</a>
         </div>
     </div>
-
 </div>
 
 <footer>
