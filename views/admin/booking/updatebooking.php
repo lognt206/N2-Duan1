@@ -1,31 +1,48 @@
-<?php 
+<?php  
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+
+// Tạo CSRF token nếu chưa có
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+// Hàm lấy dữ liệu cũ
+function old($field, $default = '') {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        return $_POST[$field] ?? $default;
+    }
+    return $_SESSION['old'][$field] ?? $default;
+}
+
+// Kiểm tra booking customer_ids
+$booking_customer_ids = !empty($booking['customer_ids']) 
+    ? (is_array($booking['customer_ids']) ? $booking['customer_ids'] : json_decode($booking['customer_ids'], true))
+    : [];
 ?>
 
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cập nhật Đặt Tour</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <style>
-        body { display: flex; min-height: 100vh; margin: 0; font-family: Arial, sans-serif; background: #f8f9fa;}
-        #sidebar { min-width: 250px; background: #343a40; color: #fff; }
-        #sidebar h3 { margin:0; font-size: 1.5rem; }
-        #sidebar a { color: #fff; text-decoration: none; display: block; padding: 12px 20px; transition:0.2s; }
-        #sidebar a:hover { background: #495057; }
-        #sidebar a.bg-secondary { background: #495057; }
-        #content { flex: 1; padding: 20px; }
-        .topbar { height: 60px; background: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .topbar .user img { width: 40px; height: 40px; border-radius: 50%; margin-right: 10px; }
-        .card { background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
-        .form-label { font-weight: 500; }
-        footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box-shadow: 0 -2px 4px rgba(0,0,0,0.1); position: fixed; bottom: 0; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cập Nhật Đặt Tour</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+body { display: flex; min-height: 100vh; margin: 0; font-family: Arial, sans-serif; background:#f8f9fa; }
+#sidebar { min-width: 250px; background: #343a40; color: #fff; }
+#sidebar a { color: #fff; text-decoration: none; display: block; padding: 12px 20px; transition:0.3s; }
+#sidebar a:hover, #sidebar a.active, #sidebar a.bg-secondary { background: #6c757d; }
+#content { flex: 1; padding: 20px; }
+.topbar { height: 60px; background: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; border-radius:0.25rem; }
+.topbar .user img { width: 40px; height: 40px; border-radius: 50%; margin-right: 10px; }
+.card { background: #fff; border-radius: 0.5rem; }
+.form-label { font-weight: 500; }
+footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box-shadow: 0 -2px 4px rgba(0,0,0,0.1); position: fixed; bottom: 0; }
+.table-scroll { max-height:300px; overflow:auto; }
+</style>
 </head>
 <body>
 
@@ -50,105 +67,163 @@ if (session_status() === PHP_SESSION_NONE) {
         </div>
         <div class="user d-flex align-items-center">
             <img src="uploads/logo.png" alt="User">
-            <span><?= $_SESSION['user']['username'] ?? '' ?></span>
+            <span><?= htmlspecialchars($_SESSION['user']['full_name'] ?? '') ?></span>
             <a href="?act=logout" class="btn btn-sm btn-outline-danger ms-3">Đăng xuất</a>
         </div>
     </div>
 
-    <h3 class="mb-3"><i class="fa-solid fa-pen"></i> Cập nhật Đặt Tour</h3>
+    <h3 class="mb-3"><i class="fa-solid fa-edit"></i> Cập Nhật Đặt Tour</h3>
 
-    <div class="card">
-        <form action="?act=updatebooking" method="POST">
-            <input type="hidden" name="booking_id" value="<?= $booking['booking_id'] ?>">
-            
+    <?php if (!empty($_SESSION['error'])): ?>
+        <div class="alert alert-danger"><?= htmlspecialchars($_SESSION['error']) ?></div>
+        <?php unset($_SESSION['error']); ?>
+    <?php endif; ?>
+
+    <div class="card p-4 shadow-sm">
+        <form id="bookingForm" action="?act=updatebooking" method="POST" novalidate>
+            <input type="hidden" name="booking_id" value="<?= (int)($_GET['id'] ?? 0) ?>">
+            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+
             <div class="row mb-3">
-                <div class="col-md-6">
-                    <label class="form-label">Tour</label>
+                <div class="col-md-4">
+                    <label class="form-label">Tour <span class="text-danger">*</span></label>
                     <select name="tour_id" class="form-control" required>
                         <option value="">-- Chọn tour --</option>
                         <?php foreach ($tours as $t): ?>
-                            <option value="<?= $t['tour_id'] ?>" <?= $t['tour_id']==$booking['tour_id']?'selected':'' ?>><?= $t['tour_name'] ?></option>
+                            <option value="<?= (int)$t['tour_id'] ?>" <?= old('tour_id', $booking['tour_id'] ?? '') == $t['tour_id'] ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($t['tour_name']) ?>
+                            </option>
                         <?php endforeach; ?>
                     </select>
                 </div>
 
-                <div class="col-md-6">
-                    <label class="form-label">Khách hàng</label>
-                    <select name="customer_id" class="form-control" required>
-                        <option value="">-- Chọn khách hàng --</option>
-                        <?php foreach ($customers as $c): ?>
-                            <option value="<?= $c['customer_id'] ?>" <?= $c['customer_id']==$booking['customer_id']?'selected':'' ?>><?= $c['full_name'] ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-            </div>
-
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label class="form-label">Hướng dẫn viên</label>
-                    <select name="guide_id" class="form-control">
-                        <option value="">-- Không chọn --</option>
+                <div class="col-md-4">
+                    <label class="form-label">Hướng dẫn viên <span class="text-danger">*</span></label>
+                    <select name="guide_id" class="form-control" required>
+                        <option value="">-- Chọn hướng dẫn viên --</option>
                         <?php foreach ($guides as $g): ?>
-                            <option value="<?= $g['guide_id'] ?>" <?= $g['guide_id']==$booking['guide_id']?'selected':'' ?>><?= $g['full_name'] ?></option>
+                            <option value="<?= (int)$g['guide_id'] ?>" <?= old('guide_id', $booking['guide_id'] ?? '') == $g['guide_id'] ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($g['full_name']) ?>
+                            </option>
                         <?php endforeach; ?>
                     </select>
                 </div>
 
-                <div class="col-md-6">
-                    <label class="form-label">Lịch khởi hành</label>
+                <div class="col-md-4">
+                    <label class="form-label">Lịch khởi hành <span class="text-danger">*</span></label>
                     <select name="departure_id" class="form-control" required>
                         <option value="">-- Chọn lịch khởi hành --</option>
                         <?php foreach ($departures as $d): ?>
-                            <option value="<?= $d->departure_id ?>" <?= $d->departure_id==$booking->departure_id?'selected':'' ?>>
-                               <?= $d->departure_date?> → <?= $d->return_date ?? '-' ?> - <?= $d->tour_name?>
+                            <option value="<?= (int)$d->departure_id ?>" <?= old('departure_id', $booking['departure_id'] ?? '') == $d->departure_id ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($d->departure_date) ?> <?= isset($d->note) ? "(".htmlspecialchars($d->note).")" : '' ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
                 </div>
             </div>
 
+            <!-- Booking date & type -->
             <div class="row mb-3">
-                <div class="col-md-4">
-                    <label class="form-label">Ngày đặt</label>
-                    <input type="date" name="booking_date" class="form-control" value="<?= $booking['booking_date'] ?>" required>
+                <div class="col-md-6">
+                    <label class="form-label">Ngày đặt <span class="text-danger">*</span></label>
+                    <input type="date" name="booking_date" class="form-control" required value="<?= old('booking_date', $booking['booking_date'] ?? '') ?>">
                 </div>
-
-                <div class="col-md-4">
-                    <label class="form-label">Số người</label>
-                    <input type="number" name="num_people" class="form-control" value="<?= $booking['num_people'] ?>" required min="1">
-                </div>
-
-                <div class="col-md-4">
-                    <label class="form-label">Loại đặt</label>
-                    <select name="booking_type" class="form-control">
-                        <option value="1" <?= $booking['booking_type']==1?'selected':'' ?>>Trực tiếp</option>
-                        <option value="2" <?= $booking['booking_type']==2?'selected':'' ?>>Online</option>
-                        <option value="3" <?= $booking['booking_type']==3?'selected':'' ?>>Qua đại lý</option>
+                <div class="col-md-6">
+                    <label class="form-label">Loại đặt <span class="text-danger">*</span></label>
+                    <select name="booking_type" class="form-control" required>
+                        <option value="1" <?= old('booking_type', $booking['booking_type'] ?? '')==1?'selected':'' ?>>Trực tiếp</option>
+                        <option value="2" <?= old('booking_type', $booking['booking_type'] ?? '')==2?'selected':'' ?>>Online</option>
                     </select>
                 </div>
             </div>
 
+            <!-- Customers cũ -->
             <div class="mb-3">
-                <label class="form-label">Trạng thái</label>
-                <select name="status" class="form-control">
-                    <option value="4" <?= $booking['status']==4?'selected':'' ?>>Chờ xác nhận</option>
-                    <option value="2" <?= $booking['status']==2?'selected':'' ?>>Đã cọc</option>
-                    <option value="1" <?= $booking['status']==1?'selected':'' ?>>Hoàn thành</option>
-                    <option value="3" <?= $booking['status']==3?'selected':'' ?>>Đã hủy</option>
-                </select>
+                <label class="form-label">Chọn khách hàng hiện có</label>
+                <div class="table-scroll">
+                    <table class="table table-bordered table-sm mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Chọn</th>
+                                <th>Họ & Tên</th>
+                                <th>Giới tính</th>
+                                <th>Năm sinh</th>
+                                <th>CMND/CCCD</th>
+                                <th>Liên hệ</th>
+                                <th>Trạng thái thanh toán</th>
+                                <th>Yêu cầu đặc biệt</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <?php foreach ($customers as $c):
+                            $checked = (!empty($_POST['customer_ids']) && in_array($c['customer_id'], $_POST['customer_ids'])) 
+                                        || in_array($c['customer_id'], $booking_customer_ids) 
+                                        ? 'checked' : '';
+                            $gender = isset($c['gender']) ? ($c['gender']==1?'Nam':($c['gender']==2?'Nữ':'Khác')) : '';
+                            $payment_status = isset($c['payment_status']) ? ($c['payment_status']==1?'Đã thanh toán':'Chưa thanh toán') : '';
+                        ?>
+                            <tr>
+                                <td class="text-center"><input type="checkbox" name="customer_ids[]" value="<?= (int)$c['customer_id'] ?>" <?= $checked ?>></td>
+                                <td><?= htmlspecialchars($c['full_name']) ?></td>
+                                <td><?= htmlspecialchars($gender) ?></td>
+                                <td><?= htmlspecialchars($c['birth_year'] ?? '') ?></td>
+                                <td><?= htmlspecialchars($c['id_number'] ?? '') ?></td>
+                                <td><?= htmlspecialchars($c['contact'] ?? '') ?></td>
+                                <td><?= htmlspecialchars($payment_status) ?></td>
+                                <td><?= htmlspecialchars($c['special_request'] ?? '') ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
+            <!-- Thêm khách mới -->
+            <div class="mb-3">
+                <label class="form-label">Thêm khách mới</label>
+                <input type="text" name="new_customer_name" class="form-control mb-1" placeholder="Họ & Tên" value="<?= htmlspecialchars(old('new_customer_name')) ?>">
+                <input type="text" name="new_customer_contact" class="form-control mb-1" placeholder="Liên hệ" value="<?= htmlspecialchars(old('new_customer_contact')) ?>">
+                <input type="number" name="new_customer_birth" class="form-control mb-1" placeholder="Năm sinh" value="<?= htmlspecialchars(old('new_customer_birth')) ?>">
+                <select name="new_customer_gender" class="form-control mb-1">
+                    <option value="1" <?= old('new_customer_gender')=='1'?'selected':'' ?>>Nam</option>
+                    <option value="2" <?= old('new_customer_gender')=='2'?'selected':'' ?>>Nữ</option>
+                    <option value="0" <?= old('new_customer_gender')=='0'?'selected':'' ?>>Khác</option>
+                </select>
+                <input type="text" name="new_customer_id" class="form-control mb-1" placeholder="CMND/CCCD" value="<?= htmlspecialchars(old('new_customer_id')) ?>">
+                <select name="new_customer_payment" class="form-control mb-1">
+                    <option value="0" <?= old('new_customer_payment')=='0'?'selected':'' ?>>Chưa thanh toán</option>
+                    <option value="1" <?= old('new_customer_payment')=='1'?'selected':'' ?>>Đã thanh toán</option>
+                </select>
+                <input type="text" name="new_customer_request" class="form-control" placeholder="Yêu cầu đặc biệt" value="<?= htmlspecialchars(old('new_customer_request')) ?>">
+            </div>
+
+            <!-- Ghi chú -->
             <div class="mb-3">
                 <label class="form-label">Ghi chú</label>
-                <textarea name="notes" class="form-control" rows="3"><?= $booking['notes'] ?></textarea>
+                <textarea name="notes" class="form-control" rows="3"><?= htmlspecialchars(old('notes', $booking['notes'] ?? '')) ?></textarea>
             </div>
 
-            <button class="btn btn-primary"><i class="fa-solid fa-save"></i> Cập nhật</button>
+            <button class="btn btn-primary"><i class="fa-solid fa-save"></i> Lưu</button>
             <a href="?act=booking" class="btn btn-secondary">Quay lại</a>
         </form>
     </div>
 </div>
 
 <footer>&copy; 2025 Công ty Du lịch. All rights reserved.</footer>
+
+<script>
+(() => {
+    const form = document.querySelector('#bookingForm');
+    form.addEventListener('submit', function(event){
+        const checked = document.querySelectorAll('input[name="customer_ids[]"]:checked').length;
+        const newCustomer = form.new_customer_name.value.trim();
+        if(checked === 0 && !newCustomer){
+            alert("Vui lòng chọn hoặc thêm ít nhất 1 khách hàng.");
+            event.preventDefault();
+        }
+    });
+})();
+</script>
+
 </body>
 </html>
