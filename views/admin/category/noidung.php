@@ -55,12 +55,21 @@
         </div>
         <div class="user d-flex align-items-center">
             <img src="uploads/logo.png" alt="User">
-            <span><?= $nameUser = $_SESSION['user']['username'] ?? '';?></span>
+           <span><?= $_SESSION['user']['full_name'] ?? ''; ?></span>
             <a href="?act=login" class="btn btn-sm btn-outline-danger ms-3">Đăng xuất</a>
         </div>
     </div>
 
     <h3 class="mb-3"><i class="fa-solid fa-tags"></i> Quản lý Category</h3>
+
+<!-- THÔNG BÁO -->
+<?php if(isset($_SESSION['error'])): ?>
+    <div class="alert alert-danger"><?= $_SESSION['error']; unset($_SESSION['error']); ?></div>
+<?php endif; ?>
+
+<?php if(isset($_SESSION['success'])): ?>
+    <div class="alert alert-success"><?= $_SESSION['success']; unset($_SESSION['success']); ?></div>
+<?php endif; ?>
 
     <div class="d-flex justify-content-between mb-3">
         <a href="?act=category/create" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Thêm Category</a>

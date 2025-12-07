@@ -38,13 +38,10 @@ function addItinerary() {
         <input type="number" name="itinerary[${index}][day_number]" placeholder="Ngày" class="form-control" style="width:80px" min="1" required>
         <input type="text" name="itinerary[${index}][activity]" placeholder="Hoạt động" class="form-control" required maxlength="100">
         <input type="text" name="itinerary[${index}][location]" placeholder="Địa điểm" class="form-control" required maxlength="100">
-        <input type="time" name="itinerary[${index}][start_time]" class="form-control" required>
-        <input type="time" name="itinerary[${index}][end_time]" class="form-control" required>
         <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove()">Xóa</button>
     `;
     container.appendChild(div);
 }
-
 function previewImage(event) {
     const preview = document.getElementById('image-preview');
     const file = event.target.files[0];
@@ -65,23 +62,18 @@ document.addEventListener('DOMContentLoaded', function(){
         let valid = true;
 
         // Validate itinerary
-        const itineraries = document.querySelectorAll('#itinerary-container .itinerary-item');
-        itineraries.forEach((item, index) => {
-            const day = item.querySelector(`input[name="itinerary[${index}][day_number]"]`);
-            const start = item.querySelector(`input[name="itinerary[${index}][start_time]"]`);
-            const end = item.querySelector(`input[name="itinerary[${index}][end_time]"]`);
+       // Validate itinerary (chỉ kiểm tra ngày > 0)
+const itineraries = document.querySelectorAll('#itinerary-container .itinerary-item');
+itineraries.forEach((item, index) => {
+    const day = item.querySelector(`input[name="itinerary[${index}][day_number]"]`);
 
-            if(parseInt(day.value) <= 0){
-                alert(`Ngày ở mục ${index+1} phải lớn hơn 0`);
-                valid = false;
-                return;
-            }
-            if(start.value >= end.value){
-                alert(`Thời gian bắt đầu phải trước thời gian kết thúc ở mục ${index+1}`);
-                valid = false;
-                return;
-            }
-        });
+    if(parseInt(day.value) <= 0){
+        alert(`Ngày ở mục ${index+1} phải lớn hơn 0`);
+        valid = false;
+        return;
+    }
+});
+
 
         // Validate select supplier
         const supplier = form.querySelector('select[name="supplier[]"]');
@@ -117,8 +109,8 @@ document.addEventListener('DOMContentLoaded', function(){
         <div class="topbar">
             <div class="logo"><i class="fa-solid fa-plane-departure me-2"></i>Admin Panel</div>
             <div class="user">
-                <img src="https://via.placeholder.com/40" alt="User">
-                <span><?= $_SESSION['user']['username'] ?? '';?></span>
+           <img src="uploads/logo.png" alt="User">
+<span><?= $_SESSION['user']['full_name'] ?? ''; ?></span>
                 <a href="?act=logout" class="btn btn-sm btn-outline-danger ms-3">Đăng xuất</a>
             </div>
         </div>
@@ -134,14 +126,19 @@ document.addEventListener('DOMContentLoaded', function(){
                         title="Tên tour chỉ gồm chữ, số, khoảng trắng và ký tự .,!?-">
                     </div>
                     <div class="mb-3">
-                        <label>Danh mục tour</label>
-                        <select name="tour_category" class="form-select" required>
-                            <option value="">-- Chọn danh mục --</option>
-                            <option value="1">Tour trong nước</option>
-                            <option value="2">Tour nước ngoài </option>
-                            <option value="3">Tour khác</option>
-                        </select>
-                    </div>
+    <label>Danh mục tour</label>
+    <select name="tour_category" class="form-control" required>
+        <option value="">-- Chọn danh mục --</option>
+        <?php foreach($categories as $cat): ?>
+            <?php if ($cat->status == 1): ?>
+                <option value="<?= $cat->category_id ?>">
+                    <?= htmlspecialchars($cat->category_name) ?>
+                </option>
+            <?php endif; ?>
+        <?php endforeach; ?>
+    </select>
+</div>
+
                     <div class="mb-3">
                         <label>Mô tả</label>
                         <input type="text" name="description" class="form-control" maxlength="200">
@@ -160,9 +157,18 @@ document.addEventListener('DOMContentLoaded', function(){
                 <div class="col-6">
                     <h5>Thông tin khác</h5>
                     <div class="mb-3">
-                        <label>Chính sách</label>
-                        <input type="text" name="policy" class="form-control" maxlength="200">
-                    </div>
+    <label for="policy" class="form-label">Chính sách (PDF/DOCX)</label>
+    <input type="file" class="form-control" name="policy" id="policy" accept=".pdf,.doc,.docx">
+    <!-- Lưu trữ file cũ nếu không upload mới -->
+    <input type="hidden" name="old_policy" value="<?= htmlspecialchars($tour->policy ?? '') ?>">
+
+    <?php if(!empty($tour->policy) && file_exists($tour->policy)): ?>
+        <a href="<?= htmlspecialchars($tour->policy) ?>" target="_blank" class="btn btn-sm btn-info mt-2">
+            <i class="fa-solid fa-file-arrow-down"></i> Xem/Tải Chính sách hiện tại
+        </a>
+    <?php endif; ?>
+</div>
+
                     <div class="mb-3">
                         <label>Nhà cung cấp</label>
                         <select name="supplier[]" multiple class="form-select" required>

@@ -52,7 +52,6 @@ $nameUser = htmlspecialchars($nameUser);
     <a href="?act=login"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
 </div>
 
-<!-- Content -->
 <div id="content">
     <!-- Topbar -->
     <div class="topbar">
@@ -63,10 +62,7 @@ $nameUser = htmlspecialchars($nameUser);
         </div>
         <div class="user">
             <img src="uploads/logo.png" alt="User">
-
-            <!-- Hiển thị đúng tên hướng dẫn viên -->
-            <span><?= $nameUser ?></span>
-
+            <span><?= htmlspecialchars($nameUser) ?></span>
             <a href="?act=login" class="btn btn-sm btn-outline-danger ms-3">Đăng xuất</a>
         </div>
     </div>
@@ -74,34 +70,37 @@ $nameUser = htmlspecialchars($nameUser);
     <!-- Dashboard Content -->
     <div class="container-fluid">
         <h2 class="mb-4">Bảng điều khiển</h2>
-        <p>Chào mừng <?= $nameUser ?> đến với hệ thống tour du lịch!</p>
+        <p>Chào mừng <?= htmlspecialchars($nameUser) ?> đến với hệ thống tour du lịch!</p>
 
         <div class="row">
-            <div class="col-md-3">
-                <div class="card-stats bg-primary">
-                    <h4>Tour Sắp tới</h4>
-                    <p>25</p>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card-stats bg-success">
-                    <h4>Chi tiết lịch làm việc</h4>
-                    <p>12</p>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card-stats bg-warning">
-                    <h4>Tour đã hoàn thành</h4>
-                    <p>75</p>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card-stats bg-danger">
-                    <h4>Xem nhật ký tour</h4>
-                    <p>75</p>
-                </div>
-            </div>
+    <div class="col-md-3 mb-3">
+        <div class="card-stats bg-primary">
+            <h4>Tour sắp khởi hành</h4>
+            <p><?= $totalUpcoming ?></p>
         </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+        <div class="card-stats bg-success">
+            <h4>Lịch làm việc</h4>
+            <p><?= $totalSchedule ?></p>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+        <div class="card-stats bg-warning">
+            <h4>Tour đã hoàn thành</h4>
+            <p><?= $totalCompletedTours ?></p>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+        <div class="card-stats bg-danger">
+            <h4>Nhật ký tour</h4>
+            <p><?= $totalReports ?></p>
+        </div>
+    </div>
+</div>
     </div>
 </div>
 

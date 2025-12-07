@@ -66,6 +66,11 @@ $nameUser = htmlspecialchars($nameUser);
         .itinerary-list { margin-top: 15px; padding-left: 20px;}
         .itinerary-list li { margin-bottom: 10px; line-height: 1.5;}
         .table th { background: #343a40; color: white; }
+        .checkin-toggle { opacity: 0; width: 0; height: 0;}
+        .toggle-label { position: relative; display: inline-block; width: 50px; height: 25px; background-color: #ccc; border-radius: 25px; cursor: pointer; transition: background-color 0.3s;}
+        .toggle-label::after { content: ''; position: absolute; width: 21px; height: 21px; border-radius: 50%; background-color: white; top: 2px; left: 2px; transition: transform 0.3s;}
+        .checkin-toggle:checked + .toggle-label { background-color: #28a745;}
+        .checkin-toggle:checked + .toggle-label::after { transform: translateX(25px);}
     </style>
 </head>
 <body>
@@ -145,7 +150,12 @@ $nameUser = htmlspecialchars($nameUser);
             </div>
             
             <div id="guests" class="tab-pane hidden">
-                <h3>Danh sách khách hàng</h3>
+                <h3>Danh sách khách hàng</h3> 
+                <div class="summary-box">
+                    <span>Tổng khách: <strong><?= $tour_detail_data['num_people'] ?></strong></span>|
+                    <span>Đã check-in: <strong id="checked-in-count"> </strong></span>|
+                    <span>Còn lại: <strong id="remaining-count"> </strong></span>
+                </div>
                 <table class="table table-bordered align-middle text-center data-table guest-table">
                     <thead>
                         <tr>
@@ -155,6 +165,7 @@ $nameUser = htmlspecialchars($nameUser);
                             <th>Năm sinh</th>
                             <th>Liên hệ</th>
                             <th>Yêu cầu đặc biệt</th>
+                            <th class="text-center">Check_in</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -166,25 +177,29 @@ $nameUser = htmlspecialchars($nameUser);
                             <td><?= $data['birth_year'] ?? "Chưa xác định" ?></td>
                             <td><?= htmlspecialchars($data['contact'] ?? '-') ?></td>
                             <td><?= htmlspecialchars($data['special_request'] ?? '-') ?></td>
+                            <td class="text-center">
+                                <input type="checkbox" class="checkin-toggle" id="guest<?= $index ?>" checked>
+                                <label for="guest<?= $index ?>" class="toggle-label"></label>
+                            </td>
                         </tr>
                         <?php endforeach; ?>
                         </tbody>
                 </table>
-                <div class="guest-actions">
-                    <button class="btn-back"><a href="?act=check_in&tour_id=<?= $tour_detail_data['tour_id'] ?>">Mở công cụ Điểm danh</a></button>
-                </div>
+               
             </div>
 
             <div id="itinerary" class="tab-pane hidden">
-                <h3>Lịch trình từng bước</h3>
-                <ol class="itinerary-list">
-                    <li>**15:00:** Tập trung tại Khách sạn XYZ và điểm danh.</li>
-                    <li>**15:30:** Di chuyển đến Lucca, giới thiệu lịch sử thành phố.</li>
-                    <li>**16:30:** Bắt đầu đạp xe quanh Tường thành Lucca (dài 4.2km).</li>
-                    <li>**18:00:** Ăn tối tại nhà hàng địa phương.</li>
-                    <li>**20:00:** Tham quan Quảng trường Anfiteatro.</li>
-                    <li>**06:00 (Hôm sau):** Kết thúc tour và di chuyển về điểm ban đầu.</li>
-                </ol>
+                <h3>Lịch trình chi tiết</h3>
+                <?php if(!empty($tour_detail_data['itineraries'])): ?>
+                <?php foreach($tour_detail_data['itineraries'] as $it): ?>
+                    <div class="itinerary-item">
+                        Ngày <?= $it['day_number'] ?> (<?= $it['start_time'] ?> - <?= $it['end_time'] ?>): <?= $it['activity'] ?>  tại <?= $it['location'] ?>
+                    </div>
+                <?php endforeach; ?>
+                <?php else: ?>
+                    <span class="text-muted">Chưa có hành trình</span>
+                <?php endif; ?>
+               
             </div>
             
             <div id="report" class="tab-pane hidden" style="margin-bottom: 100px;">
@@ -239,6 +254,34 @@ $nameUser = htmlspecialchars($nameUser);
             document.getElementById(tabId).classList.add('active');
             event.currentTarget.classList.add('active');
         }
+        //Điểm danh khách
+            document.addEventListener('DOMContentLoaded', () => {
+        const checkboxes = document.querySelectorAll('.checkin-toggle');
+        const checkedCount = document.getElementById('checked-in-count');
+        const remainingCount = document.getElementById('remaining-count');
+        const filterBtn = document.getElementById('filter-btn');
+        let filtered = false;
+
+        function updateSummary() {
+            const total = checkboxes.length;
+            const checked = document.querySelectorAll('.checkin-toggle:checked').length;
+            checkedCount.textContent = checked;
+            remainingCount.textContent = total - checked;
+        }
+
+        checkboxes.forEach(cb => cb.addEventListener('change', updateSummary));
+
+        filterBtn.addEventListener('click', () => {
+            filtered = !filtered;
+            document.querySelectorAll('tbody tr').forEach(row => {
+            const cb = row.querySelector('.checkin-toggle');
+            row.style.display = (filtered && cb.checked) ? 'none' : '';
+            });
+            filterBtn.textContent = filtered ? 'Hiện tất cả' : 'Lọc: Chưa check-in';
+        });
+
+        updateSummary();
+    });
     </script>
 
 </body>
