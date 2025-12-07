@@ -109,8 +109,6 @@ $nameUser = htmlspecialchars($nameUser);
         <a href="?act=header"><i class="fa-solid fa-chart-line"></i>Dashboard</a>
         <a href="?act=profile"><i class="fa-solid fa-user"></i> Thông tin cá nhân</a>
         <a href="?act=schedule" class="active"><i class="fa-solid fa-calendar-day"></i> Lịch làm việc</a>
-        <a href="?act=report"><i class="fa-solid fa-clipboard-list"></i> Nhật ký tour</a>
-        <a href="?act=special_request"><i class="fa-solid fa-star"></i> Yêu cầu đặc biệt</a>
         <a href="?act=login"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
     </div>
 

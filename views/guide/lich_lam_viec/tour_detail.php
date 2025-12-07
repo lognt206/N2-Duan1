@@ -76,8 +76,6 @@ $nameUser = htmlspecialchars($nameUser);
     <a href="?act=header"><i class="fa-solid fa-chart-line"></i>Dashboard</a>
     <a href="?act=profile"><i class="fa-solid fa-user"></i> Thông tin cá nhân</a>
     <a href="?act=schedule" class="active"><i class="fa-solid fa-calendar-day"></i> Lịch làm việc</a>
-    <a href="?act=report"><i class="fa-solid fa-clipboard-list"></i> Nhật ký tour</a>
-    <a href="?act=special_request"><i class="fa-solid fa-star"></i> Yêu cầu đặc biệt</a>
     <a href="?act=login"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
 </div>
 
@@ -116,6 +114,9 @@ $nameUser = htmlspecialchars($nameUser);
             </button>
             <button class="tab-button" onclick="showTab('itinerary')">
                  Lộ trình chi tiết
+            </button>
+            <button class="tab-button" onclick="showTab('report')">
+                 Nhật ký tour
             </button>
         </div>
         
@@ -185,7 +186,38 @@ $nameUser = htmlspecialchars($nameUser);
                     <li>**06:00 (Hôm sau):** Kết thúc tour và di chuyển về điểm ban đầu.</li>
                 </ol>
             </div>
-
+            
+            <div id="report" class="tab-pane hidden" style="margin-bottom: 100px;">
+                <h3>Nhật ký tour</h3>
+                <table class="table table-bordered align-middle text-center data-table guest-table">
+                    <thead>
+                        <th>STT</th>
+                        <th>Ngày tạo</th>
+                        <th>Khách hàng đánh giá</th>
+                        <th>Ảnh</th>
+                        <th>Cảm nhận của HDV</th>
+                        <th>Hành động</th>
+                    </thead>
+                    <?php foreach($tourlogs as $index => $tourlog ){ 
+                    ?>
+                    <tbody>
+                        <td><?= $index + 1 ?></td>
+                        <td><?= $tourlog['log_date'] ?></td>
+                        <td><?= $tourlog['content'] ?></td>
+                        <td><img src="" alt=""><?= $tourlog['photo'] ?? null ?></td>
+                        <td><?= $tourlog['guide_review'] ?></td>
+                        <td>
+                            <a href="index.php?act=edit_nhat_ky&id=<?= $tourlog['log_id'] ?>" class="btn btn-sm btn-warning me-1">
+                                <i class="fa-solid fa-pen"></i>
+                            </a>
+                            <a href="index.php?act=delete_tour_log&id=<?= $tourlog['log_id'] ?>" onclick="return confirm('Xóa khách hàng này?')" class="btn btn-sm btn-danger">
+                                <i class="fa-solid fa-trash"></i>
+                            </a>
+                        </td>
+                    </tbody>
+                    <?php } ?>
+                </table>
+            </div>
         </div>
     </div>
 </div>

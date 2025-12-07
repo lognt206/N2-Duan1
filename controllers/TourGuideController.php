@@ -4,6 +4,7 @@ require_once __DIR__ . '/../models/Guidemodel.php';
 require_once __DIR__ . '/../models/BookingModel.php';
 require_once __DIR__ . '/../models/tourmodel.php';
 require_once __DIR__ . '/../models/CustomerModel.php';
+require_once __DIR__ . '/../models/TourlogModel.php';
 class TourGuideController
 {
     public $modelTourGuide;
@@ -12,6 +13,7 @@ class TourGuideController
     public $BookingModel;
     public $modelTour;
     public $modelCustomer;
+    public $tourlog;
 
     public function __construct()
     {
@@ -20,6 +22,7 @@ class TourGuideController
         $this->BookingModel = new BookingModel();
         $this->modelTour = new TourModel();
         $this->modelCustomer = new CustomerModel();
+        $this->tourlog = new TourlogModel();
     }
 
     // ----------------------------
@@ -89,12 +92,94 @@ class TourGuideController
     }
 
     // ----------------------------
-    // NHẬT KÝ TOUR
+    // sửa NHẬT KÝ TOUR
     // ----------------------------
-    public function report()
-    {   
-        require_once './views/guide/nhat_ky/report.php';
+    public function edit_nhat_ky()
+    {   $log_id = $_GET['id'] ?? null;
+        $tour_log = null; // Khởi tạo biến để tránh lỗi Undefined
+
+        if ($log_id) {
+            // 2. Lấy dữ liệu nhật ký tour từ Model
+            // Gọi hàm trong TourlogModel để lấy chi tiết bản ghi
+            $tour_log = $this->tourlog->getTourLogById($log_id); 
+
+            // 3. Kiểm tra dữ liệu trả về
+            if (!$tour_log) {
+                echo "Không tìm thấy Nhật ký Tour có ID: " . htmlspecialchars($log_id);
+                exit;
+            }
+        } else {
+            echo "Thiếu ID Nhật ký Tour.";
+            exit;
+        }
+        require_once './views/guide/nhat_ky/edit_nhat_ky.php';
     }
+    public function delete_nhatky(){
+        if(isset($_GET['id'])){
+            $log_id = (int)$_GET['id'];
+            $tourlog = new Tourlog();
+            $tourlog->log_id = $log_id;
+            $this->tourlog->delete_nhatky($tourlog);
+        }
+        require_once './views/guide/nhat_ky/edit_nhat_ky.php';
+    }
+    public function update_nhat_ky()
+{
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        header('Location: index.php?act=report');
+        exit;
+    }
+
+    $log_id = $_POST['log_id'] ?? null;
+    $guide_review = $_POST['guide_review'] ?? '';
+    $old_photo = $_POST['old_photo'] ?? '';
+    $photo_file = $_FILES['photo_file'] ?? null;
+    $photo_path = $old_photo; // Mặc định giữ lại ảnh cũ
+
+    if (!$log_id) {
+        // Xử lý lỗi nếu thiếu ID
+        echo "Lỗi: Thiếu ID Nhật ký Tour để cập nhật.";
+        exit;
+    }
+
+    // --- Xử lý Upload Ảnh ---
+    if ($photo_file && $photo_file['error'] === UPLOAD_ERR_OK) {
+        $target_dir = "uploads/";
+        $file_extension = pathinfo($photo_file['name'], PATHINFO_EXTENSION);
+        $new_file_name = "log_" . $log_id . "_" . time() . "." . $file_extension;
+        $target_file = $target_dir . $new_file_name;
+        
+        if (move_uploaded_file($photo_file['tmp_name'], $target_file)) {
+            $photo_path = $target_file; // Cập nhật đường dẫn ảnh mới
+            
+            // Xóa ảnh cũ nếu nó tồn tại và không phải là ảnh mặc định
+            if ($old_photo && file_exists($old_photo) && $old_photo !== 'uploads/logo.png') {
+                unlink($old_photo);
+            }
+        } else {
+            // Xử lý lỗi upload
+            echo "Lỗi: Không thể tải ảnh lên.";
+            // Bạn có thể chọn dừng hoặc tiếp tục với ảnh cũ
+        }
+    }
+    // -------------------------
+
+    // 4. Gọi Model để cập nhật dữ liệu
+    $is_updated = $this->tourlog->updateTourLog(
+        $log_id, 
+        $guide_review, 
+        $photo_path
+    );
+
+    if ($is_updated) {
+        // Cập nhật thành công, chuyển hướng về trang Nhật ký Tour
+        header('Location: index.php?act=report&message=updated_success');
+        exit;
+    } else {
+        // Cập nhật thất bại
+        echo "Cập nhật Nhật ký Tour thất bại. Vui lòng thử lại.";
+    }
+}
 
     // ----------------------------
     // CHI TIẾT TOUR
@@ -109,6 +194,9 @@ class TourGuideController
             exit;
         }
 
+        //Nhật ký tour lấy theo departure_id
+        $departure_id = $tour_detail_data['departure_id'];
+        $tourlogs = $this->tourlog->find_Tour_log($departure_id );
         require_once './views/guide/lich_lam_viec/tour_detail.php';
     }
 
