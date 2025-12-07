@@ -14,22 +14,60 @@ if (session_status() === PHP_SESSION_NONE) {
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 body { display: flex; min-height: 100vh; margin: 0; font-family: Arial, sans-serif; }
-#sidebar { min-width: 250px; background: #343a40; color: #fff; }
+
+/* Sidebar */
+#sidebar { min-width: 250px; max-width: 250px; background: #343a40; color: #fff; transition: all 0.3s; }
 #sidebar h3 { text-align: center; padding: 12px 0; border-bottom: 1px solid #495057; }
 #sidebar a { color: #fff; text-decoration: none; display: block; padding: 12px 20px; }
 #sidebar a:hover { background: #495057; }
 #sidebar a.active { background: #6c757d; }
+
+/* Content */
 #content { flex: 1; padding: 20px; padding-bottom: 60px; background: #f8f9fa; }
+
+/* Topbar */
 .topbar { height: 60px; background: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
 .topbar .logo { display: flex; align-items: center; font-weight: bold; }
 .topbar .user { display: flex; align-items: center; }
 .topbar .user img { width: 40px; height: 40px; border-radius: 50%; margin-right: 10px; }
+
+/* Card stats */
 .card-stats { padding: 20px; color: #fff; border-radius: 8px; margin-bottom: 20px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
 .bg-primary { background-color: #0d6efd !important; }
 .bg-success { background-color: #198754 !important; }
 .bg-warning { background-color: #ffc107 !important; color: #212529 !important; }
 .bg-danger { background-color: #dc3545 !important; }
+
+/* Footer */
 footer { width:100%; background:#fff; text-align:center; padding:10px 0; box-shadow:0 -2px 4px rgba(0,0,0,0.1); position: fixed; bottom: 0; }
+
+/* Responsive */
+@media (max-width: 1200px) {
+    #sidebar { min-width: 200px; }
+    #sidebar h3 { font-size: 18px; }
+    #sidebar a { padding: 10px 15px; font-size: 14px; }
+    .card-stats h4 { font-size: 1.1rem; }
+    .card-stats p { font-size: 0.95rem; }
+}
+
+@media (max-width: 992px) {
+    #sidebar { min-width: 180px; }
+    #sidebar h3 { font-size: 16px; }
+    #sidebar a { padding: 8px 12px; font-size: 13px; }
+    .card-stats h4 { font-size: 1rem; }
+    .card-stats p { font-size: 0.9rem; }
+}
+
+@media (max-width: 768px) {
+    body { flex-direction: column; }
+    #sidebar { width: 100%; height: auto; }
+    #content { padding: 10px; }
+    .topbar { flex-direction: column; height: auto; padding: 10px; }
+    .topbar .logo { margin-bottom: 10px; }
+    .card-stats { padding: 15px; }
+    footer { font-size: 0.85rem; padding: 8px 0; }
+    canvas { max-width: 100%; height: auto !important; }
+}
 </style>
 </head>
 <body>

@@ -326,51 +326,51 @@ public function delete_guide(){
     $guides = $this->modelTourGuide->allguide();
     include "views/admin/guideadmin/noidung.php";
 }
-public function update_guide(){
-
-    if($_SERVER['REQUEST_METHOD'] === 'POST'){
-        if(!isset($_POST['guide_id'])){
+public function update_guide() {
+    if($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if(!isset($_POST['guide_id']) || empty($_POST['guide_id'])) {
             echo "Lỗi: Không tìm thấy guide_id";
             exit();
         }
+
         $guide = new Guide();
-        $guide->guide_id         = $_POST['guide_id'];
-        $guide->user_id          = 1;
-        $guide->full_name        = $_POST['full_name'] ?? "";
-        $guide->birth_date       = $_POST['birth_date'] ?? "";
-        $guide->contact          = $_POST['contact'] ?? "";
-        $guide->certificate      = $_POST['certificate'] ?? "";
-        $guide->languages        = $_POST['languages'] ?? "";
-        $guide->experience       = $_POST['experience'] ?? "";
+        $guide->guide_id = $_POST['guide_id'];
+        $guide->full_name = $_POST['full_name'] ?? "";
+        $guide->birth_date = $_POST['birth_date'] ?? "";
+        $guide->contact = $_POST['contact'] ?? "";
+        $guide->certificate = $_POST['certificate'] ?? "";
+        $guide->languages = $_POST['languages'] ?? "";
+        $guide->experience = $_POST['experience'] ?? "";
         $guide->health_condition = $_POST['health_condition'] ?? "";
-        $guide->rating           = $_POST['rating'] ?? "";
-        $guide->category         = $_POST['category'] ?? "";
-        //Xử lý ảnh
+        $guide->rating = $_POST['rating'] ?? 0;
+        $guide->category = $_POST['category'] ?? 1;
+
+        // Xử lý ảnh
         if(isset($_FILES['photo']['name']) && $_FILES['photo']['error'] === 0){
-            $file_name = 'uploads/' . time() . '.' . $_FILES['photo']['name'];
+            $file_name = 'uploads/' . time() . '_' . $_FILES['photo']['name'];
             move_uploaded_file($_FILES['photo']['tmp_name'], $file_name);
             $guide->photo = $file_name;
         } else {
-            $guide->photo = $_POST['old_photo'];
+            $guide->photo = $_POST['old_photo'] ?? null;
         }
 
         $this->modelTourGuide->update_guide($guide);
-        $guides = $this->modelTourGuide->allguide();
-        include "views/admin/guideadmin/noidung.php";
+        header("Location: ?act=guideadmin");
         exit();
     }
-    if(isset($_GET['id'])){
-        $id = $_GET['id'];
-        $guide = $this->modelTourGuide->find_guide($id);
-        if((!$guide)){
+
+    // Lấy dữ liệu HDV để fill form
+    if(isset($_GET['id'])) {
+        $guide_id = $_GET['id'];
+        $guide = $this->modelTourGuide->findById($guide_id); // Dùng guide_id
+        if(!$guide) {
             echo "Không tìm thấy hướng dẫn viên.";
             exit();
         }
         include "views/admin/guideadmin/update_guide.php";
         exit();
-    }   
+    }
 }
-
 
 // đặt tour
 public function booking()
@@ -396,7 +396,6 @@ public function createbooking()
 
     include "views/admin/booking/createbooking.php";
 }
-
 public function storebooking()
 {
     $tour_id      = $_POST['tour_id'] ?? null;
@@ -410,29 +409,35 @@ public function storebooking()
 
     $customer_ids = $_POST['customer_ids'] ?? []; // khách cũ
     $new_name     = $_POST['new_customer_name'] ?? '';
-    $new_email    = $_POST['new_customer_email'] ?? '';
-    $new_phone    = $_POST['new_customer_phone'] ?? '';
-    $new_address  = $_POST['new_customer_address'] ?? '';
-    $new_dob      = $_POST['new_customer_dob'] ?? '';
+    $new_contact  = $_POST['new_customer_contact'] ?? '';
+    $new_gender   = $_POST['new_customer_gender'] ?? '';
+    $new_birth    = $_POST['new_customer_birth_year'] ?? '';
+    $new_id_number= $_POST['new_customer_id_number'] ?? '';
+    $new_special  = $_POST['new_customer_special_request'] ?? '';
 
-    // Thêm khách mới nếu có
-    if ($new_name) {
-        $existing = $this->modelCustomer->findByContact($new_phone);
+    // --- Thêm khách mới nếu có ---
+    if (!empty($new_name)) {
+        $existing = $this->modelCustomer->findByContact($new_contact);
         if ($existing) {
             $customer_ids[] = $existing['customer_id'];
         } else {
             $newCustomer = new Customer();
-            $newCustomer->full_name = $new_name;
-            $newCustomer->contact   = $new_phone;
-            $newCustomer->birth_year = $new_dob ? date('Y', strtotime($new_dob)) : null;
-            $newCustomer->special_request = '';
-            $newCustomer->payment_status = 0;
-            $newCustomer->id_number = '';
+            $newCustomer->full_name       = $new_name;
+            $newCustomer->contact         = $new_contact;
+            $newCustomer->gender          = $new_gender;
+            $newCustomer->birth_year      = $new_birth ?: null;
+            $newCustomer->id_number       = $new_id_number;
+            $newCustomer->special_request = $new_special;
+            $newCustomer->payment_status  = 0;
+
             $new_id = $this->modelCustomer->create_customer($newCustomer);
-            $customer_ids[] = $new_id;
+            if ($new_id) {
+                $customer_ids[] = $new_id;
+            }
         }
     }
 
+    // --- Kiểm tra nếu không có khách ---
     if (empty($customer_ids)) {
         $_SESSION['error'] = "Vui lòng chọn hoặc thêm khách hàng!";
         $_SESSION['old'] = $_POST;
@@ -440,7 +445,7 @@ public function storebooking()
         exit;
     }
 
-    // Nếu không có departure_id thì tạo mới
+    // --- Tạo mới departure nếu chưa có ---
     if (!$departure_id && !empty($_POST['departure_date'])) {
         $departureData = [
             'tour_id'        => $tour_id,
@@ -451,7 +456,7 @@ public function storebooking()
         $departure_id = $this->DepartureModel->insert($departureData);
     }
 
-    // Kiểm tra trùng lịch khách
+    // --- Kiểm tra khách trùng lịch ---
     $valid_customers = [];
     $conflict_customers = [];
     foreach ($customer_ids as $cid) {
@@ -473,8 +478,8 @@ public function storebooking()
         $_SESSION['warning'] = "Một số khách đã có tour trùng ngày và sẽ không được thêm: " . implode(', ', $conflict_customers);
     }
 
-    // Lưu booking cho khách hợp lệ
-    $this->BookingModel->insert([
+    // --- Lưu booking ---
+    $bookingData = [
         'tour_id'      => $tour_id,
         'guide_id'     => $guide_id,
         'departure_id' => $departure_id,
@@ -483,13 +488,16 @@ public function storebooking()
         'booking_type' => $booking_type,
         'status'       => $status,
         'notes'        => $notes,
-        'customer_ids' => $valid_customers
-    ]);
+        'customer_ids' => $valid_customers,
+    ];
+
+    $this->BookingModel->insert($bookingData);
 
     $_SESSION['success'] = "Tạo booking thành công!";
     header("Location: ?act=booking");
     exit;
 }
+
 
 
 public function updatebooking()

@@ -29,51 +29,94 @@ class TourGuideController
     // DASHBOARD
     // ----------------------------
     public function header()
-    {
-        $title = "Trang chủ hướng dẫn viên";
-        require_once './views/guide/header.php';
+{
+    session_start();
+    $title = "Trang chủ hướng dẫn viên";
+
+    $guideId = $_SESSION['user']['guide_id'] ?? 0;
+    $today = date('Y-m-d');
+
+    // -------------------------------
+    // Tour đã hoàn thành
+    // -------------------------------
+    $totalCompletedTours = $this->BookingModel->countCompletedToursByGuide($guideId);
+
+    // -------------------------------
+    // Tour sắp khởi hành
+    // -------------------------------
+    // Lấy tất cả tour mà hướng dẫn viên được phân công
+    $allTours = $this->ScheduleModel->getByGuide($guideId);
+
+    $totalUpcoming = 0;
+    $totalSchedule = 0; // tour đang thực hiện
+    $totalReports = 0;
+
+    foreach ($allTours as $tour) {
+        $departure = $tour['departure_date'] ?? null;
+        $return = $tour['return_date'] ?? null;
+        $statusBooking = $tour['status'] ?? 0;
+
+        if (!$departure || !$return) continue;
+
+        // Tour sắp khởi hành
+        if ($departure > $today) {
+            $totalUpcoming++;
+        }
+        // Lịch làm việc (tour đang thực hiện)
+        elseif ($departure <= $today && $return >= $today) {
+            $totalSchedule++;
+        }
+        // Nhật ký tour (tour đã hoàn thành, dùng status = 1)
+        elseif ($return < $today && $statusBooking == 1) {
+            $totalReports++;
+        }
     }
 
-    public function schedule() {
+    require_once './views/guide/header.php';
+}
+
+
+  public function schedule() {
     session_start();
 
-    // Lấy guide_id từ session (hoặc mặc định 3 nếu chưa login)
     $guideId = $_SESSION['user']['guide_id'] ?? 0;
 
-    // Lấy lịch làm việc từ model 1 lần duy nhất
+    // Lấy lịch làm việc
     $tours = $this->ScheduleModel->getByGuide($guideId);
 
     $today = date('Y-m-d');
 
-    // Thêm trạng thái cho từng tour
-    foreach ($tours as $tour) {
+    // FIX FOREACH SAI → SỬA BẰNG KEY
+    foreach ($tours as $i => $tour) {
         $bdau  = $tour['departure_date'] ?? null;
         $kthuc = $tour['return_date'] ?? null;
-       // $scheduleStatus = $tour['schedule_status'] ?? 0;
 
-        // if ($scheduleStatus == 3) {
-        //     $tour['tinh_trang'] = "Đã hủy";
-        //     $tour['trangthai'] = "cancelled";
-        // } else
         if (!$bdau || !$kthuc) {
-            $tour['tinh_trang'] = "Chưa có dữ liệu";
-            $tour['trangthai'] = "unknown";
-        } elseif ($kthuc < $today) {
-            $tour['tinh_trang'] = "Đã hoàn thành";
-            $tour['trangthai'] = "completed";
-        } elseif ($bdau <= $today && $kthuc >= $today) {
-            $tour['tinh_trang'] = "Đang thực hiện";
-            $tour['trangthai'] = "in_progress";
-        } else {
-            $tour['tinh_trang'] = "Sắp khởi hành";
-            $tour['trangthai'] = "upcoming";
+            $tours[$i]['tinh_trang'] = "Chưa có dữ liệu";
+            $tours[$i]['trangthai'] = "unknown";
+        } 
+        elseif ($kthuc < $today) {
+            $tours[$i]['tinh_trang'] = "Đã hoàn thành";
+            $tours[$i]['trangthai'] = "completed";
+        } 
+        elseif ($bdau <= $today && $kthuc >= $today) {
+            $tours[$i]['tinh_trang'] = "Đang thực hiện";
+            $tours[$i]['trangthai'] = "in_progress";
+        } 
+        else {
+            $tours[$i]['tinh_trang'] = "Sắp khởi hành";
+            $tours[$i]['trangthai'] = "upcoming";
         }
+
+        // ẢNH TOUR – LẤY TỪ cột t.image
+        $tours[$i]['tour_image'] = $tour['tour_image'] ?? 'default.png';
     }
 
-    // Gửi dữ liệu sang view
     $lich_lam_viec = $tours;
+
     include "views/guide/lich_lam_viec/schedule.php";
 }
+
 
     // ----------------------------
     // TRANG CÁ NHÂN
