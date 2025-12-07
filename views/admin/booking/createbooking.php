@@ -118,93 +118,94 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
                 <div class="invalid-feedback">Vui lòng nhập điểm hẹn.</div>
             </div>
 
-          <div class="mb-3">
-    <label class="form-label">Chọn khách hàng <span class="text-danger">*</span></label>
-    <div style="max-height:300px; overflow:auto; border:1px solid #ccc; padding:10px;">
-        <table class="table table-bordered table-sm mb-0">
-            <thead class="table-light">
-                <tr>
-                    <th scope="col">Chọn</th>
-                    <th scope="col">Họ & Tên</th>
-                    <th scope="col">Giới tính</th>
-                    <th scope="col">Năm sinh</th>
-                    <th scope="col">CMND/CCCD</th>
-                    <th scope="col">Liên hệ</th>
-                    <th scope="col">Trạng thái thanh toán</th>
-                    <th scope="col">Yêu cầu đặc biệt</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($customers as $c): ?>
-                    <?php
-                        $full_name = $c['full_name'] ?? '';
-                        $gender = isset($c['gender']) ? ($c['gender']==1?'Nam':($c['gender']==2?'Nữ':'Khác')) : '';
-                        $birth_year = $c['birth_year'] ?? '';
-                        $id_number = $c['id_number'] ?? '';
-                        $contact = $c['contact'] ?? '';
-                        $payment_status = isset($c['payment_status']) ? ($c['payment_status']==1?'Đã thanh toán':'Chưa thanh toán') : '';
-                        $special_request = $c['special_request'] ?? '';
-                        $checked = (!empty($_SESSION['old']['customer_ids']) && in_array($c['customer_id'], $_SESSION['old']['customer_ids'])) ? 'checked' : '';
-                    ?>
-                    <tr>
-                        <td class="text-center">
-                            <input type="checkbox" name="customer_ids[]" value="<?= $c['customer_id'] ?>" <?= $checked ?>>
-                        </td>
-                        <td><?= $full_name ?></td>
-                        <td><?= $gender ?></td>
-                        <td><?= $birth_year ?></td>
-                        <td><?= $id_number ?></td>
-                        <td><?= $contact ?></td>
-                        <td><?= $payment_status ?></td>
-                        <td><?= $special_request ?></td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
-</div>
+            <!-- Khách hàng -->
+            <div class="mb-3">
+                <label class="form-label">Chọn khách hàng <span class="text-danger">*</span></label>
+                <div style="max-height:300px; overflow:auto; border:1px solid #ccc; padding:10px;">
+                    <table class="table table-bordered table-sm mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col">Chọn</th>
+                                <th scope="col">Họ & Tên</th>
+                                <th scope="col">Giới tính</th>
+                                <th scope="col">Năm sinh</th>
+                                <th scope="col">CMND/CCCD</th>
+                                <th scope="col">Liên hệ</th>
+                                <th scope="col">Trạng thái thanh toán</th>
+                                <th scope="col">Yêu cầu đặc biệt</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customer_list">
+                            <?php foreach ($customers as $c): ?>
+                                <?php
+                                    $full_name = $c['full_name'] ?? '';
+                                    $gender = isset($c['gender']) ? ($c['gender']==1?'Nam':($c['gender']==2?'Nữ':'Khác')) : '';
+                                    $birth_year = $c['birth_year'] ?? '';
+                                    $id_number = $c['id_number'] ?? '';
+                                    $contact = $c['contact'] ?? '';
+                                    $payment_status = isset($c['payment_status']) ? ($c['payment_status']==1?'Đã thanh toán':'Chưa thanh toán') : '';
+                                    $special_request = $c['special_request'] ?? '';
+                                    $checked = (!empty($_SESSION['old']['customer_ids']) && in_array($c['customer_id'], $_SESSION['old']['customer_ids'])) ? 'checked' : '';
+                                ?>
+                                <tr>
+                                    <td class="text-center">
+                                        <input type="checkbox" name="customer_ids[]" value="<?= $c['customer_id'] ?>" <?= $checked ?>>
+                                    </td>
+                                    <td><?= $full_name ?></td>
+                                    <td><?= $gender ?></td>
+                                    <td><?= $birth_year ?></td>
+                                    <td><?= $id_number ?></td>
+                                    <td><?= $contact ?></td>
+                                    <td><?= $payment_status ?></td>
+                                    <td><?= $special_request ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
+            <!-- Thêm khách mới -->
+            <div class="mb-3">
+                <label class="form-label">Thêm khách mới</label>
+                <div class="card p-3 mb-2" style="background:#f1f3f5;">
+                    <div class="row mb-2">
+                        <div class="col-md-6">
+                            <label class="form-label">Họ & Tên</label>
+                            <input type="text" name="new_customer_name" class="form-control" placeholder="Tên khách mới">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Số điện thoại / Email</label>
+                            <input type="text" name="new_customer_contact" class="form-control" placeholder="Số điện thoại hoặc email">
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-md-3">
+                            <label class="form-label">Giới tính</label>
+                            <select name="new_customer_gender" class="form-control">
+                                <option value="">--Chọn--</option>
+                                <option value="1">Nam</option>
+                                <option value="2">Nữ</option>
+                                <option value="0">Khác</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Năm sinh</label>
+                            <input type="number" name="new_customer_birth_year" class="form-control" placeholder="YYYY">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">CMND / CCCD</label>
+                            <input type="text" name="new_customer_id_number" class="form-control">
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Yêu cầu đặc biệt</label>
+                        <textarea name="new_customer_special_request" class="form-control" rows="2"></textarea>
+                    </div>
+                    <button type="button" id="addCustomerBtn" class="btn btn-success"><i class="fa-solid fa-user-plus"></i> Thêm khách mới</button>
+                </div>
+            </div>
 
-<!-- Thêm khách mới -->
-<div class="mb-3">
-    <label class="form-label">Thêm khách mới</label>
-    <div class="card p-3 mb-2" style="background:#f1f3f5;">
-        <div class="row mb-2">
-            <div class="col-md-6">
-                <label class="form-label">Họ & Tên</label>
-                <input type="text" name="new_customer_name" class="form-control" placeholder="Tên khách mới">
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">Số điện thoại / Email</label>
-                <input type="text" name="new_customer_contact" class="form-control" placeholder="Số điện thoại hoặc email">
-            </div>
-        </div>
-        <div class="row mb-2">
-            <div class="col-md-3">
-                <label class="form-label">Giới tính</label>
-                <select name="new_customer_gender" class="form-control">
-                    <option value="">--Chọn--</option>
-                    <option value="1">Nam</option>
-                    <option value="2">Nữ</option>
-                    <option value="0">Khác</option>
-                </select>
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Năm sinh</label>
-                <input type="number" name="new_customer_birth_year" class="form-control" placeholder="YYYY">
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">CMND / CCCD</label>
-                <input type="text" name="new_customer_id_number" class="form-control">
-            </div>
-        </div>
-        <div class="mb-2">
-            <label class="form-label">Yêu cầu đặc biệt</label>
-            <textarea name="new_customer_special_request" class="form-control" rows="2"></textarea>
-        </div>
-        <button type="submit" class="btn btn-success"><i class="fa-solid fa-user-plus"></i> Thêm khách mới</button>
-    </div>
-</div>
             <input type="hidden" name="num_people" id="num_people">
 
             <!-- Booking Date & Type -->
@@ -256,10 +257,13 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
     const numPeopleInput = document.getElementById('num_people');
 
     // Đếm số khách chọn
-    checkboxes.forEach(cb => cb.addEventListener('change', () => {
+    const updateNumPeople = () => {
         const count = document.querySelectorAll('input[name="customer_ids[]"]:checked').length;
         numPeopleInput.value = count;
-    }));
+    };
+    updateNumPeople();
+
+    checkboxes.forEach(cb => cb.addEventListener('change', updateNumPeople));
 
     // Validate form
     form.addEventListener('submit', function(event){
@@ -279,55 +283,67 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
     }, false);
 
     // Thêm khách mới AJAX
-    document.getElementById('addCustomerBtn').addEventListener('click', function() {
-        const name = document.getElementById('new_customer_name').value;
-        const email = document.getElementById('new_customer_email').value;
-        const phone = document.getElementById('new_customer_phone').value;
-        const address = document.getElementById('new_customer_address').value;
-        const dob = document.getElementById('new_customer_dob').value;
+    document.querySelector('#bookingForm button.btn-success').addEventListener('click', function(e) {
+        e.preventDefault();
+
+        const name     = document.querySelector('input[name="new_customer_name"]').value.trim();
+        const contact  = document.querySelector('input[name="new_customer_contact"]').value.trim();
+        const gender   = document.querySelector('select[name="new_customer_gender"]').value;
+        const birth    = document.querySelector('input[name="new_customer_birth_year"]').value;
+        const idNumber = document.querySelector('input[name="new_customer_id_number"]').value;
+        const special  = document.querySelector('textarea[name="new_customer_special_request"]').value;
 
         if(!name){ alert("Vui lòng nhập tên khách"); return; }
 
         fetch('?act=addcustomerajax', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({name, email, phone, address, dob})
+            body: JSON.stringify({name, contact, gender, birth, idNumber, special})
         })
         .then(res => res.json())
         .then(data => {
             if(data.success){
-                const customerList = document.getElementById('customer_list');
                 const id = data.customer_id;
-                const input = document.createElement('input');
-                input.type = 'checkbox';
-                input.className = 'form-check-input';
-                input.name = 'customer_ids[]';
-                input.value = id;
-                input.id = 'customer_' + id;
-                input.checked = true;
 
-                const label = document.createElement('label');
-                label.className = 'form-check-label';
-                label.htmlFor = 'customer_' + id;
-                label.innerText = name + ' | ' + phone + ' | ' + email;
+                // Tạo checkbox khách mới và check luôn
+                const tableBody = document.querySelector('div[style*="overflow:auto"] tbody');
+                const tr = document.createElement('tr');
 
-                customerList.appendChild(input);
-                customerList.appendChild(label);
-                customerList.appendChild(document.createElement('br'));
+                tr.innerHTML = `
+                    <td class="text-center">
+                        <input type="checkbox" name="customer_ids[]" value="${id}" checked>
+                    </td>
+                    <td>${name}</td>
+                    <td>${gender==1?'Nam':(gender==2?'Nữ':'Khác')}</td>
+                    <td>${birth || ''}</td>
+                    <td>${idNumber || ''}</td>
+                    <td>${contact || ''}</td>
+                    <td>Chưa thanh toán</td>
+                    <td>${special || ''}</td>
+                `;
+                tableBody.appendChild(tr);
 
-                document.getElementById('new_customer_name').value = '';
-                document.getElementById('new_customer_email').value = '';
-                document.getElementById('new_customer_phone').value = '';
-                document.getElementById('new_customer_address').value = '';
-                document.getElementById('new_customer_dob').value = '';
+                // Xóa input sau khi thêm
+                document.querySelector('input[name="new_customer_name"]').value = '';
+                document.querySelector('input[name="new_customer_contact"]').value = '';
+                document.querySelector('select[name="new_customer_gender"]').value = '';
+                document.querySelector('input[name="new_customer_birth_year"]').value = '';
+                document.querySelector('input[name="new_customer_id_number"]').value = '';
+                document.querySelector('textarea[name="new_customer_special_request"]').value = '';
+
+                // Cập nhật số lượng khách
+                updateNumPeople();
             } else {
                 alert(data.error || "Lỗi thêm khách mới");
             }
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Lỗi kết nối server!");
         });
     });
 })();
 </script>
-
 <?php unset($_SESSION['old']); ?>
 </body>
 </html>

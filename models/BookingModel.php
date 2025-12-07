@@ -204,24 +204,56 @@ class BookingModel
         return $row['total'] ?? 0;
     }
 
-    public function sumRevenue() {
-        $sql = "SELECT SUM(b.num_people * t.price) AS totalRevenue
-                FROM booking b
-                JOIN tour t ON b.tour_id = t.tour_id
-                WHERE b.status = 1";
-        $stmt = $this->conn->query($sql);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $row['totalRevenue'] ?? 0;
-    }
+   public function sumRevenue() { 
+    $sql = "SELECT SUM(
+                    CASE 
+                        WHEN b.status = 1 THEN b.num_people * t.price
+                        WHEN b.status = 2 THEN b.num_people * t.price * 0.5
+                        ELSE 0
+                    END
+                ) AS totalRevenue
+            FROM booking b
+            JOIN tour t ON b.tour_id = t.tour_id";
+    $stmt = $this->conn->query($sql);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $row['totalRevenue'] ?? 0;
+}
+
 
     public function sumRevenueByTour($tour_id) {
-        $sql = "SELECT SUM(b.num_people * t.price) AS totalRevenue
+    $sql = "SELECT SUM(
+                    CASE 
+                        WHEN b.status = 1 THEN b.num_people * t.price
+                        WHEN b.status = 2 THEN b.num_people * t.price * 0.5
+                        ELSE 0
+                    END
+                ) AS totalRevenue
+            FROM booking b
+            JOIN tour t ON b.tour_id = t.tour_id
+            WHERE b.tour_id = :tour_id";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute(['tour_id' => $tour_id]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $row['totalRevenue'] ?? 0;
+}
+
+// Đếm số tour đã hoàn thành của 1 hướng dẫn viên
+public function countCompletedToursByGuide($guide_id) {
+    try {
+        $sql = "SELECT COUNT(DISTINCT b.tour_id) AS total
                 FROM booking b
-                JOIN tour t ON b.tour_id = t.tour_id
-                WHERE b.tour_id = :tour_id";
+                WHERE b.guide_id = :guide_id
+                  AND b.status = 1"; // status = 1 => hoàn thành
         $stmt = $this->conn->prepare($sql);
-        $stmt->execute(['tour_id' => $tour_id]);
+        $stmt->execute(['guide_id' => $guide_id]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $row['totalRevenue'] ?? 0;
+        return $row['total'] ?? 0;
+    } catch (PDOException $err) {
+        echo "Lỗi: " . $err->getMessage();
+        return 0;
     }
+}
+
+
+
 }
