@@ -30,7 +30,7 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
 </style>
 </head> 
 <body>
-
+   
 <!-- Sidebar -->
 <div id="sidebar">
 <h3>Admin Panel</h3>
