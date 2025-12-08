@@ -77,7 +77,7 @@ match ($act) {
     'special_request'=>(new TourGuideController())-> special_request(),
 //báo cáo 
 
-
+ 
 
 
 };
