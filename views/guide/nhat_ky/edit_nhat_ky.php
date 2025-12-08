@@ -8,6 +8,11 @@ $nameUser = $_SESSION['user']['full_name'] ?? 'Hướng dẫn viên';
 
 // Dùng htmlspecialchars để tránh lỗi HTML injection
 $nameUser = htmlspecialchars($nameUser);
+$tour_log = $tour_log ?? [
+    'log_id' => '', 
+    'photo' => '', 
+    'guide_review' => ''
+];
 ?>
 
 <!DOCTYPE html>
@@ -38,6 +43,11 @@ $nameUser = htmlspecialchars($nameUser);
         .bg-danger { background-color: #dc3545 !important; }
         footer { width:100%; background:#fff; position:fixed; bottom:0; box-shadow:0 -2px 4px rgba(0,0,0,0.1); }
         #sidebar a i { color: #fff !important; }
+        .text-primary{font-weight: 500; color: #212529 !important;}
+        .form-section { border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin-bottom: 50px;}
+        .form-section legend { font-weight: 400; color: #000000ff;}
+        .btn-submit { background-color: #d59d00ff; color: #fff; border: none; padding: 12px 40px; border-radius: 6px; margin-bottom: 50px;}
+        .btn-submit:hover { background-color: #c02600ff; transform: translateY(-2px);}
     </style>
 </head>
 <body>
@@ -45,13 +55,13 @@ $nameUser = htmlspecialchars($nameUser);
 <!-- Sidebar -->
 <div id="sidebar">
     <h3 class="text-center py-3 border-bottom">Guide Panel</h3>
-
-    <a href="?act=header" class="bg-secondary"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+    <a href="?act=header"><i class="fa-solid fa-chart-line"></i>Dashboard</a>
     <a href="?act=profile"><i class="fa-solid fa-user"></i> Thông tin cá nhân</a>
     <a href="?act=schedule"><i class="fa-solid fa-calendar-day"></i> Lịch làm việc</a>
     <a href="?act=login"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
 </div>
 
+<!-- Content -->
 <div id="content">
     <!-- Topbar -->
     <div class="topbar">
@@ -62,45 +72,54 @@ $nameUser = htmlspecialchars($nameUser);
         </div>
         <div class="user">
             <img src="uploads/logo.png" alt="User">
-            <span><?= htmlspecialchars($nameUser) ?></span>
+                <span><?= $nameUser ?></span>
             <a href="?act=login" class="btn btn-sm btn-outline-danger ms-3">Đăng xuất</a>
         </div>
     </div>
 
     <!-- Dashboard Content -->
     <div class="container-fluid">
-        <h2 class="mb-4">Bảng điều khiển</h2>
-        <p>Chào mừng <?= htmlspecialchars($nameUser) ?> đến với hệ thống tour du lịch!</p>
+        <h2 class="text-primary mb-3">Chỉnh sửa Nhật ký Tour</h2>
 
-        <div class="row">
-    <div class="col-md-3 mb-3">
-        <div class="card-stats bg-primary">
-            <h4>Tour sắp khởi hành</h4>
-            <p><?= $totalUpcoming ?></p>
-        </div>
-    </div>
+        <form action="index.php?act=update_nhat_ky" method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="log_id" value="<?= $tour_log['log_id'] ?>">
+            <input type="hidden" name="old_photo" value="<?= htmlspecialchars($tour_log['photo']) ?>">
 
-    <div class="col-md-3 mb-3">
-        <div class="card-stats bg-success">
-            <h4>Lịch làm việc</h4>
-            <p><?= $totalSchedule ?></p>
-        </div>
-    </div>
+            <fieldset class="form-section">
+                <legend>Ảnh Tour (Cập nhật)</legend>
+                
+                <?php if (!empty($tour_log['photo'])): ?>
+                    <div class="mb-3">
+                        <label class="form-label">Ảnh hiện tại:</label>
+                        <div>
+                            <img src="<?= htmlspecialchars($tour_log['photo']) ?>" alt="Ảnh hiện tại" style="max-width: 200px; height: auto; border: 1px solid #ccc; border-radius: 4px;">
+                        </div>
+                    </div>
+                <?php endif; ?>
 
-    <div class="col-md-3 mb-3">
-        <div class="card-stats bg-warning">
-            <h4>Tour đã hoàn thành</h4>
-            <p><?= $totalCompletedTours ?></p>
-        </div>
-    </div>
+                <div class="mb-3">
+                    <label for="photo_file" class="form-label">Tải lên Ảnh mới (chọn file khác để thay thế):</label>
+                    <input type="file" id="photo_file" name="photo_file" class="form-control" accept="image/*">
+                </div>
+            </fieldset>
 
-    <div class="col-md-3 mb-3">
-        <div class="card-stats bg-danger">
-            <h4>Nhật ký tour</h4>
-            <p><?= $totalReports ?></p>
-        </div>
-    </div>
-</div>
+            <fieldset class="form-section">
+                <legend>Cảm nhận của Hướng dẫn viên</legend>
+                <div class="mb-3">
+                    <label for="guide_review" class="form-label">Cảm nhận/Đánh giá của HDV:</label>
+                    <textarea id="guide_review" name="guide_review" class="form-control" rows="6" required placeholder="Nhập cảm nhận và đánh giá của bạn về chuyến tour..."><?= htmlspecialchars($tour_log['guide_review']) ?></textarea>
+                </div>
+            </fieldset>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-submit">Lưu Cập nhật</button>
+            </div>
+            
+            <a href="index.php?act=report" class="btn btn-secondary">
+                <i class="fa-solid fa-arrow-left"></i> Quay lại Nhật ký Tour
+            </a>
+            
+        </form>
     </div>
 </div>
 

@@ -10,7 +10,6 @@ require_once __DIR__ . '/../models/BookingModel.php';
 require_once __DIR__ . '/../models/tourPartnerModel.php';
 require_once __DIR__ . '/../models/DepartureModel.php';
 require_once __DIR__ . '/../models/itineraryModel.php';
-require_once __DIR__ . '/../models/CustomerGroupModel.php';
 
 
 class admincontroller {
@@ -25,7 +24,6 @@ class admincontroller {
     public $modelTourPartner;
     public $DepartureModel;
     public $itineraryModel;
-    public $CustomerGroupModel;
 
 
     public function __construct() {
@@ -40,7 +38,6 @@ class admincontroller {
         $this->modelTourPartner = new TourPartnerModel();
         $this->DepartureModel = new DepartureModel();
         $this->itineraryModel = new itineraryModel();
-        $this->CustomerGroupModel = new CustomerGroupModel();
 
     }
 public function dashboard() {
@@ -69,7 +66,7 @@ public function dashboard() {
     // Load view dashboard
     include "views/admin/dashboard.php";
 }
-
+// tour
 
     public function tour(){
         $tours = $this->modelTour->all();
@@ -89,144 +86,180 @@ public function dashboard() {
     }
 
    public function store() {
+    if($_SERVER['REQUEST_METHOD'] !== 'POST') return;
+
+    $tour = new Tour();
+    $tour->tour_name = $_POST['tour_name'] ?? "";
+    $tour->category_id = $_POST['tour_category'] ?? 0;
+
+    // Validate category
+    $category = $this->categoryModel->find($tour->category_id);
+    if(!$category || $category->status != 1){
+        $_SESSION['error'] = "Danh mục này đang inactive!";
+        header("Location: ?act=create");
+        exit;
+    }
+
+    $tour->description = $_POST['description'] ?? "";
+    $tour->price = $_POST['price'] ?? 0;
+    $tour->status = $_POST['status'] ?? 1;
+
+    // Policy
+    $tour->policy = null;
+    if(isset($_FILES['policy']) && $_FILES['policy']['error'] === 0){
+        $dir = 'uploads/policy/';
+        if(!is_dir($dir)) mkdir($dir,0777,true);
+        $file = $dir.time().'_'.basename($_FILES['policy']['name']);
+        if(move_uploaded_file($_FILES['policy']['tmp_name'],$file)) $tour->policy = $file;
+    }
+
+    // Image
+    $tour->image = null;
+    if(isset($_FILES['image']) && $_FILES['image']['error'] === 0){
+        if(!is_dir('uploads/')) mkdir('uploads/',0777,true);
+        $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
+        $tour->image = 'uploads/'.time().'_'.uniqid().'.'.$ext;
+        move_uploaded_file($_FILES['image']['tmp_name'],$tour->image);
+    }
+
+    // Tạo tour
+    $tour_id = $this->modelTour->create($tour); // cần return ID
+    if(!$tour_id) die("Không thể tạo tour!");
+
+    // Partner
+    $partner_ids = $_POST['supplier'] ?? [];
+    $this->handleTourPartners($tour_id, $partner_ids);
+
+    // Gallery
+    if(isset($_FILES['gallery'])){
+        $files = $_FILES['gallery'];
+        for($i=0;$i<count($files['name']);$i++){
+            if($files['error'][$i]===0){
+                $ext = pathinfo($files['name'][$i], PATHINFO_EXTENSION);
+                $file = 'uploads/'.time().'_'.uniqid().'.'.$ext;
+                move_uploaded_file($files['tmp_name'][$i],$file);
+                $this->modelTourImage->addImages($tour_id,[$file]);
+            }
+        }
+    }
+
+    // Itinerary
+    $its = $_POST['itinerary'] ?? [];
+    foreach($its as $it){
+        $itinerary = new Itinerary();
+        $itinerary->tour_id = $tour_id;
+        $itinerary->day_number = $it['day_number'] ?? 1;
+        $itinerary->start_time = $it['start_time'] ?? '';
+        $itinerary->end_time = $it['end_time'] ?? '';
+        $itinerary->activity = $it['activity'] ?? '';
+        $itinerary->location = $it['location'] ?? '';
+        $this->itineraryModel->create($itinerary);
+    }
+
+    header("Location:?act=tour");
+    exit;
+}
+
+
+
+   public function update() {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $tour = new Tour();
+        $tour->tour_id     = $_POST['tour_id'];
         $tour->tour_name   = $_POST['tour_name'] ?? "";
         $tour->category_id = $_POST['tour_category'] ?? 1;
         $tour->description = $_POST['description'] ?? "";
         $tour->price       = $_POST['price'] ?? 0;
-        $tour->policy      = $_POST['policy'] ?? "";
         $tour->status      = $_POST['status'] ?? 1;
 
-        // Xử lý ảnh đại diện
-        if(isset($_FILES['image']) && $_FILES['image']['error'] === 0){
-            $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-            $tour->image = 'uploads/' . time() . '_' . uniqid() . '.' . $ext;
-            move_uploaded_file($_FILES['image']['tmp_name'], $tour->image);
+        // Xử lý file chính sách
+        if(isset($_FILES['policy']) && $_FILES['policy']['error'] === 0){
+            $uploadDir = 'uploads/policy/';
+            if(!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
+
+            $fileName = time() . '_' . basename($_FILES['policy']['name']);
+            $targetFile = $uploadDir . $fileName;
+
+            if(move_uploaded_file($_FILES['policy']['tmp_name'], $targetFile)){
+                $tour->policy = $targetFile;
+            } else {
+                $tour->policy = $_POST['old_policy'] ?? null;
+            }
         } else {
-            $tour->image = null;
+            $tour->policy = $_POST['old_policy'] ?? null;
         }
 
-        // Gán danh sách partner
-        $tour->supplier_ids = $_POST['supplier'] ?? [];
+        // Xử lý ảnh tour
+        if(isset($_FILES['image']) && $_FILES['image']['error'] === 0){
+            $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
+            $fileName = 'uploads/' . time() . '.' . $ext;
+            move_uploaded_file($_FILES['image']['tmp_name'], $fileName);
+            $tour->image = $fileName;
+        } else {
+            $tour->image = $_POST['old_image'] ?? null;
+        }
 
-        // Tạo tour
-        $tour_id = $this->modelTour->create($tour);
-        if (!$tour_id) die("Không thể tạo tour!");
+        // Cập nhật tour
+        $this->modelTour->update($tour);
 
-        // Thêm gallery nhiều ảnh
+        // Cập nhật đối tác
+        $partner_ids = $_POST['supplier'] ?? [];
+        $this->handleTourPartners($tour->tour_id, $partner_ids);
+
+        // Cập nhật gallery
         if(isset($_FILES['gallery'])){
             $gallery_files = $_FILES['gallery'];
+            $gallery_paths = [];
             for($i=0; $i<count($gallery_files['name']); $i++){
                 if($gallery_files['error'][$i] === 0){
                     $ext = pathinfo($gallery_files['name'][$i], PATHINFO_EXTENSION);
-                    $file_name = 'uploads/' . time() . '_' . uniqid() . '.' . $ext;
+                    $file_name = 'uploads/' . time() . '_' . $i . '.' . $ext;
                     move_uploaded_file($gallery_files['tmp_name'][$i], $file_name);
-                    $this->modelTourImage->addImages($tour_id, [$file_name]);
+                    $gallery_paths[] = $file_name;
                 }
+            }
+            if(!empty($gallery_paths)){
+                $this->modelTourImage->updateImages($tour->tour_id, $gallery_paths);
             }
         }
 
-        // Thêm itinerary
+        // Xóa itinerary cũ
+        $oldItineraries = $this->itineraryModel->getByTour($tour->tour_id);
+        foreach($oldItineraries as $it){
+            $this->itineraryModel->delete($it['itinerary_id']);
+        }
+
+        // Thêm itinerary mới
         $itineraries = $_POST['itinerary'] ?? [];
-        foreach ($itineraries as $it) {
+        foreach($itineraries as $it){
             $itinerary = new Itinerary();
-            $itinerary->tour_id = $tour_id;
+            $itinerary->tour_id    = $tour->tour_id;
             $itinerary->day_number = $it['day_number'] ?? 1;
             $itinerary->start_time = $it['start_time'] ?? '';
-            $itinerary->end_time = $it['end_time'] ?? '';
-            $itinerary->activity = $it['activity'] ?? '';
-            $itinerary->location = $it['location'] ?? '';
+            $itinerary->end_time   = $it['end_time'] ?? '';
+            $itinerary->activity   = $it['activity'] ?? '';
+            $itinerary->location   = $it['location'] ?? '';
             $this->itineraryModel->create($itinerary);
         }
 
-        // Chuyển hướng sau khi tạo tour thành công
-        header("Location:?act=tour");
+        header("Location: index.php?act=tour");
+        exit;
+    }
+
+    // Hiển thị form sửa tour
+    if(isset($_GET['id'])){
+        $tour_id = $_GET['id'];
+        $tour = $this->modelTour->find($tour_id);
+        $partners = $this->PartnerModel->all();
+        $tour_partners = $this->modelTourPartner->getPartnersByTour($tour_id);
+        $selectedPartners = array_column($tour_partners, 'partner_id');
+        $itineraries = $this->itineraryModel->getByTour($tour_id);
+        $gallery = $this->modelTourImage->getImagesByTour($tour_id);
+
+        include "views/admin/tour/update.php";
         exit;
     }
 }
-
-    public function update() {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $tour = new Tour();
-            $tour->tour_id     = $_POST['tour_id'];
-            $tour->tour_name   = $_POST['tour_name'] ?? "";
-            $tour->category_id = $_POST['tour_category'] ?? 1;
-            $tour->description = $_POST['description'] ?? "";
-            $tour->price       = $_POST['price'] ?? 0;
-            $tour->policy      = $_POST['policy'] ?? "";
-            $tour->status      = $_POST['status'] ?? 1;
-
-            // Xử lý ảnh đại diện
-            if(isset($_FILES['image']) && $_FILES['image']['error'] === 0){
-                $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-                $file_name = 'uploads/' . time() . '.' . $ext;
-                move_uploaded_file($_FILES['image']['tmp_name'], $file_name);
-                $tour->image = $file_name;
-            } else {
-                $tour->image = $_POST['old_image'] ?? null;
-            }
-
-            // Update tour
-            $this->modelTour->update($tour);
-
-            // Update partner
-            $partner_ids = $_POST['supplier'] ?? [];
-            $this->handleTourPartners($tour->tour_id, $partner_ids);
-
-            // Update gallery
-            if(isset($_FILES['gallery'])){
-                $gallery_files = $_FILES['gallery'];
-                $gallery_paths = [];
-                for($i=0; $i<count($gallery_files['name']); $i++){
-                    if($gallery_files['error'][$i] === 0){
-                        $ext = pathinfo($gallery_files['name'][$i], PATHINFO_EXTENSION);
-                        $file_name = 'uploads/' . time() . '_' . $i . '.' . $ext;
-                        move_uploaded_file($gallery_files['tmp_name'][$i], $file_name);
-                        $gallery_paths[] = $file_name;
-                    }
-                }
-                if(!empty($gallery_paths)){
-                    $this->modelTourImage->updateImages($tour->tour_id, $gallery_paths);
-                }
-            }
-
-            // Xóa itinerary cũ
-            $oldItineraries = $this->itineraryModel->getByTour($tour->tour_id);
-            foreach ($oldItineraries as $it) {
-                $this->itineraryModel->delete($it['itinerary_id']);
-            }
-
-            // Thêm itinerary mới
-            $itineraries = $_POST['itinerary'] ?? [];
-            foreach ($itineraries as $it) {
-                $itinerary = new Itinerary();
-                $itinerary->tour_id = $tour->tour_id;
-                $itinerary->day_number = $it['day_number'] ?? 1;
-                $itinerary->start_time = $it['start_time'] ?? '';
-                $itinerary->end_time = $it['end_time'] ?? '';
-                $itinerary->activity = $it['activity'] ?? '';
-                $itinerary->location = $it['location'] ?? '';
-                $this->itineraryModel->create($itinerary);
-            }
-
-            header("Location: index.php?act=tour");
-            exit;
-        }
-
-        if (isset($_GET['id'])) {
-            $tour_id = $_GET['id'];
-            $tour = $this->modelTour->find($tour_id);
-            $partners = $this->PartnerModel->all();
-            $tour_partners = $this->modelTourPartner->getPartnersByTour($tour_id);
-            $selectedPartners = array_column($tour_partners, 'partner_id');
-            $itineraries = $this->itineraryModel->getByTour($tour_id);
-            $gallery = $this->modelTourImage->getImagesByTour($tour_id);
-
-            include "views/admin/tour/update.php";
-            exit;
-        }
-    }
 
     private function handleTourPartners($tour_id, $partner_ids) {
         $this->modelTourPartner->deletePartnersByTour($tour_id);
@@ -245,7 +278,7 @@ public function delete() {
     exit;
 }
 
-
+// admin hướng dẫn viên
 
 public function guideadmin() {
     $guides = $this->modelTourGuide->allguide();
@@ -293,117 +326,172 @@ public function delete_guide(){
     $guides = $this->modelTourGuide->allguide();
     include "views/admin/guideadmin/noidung.php";
 }
-public function update_guide(){
-
-    if($_SERVER['REQUEST_METHOD'] === 'POST'){
-        if(!isset($_POST['guide_id'])){
+public function update_guide() {
+    if($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if(!isset($_POST['guide_id']) || empty($_POST['guide_id'])) {
             echo "Lỗi: Không tìm thấy guide_id";
             exit();
         }
+
         $guide = new Guide();
-        $guide->guide_id         = $_POST['guide_id'];
-        $guide->user_id          = 1;
-        $guide->full_name        = $_POST['full_name'] ?? "";
-        $guide->birth_date       = $_POST['birth_date'] ?? "";
-        $guide->contact          = $_POST['contact'] ?? "";
-        $guide->certificate      = $_POST['certificate'] ?? "";
-        $guide->languages        = $_POST['languages'] ?? "";
-        $guide->experience       = $_POST['experience'] ?? "";
+        $guide->guide_id = $_POST['guide_id'];
+        $guide->full_name = $_POST['full_name'] ?? "";
+        $guide->birth_date = $_POST['birth_date'] ?? "";
+        $guide->contact = $_POST['contact'] ?? "";
+        $guide->certificate = $_POST['certificate'] ?? "";
+        $guide->languages = $_POST['languages'] ?? "";
+        $guide->experience = $_POST['experience'] ?? "";
         $guide->health_condition = $_POST['health_condition'] ?? "";
-        $guide->rating           = $_POST['rating'] ?? "";
-        $guide->category         = $_POST['category'] ?? "";
-        //Xử lý ảnh
+        $guide->rating = $_POST['rating'] ?? 0;
+        $guide->category = $_POST['category'] ?? 1;
+
+        // Xử lý ảnh
         if(isset($_FILES['photo']['name']) && $_FILES['photo']['error'] === 0){
-            $file_name = 'uploads/' . time() . '.' . $_FILES['photo']['name'];
+            $file_name = 'uploads/' . time() . '_' . $_FILES['photo']['name'];
             move_uploaded_file($_FILES['photo']['tmp_name'], $file_name);
             $guide->photo = $file_name;
         } else {
-            $guide->photo = $_POST['old_photo'];
+            $guide->photo = $_POST['old_photo'] ?? null;
         }
 
         $this->modelTourGuide->update_guide($guide);
-        $guides = $this->modelTourGuide->allguide();
-        include "views/admin/guideadmin/noidung.php";
+        header("Location: ?act=guideadmin");
         exit();
     }
-    if(isset($_GET['id'])){
-        $id = $_GET['id'];
-        $guide = $this->modelTourGuide->find_guide($id);
-        if((!$guide)){
+
+    // Lấy dữ liệu HDV để fill form
+    if(isset($_GET['id'])) {
+        $guide_id = $_GET['id'];
+        $guide = $this->modelTourGuide->findById($guide_id); // Dùng guide_id
+        if(!$guide) {
             echo "Không tìm thấy hướng dẫn viên.";
             exit();
         }
         include "views/admin/guideadmin/update_guide.php";
         exit();
-    }   
+    }
 }
 
-
-
+// đặt tour
 public function booking()
 {
     $booking = $this->BookingModel->all();
     include "views/admin/booking/noidung.php";
 }
+
 public function createbooking()
 {
     $tours = $this->modelTour->all();
-$customerGroups = $this->CustomerGroupModel->all();
     $guides = $this->modelTourGuide->allguide();
-    $departures = $this->DepartureModel->all(); 
+    $departures = $this->DepartureModel->all();
+    $customers = $this->modelCustomer->allcustomer(); // Lấy tất cả khách
+
+    // Kiểm tra khách đã có tour trùng ngày (nếu quay lại form)
+    $customers_with_status = [];
+    $departure_id = $_SESSION['old']['departure_id'] ?? 0;
+    foreach ($customers as $c) {
+        $c['hasBooking'] = $this->BookingModel->customerHasBooking($c['customer_id'], $departure_id);
+        $customers_with_status[] = $c;
+    }
 
     include "views/admin/booking/createbooking.php";
 }
-
 public function storebooking()
 {
-    $tour_id       = $_POST['tour_id'];
-    $group_id      = $_POST['group_id'] ?? null;
-    $guide_id      = $_POST['guide_id'] ?? null;
-    $departure_id  = $_POST['departure_id'] ?? null; // nếu có chọn sẵn
-    $booking_date  = $_POST['booking_date'];
-    $num_people    = $_POST['num_people'];
-    $booking_type  = $_POST['booking_type'];
-    $status        = $_POST['status'];
-    $notes         = $_POST['notes'];
+    $tour_id      = $_POST['tour_id'] ?? null;
+    $guide_id     = $_POST['guide_id'] ?? null;
+    $departure_id = $_POST['departure_id'] ?? null;
+    $booking_date = $_POST['booking_date'] ?? date('Y-m-d');
+    $booking_type = $_POST['booking_type'] ?? 1;
+    $status       = $_POST['status'] ?? 4;
+    $notes        = $_POST['notes'] ?? '';
     $meeting_point = $_POST['meeting_point'] ?? '';
-    $departure_date = $_POST['departure_date'] ?? null; // thêm nếu tạo mới
-    $return_date    = $_POST['return_date'] ?? null;    // thêm nếu tạo mới
 
-    // Nếu không chọn departure, tạo mới một lịch khởi hành
-    if (!$departure_id && $departure_date) {
-        $departureData = [
-            'tour_id'       => $tour_id,
-            'departure_date'=> $departure_date,
-            'return_date'   => $return_date,
-            'meeting_point' => $meeting_point,
-            'notes'         => $notes,
-        ];
-        $departure_id = $this->DepartureModel->insert($departureData); // insert và trả về ID mới
+    $customer_ids = $_POST['customer_ids'] ?? []; // khách cũ
+    $new_name     = $_POST['new_customer_name'] ?? '';
+    $new_contact  = $_POST['new_customer_contact'] ?? '';
+    $new_gender   = $_POST['new_customer_gender'] ?? '';
+    $new_birth    = $_POST['new_customer_birth_year'] ?? '';
+    $new_id_number= $_POST['new_customer_id_number'] ?? '';
+    $new_special  = $_POST['new_customer_special_request'] ?? '';
+
+    // --- Thêm khách mới nếu có ---
+    if (!empty($new_name)) {
+        $existing = $this->modelCustomer->findByContact($new_contact);
+        if ($existing) {
+            $customer_ids[] = $existing['customer_id'];
+        } else {
+            $newCustomer = new Customer();
+            $newCustomer->full_name       = $new_name;
+            $newCustomer->contact         = $new_contact;
+            $newCustomer->gender          = $new_gender;
+            $newCustomer->birth_year      = $new_birth ?: null;
+            $newCustomer->id_number       = $new_id_number;
+            $newCustomer->special_request = $new_special;
+            $newCustomer->payment_status  = 0;
+
+            $new_id = $this->modelCustomer->create_customer($newCustomer);
+            if ($new_id) {
+                $customer_ids[] = $new_id;
+            }
+        }
     }
 
-    // Kiểm tra trùng lịch với HDV
-    if ($guide_id && $departure_id && !$this->BookingModel->guideAvailable($guide_id, $departure_id)) {
-        $_SESSION['guide_error'] = "Hướng dẫn viên đã trùng lịch!";
+    // --- Kiểm tra nếu không có khách ---
+    if (empty($customer_ids)) {
+        $_SESSION['error'] = "Vui lòng chọn hoặc thêm khách hàng!";
         $_SESSION['old'] = $_POST;
         header("Location: ?act=createbooking");
         exit;
     }
 
-    $data = [
-        'tour_id'       => $tour_id,
-        'group_id'      => $group_id,
-        'guide_id'      => $guide_id,
-        'departure_id'  => $departure_id,
-        'booking_date'  => $booking_date,
-        'num_people'    => $num_people,
-        'booking_type'  => $booking_type,
-        'status'        => $status,
-        'notes'         => $notes,
-      
+    // --- Tạo mới departure nếu chưa có ---
+    if (!$departure_id && !empty($_POST['departure_date'])) {
+        $departureData = [
+            'tour_id'        => $tour_id,
+            'departure_date' => $_POST['departure_date'],
+            'return_date'    => $_POST['return_date'],
+            'meeting_point'  => $meeting_point,
+        ];
+        $departure_id = $this->DepartureModel->insert($departureData);
+    }
+
+    // --- Kiểm tra khách trùng lịch ---
+    $valid_customers = [];
+    $conflict_customers = [];
+    foreach ($customer_ids as $cid) {
+        if ($this->BookingModel->customerHasBooking($cid, $departure_id)) {
+            $conflict_customers[] = $cid;
+        } else {
+            $valid_customers[] = $cid;
+        }
+    }
+
+    if (empty($valid_customers)) {
+        $_SESSION['error'] = "Tất cả khách đã có tour trùng ngày!";
+        $_SESSION['old'] = $_POST;
+        header("Location: ?act=createbooking");
+        exit;
+    }
+
+    if (!empty($conflict_customers)) {
+        $_SESSION['warning'] = "Một số khách đã có tour trùng ngày và sẽ không được thêm: " . implode(', ', $conflict_customers);
+    }
+
+    // --- Lưu booking ---
+    $bookingData = [
+        'tour_id'      => $tour_id,
+        'guide_id'     => $guide_id,
+        'departure_id' => $departure_id,
+        'booking_date' => $booking_date,
+        'num_people'   => count($valid_customers),
+        'booking_type' => $booking_type,
+        'status'       => $status,
+        'notes'        => $notes,
+        'customer_ids' => $valid_customers,
     ];
 
-    $this->BookingModel->insert($data);
+    $this->BookingModel->insert($bookingData);
 
     $_SESSION['success'] = "Tạo booking thành công!";
     header("Location: ?act=booking");
@@ -411,47 +499,89 @@ public function storebooking()
 }
 
 
+
 public function updatebooking()
 {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $booking_id   = $_POST['booking_id'];
-        $tour_id      = $_POST['tour_id'];
-        $group_id     = $_POST['group_id'] ?? null;
-        $guide_id     = $_POST['guide_id'] ?? null;
-        $departure_id = $_POST['departure_id'] ?? null;
-        $booking_date = $_POST['booking_date'];
-        $num_people   = $_POST['num_people'];
-        $booking_type = $_POST['booking_type'];
-        $status       = $_POST['status'];
-        $notes        = $_POST['notes'];
+        $booking_id = $_POST['booking_id'];
+        $booking = $this->BookingModel->getBookingFullDetail($booking_id);
 
+        if (!$booking || $booking['status'] != 0) {
+            $_SESSION['error'] = "Chỉ có booking chờ xác nhận mới được sửa!";
+            header("Location: ?act=booking");
+            exit;
+        }
+
+        // Lấy danh sách khách được chọn
+        $customer_ids = $_POST['customer_ids'] ?? [];
+
+        // Nếu có khách mới
+        if(!empty($_POST['new_customer_name'])){
+            $customer = new Customer();
+            $customer->full_name = $_POST['new_customer_name'];
+            $customer->gender    = $_POST['new_customer_gender'] ?? 0;
+            $customer->birth_year= $_POST['new_customer_birth'] ?? null;
+            $customer->id_number = $_POST['new_customer_id'] ?? '';
+            $customer->contact   = $_POST['new_customer_contact'] ?? '';
+            $customer->payment_status = $_POST['new_customer_payment'] ?? 0;
+            $customer->special_request = $_POST['new_customer_request'] ?? '';
+
+            // Lưu khách mới và lấy ID
+            $newCustomerId = $this->modelCustomer->create_customer($customer);
+            $customer_ids[] = $newCustomerId;
+        }
+
+        // Chuẩn bị dữ liệu cho update
         $data = [
             'booking_id'   => $booking_id,
-            'tour_id'      => $tour_id,
-            'group_id'     => $group_id,
-            'guide_id'     => $guide_id,
-            'departure_id' => $departure_id,
-            'booking_date' => $booking_date,
-            'num_people'   => $num_people,
-            'booking_type' => $booking_type,
-            'status'       => $status,
-            'notes'        => $notes,
+            'tour_id'      => $_POST['tour_id'],
+            'guide_id'     => $_POST['guide_id'] ?? null,
+            'departure_id' => $_POST['departure_id'] ?? null, // chỉ dùng departure_id, không dùng departure_date
+            'booking_date' => $_POST['booking_date'],
+            'num_people'   => count($customer_ids),
+            'booking_type' => $_POST['booking_type'] ?? 1,
+            'status'       => 0,
+            'notes'        => $_POST['notes'] ?? '',
+            'customer_ids' => $customer_ids
         ];
 
-        $this->BookingModel->update($data);
+        try {
+            $this->BookingModel->update($data);
+            $_SESSION['success'] = "Cập nhật booking thành công!";
+        } catch (Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+        }
 
-        $_SESSION['success'] = "Cập nhật booking thành công!";
         header("Location: ?act=booking");
         exit;
     }
 
+    // Hiển thị form
     if (isset($_GET['id'])) {
         $id = (int)$_GET['id'];
-        $booking = $this->BookingModel->detail($id);
+        $booking = $this->BookingModel->getBookingFullDetail($id);
+
+        if (!$booking || $booking['status'] != 0) {
+            $_SESSION['error'] = "Chỉ có booking chờ xác nhận mới được sửa!";
+            header("Location: ?act=booking");
+            exit;
+        }
+
         $tours = $this->modelTour->all();
         $guides = $this->modelTourGuide->allguide();
-        $groups = $this->BookingModel->all(); // danh sách tệp khách
         $departures = $this->DepartureModel->all();
+        $customers = $this->modelCustomer->allcustomer();
+
+        $_SESSION['old'] = [
+            'tour_id' => $booking['tour_id'],
+            'guide_id'=> $booking['guide_id'],
+            'departure_id'=> $booking['departure_id'],
+            'booking_date'=> $booking['booking_date'],
+            'booking_type'=> $booking['booking_type'],
+            'status' => $booking['status'],
+            'notes'  => $booking['notes'],
+            'customer_ids' => $booking['customer_ids'] ?? []
+        ];
 
         include "views/admin/booking/updatebooking.php";
         exit;
@@ -465,17 +595,12 @@ public function bookingDetail() {
     }
 
     $id = (int)$_GET['id'];
-    $booking = $this->BookingModel->detail($id); 
+    $booking = $this->BookingModel->getBookingFullDetail($id);
 
     if (!$booking) {
         echo "Không tìm thấy booking #$id";
         exit;
     }
-
-    $tours = $this->modelTour->all();
-    $guides = $this->modelTourGuide->allguide();
-    $groups = $this->BookingModel->all(); // danh sách tệp khách
-    $departures = $this->DepartureModel->all();
 
     include "views/admin/booking/detail.php"; 
 }
@@ -497,22 +622,52 @@ public function deletebooking()
     exit;
 }
 
+public function addcustomerajax()
+{
+    $data = json_decode(file_get_contents('php://input'), true);
+    $name = $data['name'] ?? '';
+    $email = $data['email'] ?? '';
+    $phone = $data['phone'] ?? '';
+    $address = $data['address'] ?? '';
+    $dob = $data['dob'] ?? '';
 
-
-
-
-
-
-
- public function customer() {
-        $customers = $this->modelCustomer->allcustomer();
-        include "views/admin/customer/noidung.php";
+    if(!$name){
+        echo json_encode(['success'=>false, 'error'=>'Vui lòng nhập tên khách']); exit;
     }
 
-   public function create_customer() {
+    $existing = $this->CustomerModel->findByEmailOrPhone($email, $phone);
+    if($existing){
+        echo json_encode(['success'=>true, 'customer_id'=>$existing['customer_id']]);
+        exit;
+    }
+
+    $new_id = $this->CustomerModel->insert([
+        'full_name' => $name,
+        'email' => $email,
+        'phone' => $phone,
+        'address' => $address,
+        'dob' => $dob
+    ]);
+
+    echo json_encode(['success'=>true, 'customer_id'=>$new_id]);
+}
+
+
+
+
+// khách hàng 
+
+
+ // Hiển thị danh sách khách
+public function customer() {
+    $customers = $this->modelCustomer->allcustomer();
+    include "views/admin/customer/noidung.php";
+}
+
+// Thêm khách hàng
+public function create_customer() {
     if ($_SERVER['REQUEST_METHOD'] === "POST") {
         $customer = new Customer();
-        $customer->group_id        = $_POST['group_id'] ?? null; // thêm dòng này
         $customer->full_name       = $_POST['full_name'] ?? "";
         $customer->gender          = $_POST['gender'] ?? 1;
         $customer->birth_year      = $_POST['birth_year'] ?: null;
@@ -526,17 +681,15 @@ public function deletebooking()
             header("Location: ?act=customer");
             exit();
         } catch (Exception $e) {
-            // hiển thị lỗi nếu tạo khách hàng thất bại
             $error = $e->getMessage();
         }
     }
 
-    // Lấy danh sách nhóm khách để show trong form select
-    $groups = $this->CustomerGroupModel->all(); 
     include "views/admin/customer/create_customer.php";
 }
 
-    public function update_customer() {
+// Cập nhật khách hàng
+public function update_customer() {
     if ($_SERVER['REQUEST_METHOD'] === "POST") {
         $customer = new Customer();
         $customer->customer_id     = $_POST['customer_id'];
@@ -547,12 +700,6 @@ public function deletebooking()
         $customer->contact         = $_POST['contact'] ?: null;
         $customer->payment_status  = $_POST['payment_status'] ?? 0;
         $customer->special_request = $_POST['special_request'] ?: null;
-        $customer->group_id        = $_POST['group_id'] ?? null; // Thêm dòng này
-
-        if (!$customer->group_id) {
-            echo "Vui lòng chọn nhóm khách.";
-            exit();
-        }
 
         $this->modelCustomer->update_customer($customer);
         header("Location: ?act=customer");
@@ -560,41 +707,39 @@ public function deletebooking()
     }
 
     if (isset($_GET['id'])) {
-        $id = $_GET['id'];
+        $id = (int)$_GET['id'];
         $customer = $this->modelCustomer->find_customer($id);
         if (!$customer) {
             echo "Không tìm thấy khách hàng";
             exit();
         }
-        // Lấy danh sách nhóm khách để hiển thị dropdown
-        $groupModel = new CustomerGroupModel();
-        $groups = $groupModel->all();
-
         include "views/admin/customer/update_customer.php";
     }
 }
 
-
-    public function delete_customer() {
-        if (isset($_GET['id'])) {
-            $id = (int)$_GET['id'];
-            $this->modelCustomer->delete_customer($id);
-        }
-        header("Location: ?act=customer");
-        exit();
+// Xóa khách hàng
+public function delete_customer() {
+    if (isset($_GET['id'])) {
+        $id = (int)$_GET['id'];
+        $this->modelCustomer->delete_customer($id);
     }
+    header("Location: ?act=customer");
+    exit();
+}
 
 
 
 
-
-
+// đối tác 
 
 public function partner() {
    
         $partners = $this->PartnerModel->all();
         include "views/admin/partner/noidung.php";
     }
+
+
+    // danh mục tour
     public function category() {
          $danhsach = $this->categoryModel->all();
         $thanhcong = "";
@@ -687,27 +832,26 @@ public function category_update($id) {
 
 
 
- public function delete_danhmuc($id) {
-        $danhmuc = $this->categoryModel->find($id);
-        $thongbao = "";
-        if (!$danhmuc) {
-            $thongbao = "Danh mục không tồn tại!";
-        } else if ($danhmuc->sum > 0) {
-            $thongbao = "Không thể xóa khi danh mục vẫn còn sản phẩm.";
-        } else {
-            $ketqua = $this->categoryModel->delete_danhmuc($id);
-            if ($ketqua === 1) {
-                header("Location: ?act=category");
-                exit;
-            } else {
-                $thongbao = "Xóa danh mục thất bại.";
-            }
-        }
+ public function delete_danhmuc() {
+    $id = $_GET['id'] ?? 0;
 
-        $danhsach = $this->categoryModel->all();
-        include "views/admin/category/noidung.php";
+    $categoryModel = new CategoryModel();
+
+    // Chặn xóa nếu đang được sử dụng
+    if ($categoryModel->isUsed($id)) {
+        $_SESSION['error'] = "❌ Không thể xóa danh mục vì đang được sử dụng bởi tour!";
+        header("Location: ?act=category");
+        exit;
     }
 
+    // Xóa khi không bị ràng buộc
+    $categoryModel->delete($id);
+    $_SESSION['success'] = "✔ Xóa danh mục thành công!";
+    header("Location: ?act=category");
+    exit;
+}
+
+// tài khoản 
 
 public function accoun() {
     $err = "";
