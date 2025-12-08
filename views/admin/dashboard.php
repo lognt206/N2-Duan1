@@ -31,7 +31,7 @@ body { display: flex; min-height: 100vh; margin: 0; font-family: Arial, sans-ser
 .bg-danger { background-color: #dc3545 !important; }
 footer { width:100%; background:#fff; text-align:center; padding:10px 0; box-shadow:0 -2px 4px rgba(0,0,0,0.1); position: fixed; bottom: 0; }
 </style>
-</head>
+</head> 
 <body>
 
 <!-- Sidebar -->
