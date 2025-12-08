@@ -27,7 +27,7 @@ if (session_status() === PHP_SESSION_NONE) {
         footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box-shadow: 0 -2px 4px rgba(0,0,0,0.1); position: fixed; bottom: 0; }
     </style>
 </head>
-<body>
+<body> 
 
 <div id="sidebar">
     <h3 class="text-center py-3 border-bottom">Admin Panel</h3>

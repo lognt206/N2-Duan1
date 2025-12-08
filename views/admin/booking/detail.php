@@ -25,7 +25,7 @@ if (session_status() === PHP_SESSION_NONE) {
     </style>
 </head>
 <body>
-
+  
 <div id="sidebar">
     <h3 class="text-center py-3 border-bottom">Admin Panel</h3>
     <a href="?act=dashboard"><i class="fa-solid fa-chart-line"></i> Dashboard</a>

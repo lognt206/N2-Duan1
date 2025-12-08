@@ -28,7 +28,7 @@ class BookingModel
                 LEFT JOIN tourguide g ON b.guide_id = g.guide_id
                 LEFT JOIN departure d ON b.departure_id = d.departure_id
                 LEFT JOIN customer_group grp ON b.group_id = grp.group_id
-                ORDER BY b.booking_id DESC";
+                ORDER BY b.booking_id DESC"; 
 
         $stmt = $this->conn->prepare($sql);
         $stmt->execute();
