@@ -28,7 +28,7 @@ body { display: flex; min-height: 100vh; margin: 0; font-family: Arial, sans-ser
 .table-responsive { background: #fff; padding: 20px; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
 footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box-shadow: 0 -2px 4px rgba(0,0,0,0.1); position: fixed; bottom: 0; }
 </style>
-</head>
+</head> 
 <body>
 
 <!-- Sidebar -->
@@ -51,7 +51,7 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
 <div class="logo"><i class="fa-solid fa-plane-departure me-2"></i>Admin Panel</div>
 <div class="user">
 <img src="https://via.placeholder.com/40" alt="User">
-<span><?= $_SESSION['user']['username'] ?? 'Admin'; ?></span>
+<span><?= $_SESSION['user']['full_name'] ?? ''; ?></span>
 <a href="?act=login" class="btn btn-sm btn-outline-danger ms-3">Đăng xuất</a>
 </div>
 </div>
@@ -96,17 +96,6 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
                     <option value="0">Chưa thanh toán</option>
                 </select>
             </div>
-            <div class="mb-3">
-    <label for="group_id" class="form-label">Nhóm khách <span class="text-danger">*</span></label>
-    <select class="form-select" id="group_id" name="group_id" required>
-        <option value="">-- Chọn nhóm --</option>
-        <?php
-        foreach ($groups as $group) {
-            echo '<option value="'. $group['group_id'] .'">'. htmlspecialchars($group['group_name']) .'</option>';
-        }
-        ?>
-    </select>
-</div>
             <div class="mb-3">
                 <label for="special_request" class="form-label">Yêu cầu đặc biệt</label>
                 <textarea class="form-control" id="special_request" name="special_request" rows="3" placeholder="Ví dụ: dị ứng hải sản"></textarea>
