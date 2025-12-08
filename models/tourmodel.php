@@ -94,6 +94,7 @@ class TourModel {
         return null;
     }
 
+
     // Thêm tour
     public function create(Tour $tour) {
         try {
@@ -181,6 +182,9 @@ $this->conn->commit();
             return 0;
         }
     }
+
+
+
 
     // Xóa tour
     public function delete($id) {

@@ -375,7 +375,16 @@ public function update_guide() {
 // đặt tour
 public function booking()
 {
-    $booking = $this->BookingModel->all();
+    $keyword = $_GET['keyword'] ?? '';
+    $status  = $_GET['status'] ?? '';
+
+    // Nếu có lọc → gọi filter()
+    if (!empty($keyword) || $status !== '') {
+        $booking = $this->BookingModel->filter($keyword, $status);
+    } else {
+        $booking = $this->BookingModel->all();
+    }
+
     include "views/admin/booking/noidung.php";
 }
 

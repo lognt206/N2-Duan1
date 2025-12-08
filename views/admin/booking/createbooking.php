@@ -165,7 +165,7 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
                 </div>
             </div>
 
-            <!-- Thêm khách mới -->
+            <!-- Thêm khách mới
             <div class="mb-3">
                 <label class="form-label">Thêm khách mới</label>
                 <div class="card p-3 mb-2" style="background:#f1f3f5;">
@@ -206,7 +206,7 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
                 </div>
             </div>
 
-            <input type="hidden" name="num_people" id="num_people">
+            <input type="hidden" name="num_people" id="num_people"> -->
 
             <!-- Booking Date & Type -->
             <div class="row mb-3">

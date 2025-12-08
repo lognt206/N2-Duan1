@@ -58,12 +58,37 @@ if (session_status() === PHP_SESSION_NONE) {
     <h3 class="mb-3"><i class="fa-solid fa-ticket"></i> Quản lý Đặt Tour</h3>
 
     <div class="d-flex justify-content-between mb-3">
-        <a href="?act=createbooking" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Thêm Đặt Tour</a>
-        <form class="d-flex" method="GET" style="max-width:300px;">
-            <input type="hidden" name="act" value="booking">
-            <input type="text" name="keyword" class="form-control me-2" placeholder="Tìm kiếm...">
-            <button class="btn btn-outline-secondary"><i class="fa-solid fa-search"></i></button>
-        </form>
+        <a href="?act=createbooking" class="btn btn-primary" style="height:35px ;"><i class="fa-solid fa-plus"></i> Thêm Đặt Tour</a>
+        <form method="GET" action="" class="row mb-3">
+    <input type="hidden" name="act" value="booking">
+
+    <div class="col-md-4">
+        <input type="text" name="keyword" class="form-control" 
+               placeholder="Tìm theo tour hoặc hướng dẫn viên"
+               value="<?= $_GET['keyword'] ?? '' ?>">
+    </div>
+
+    <div class="col-md-3">
+        <select name="status" class="form-control">
+            <option value="">-- Trạng thái --</option>
+            <option value="0" <?= (($_GET['status'] ?? '')=='0')?'selected':'' ?>>Chờ xác nhận</option>
+            <option value="1" <?= (($_GET['status'] ?? '')=='1')?'selected':'' ?>>Đã xác nhận</option>
+            <option value="2" <?= (($_GET['status'] ?? '')=='2')?'selected':'' ?>>Đã hoàn thành</option>
+            <option value="3" <?= (($_GET['status'] ?? '')=='3')?'selected':'' ?>>Đã hủy</option>
+            <option value="4" <?= (($_GET['status'] ?? '')=='4')?'selected':'' ?>>Tạm lưu</option>
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <button class="btn btn-primary w-100">Lọc</button>
+    </div>
+
+    <div class="col-md-2">
+        <a href="?act=booking" class="btn btn-secondary w-100">Reset</a>
+    </div>
+</form>
+
+        
     </div>
 
     <div class="table-responsive bg-white p-3 rounded shadow-sm">
@@ -118,11 +143,11 @@ if (session_status() === PHP_SESSION_NONE) {
                                                 </a>
                             <?php endif; ?>
 
-                            <a href="?act=deletebooking&id=<?= $b['booking_id'] ?>" 
+                            <!-- <a href="?act=deletebooking&id=<?= $b['booking_id'] ?>" 
                             onclick="return confirm('Xóa đặt tour này?')" 
                             class="btn btn-sm btn-danger">
                                 <i class="fa-solid fa-trash"></i>
-                            </a>
+                            </a> -->
                         </td>
 
                     </tr>
