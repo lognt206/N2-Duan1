@@ -234,6 +234,7 @@ class TourGuideController
     public function tour_detail()
 {
     $booking_id = $_GET['id'] ?? null;
+    $today= date('Y-m-d');
 
     if ($booking_id) {
 
@@ -249,6 +250,14 @@ class TourGuideController
 
     }
 
+    $bdau= $tour_detail_data['departure_date'] ?? null;
+    $kthuc= $tour_detail_data['return_date'] ?? null;
+    $tour_detail_data['is_completed'] = false;
+    if($bdau && $kthuc){
+        if($kthuc<$today){
+            $tour_detail_data['is_completed'] = true ;
+        }
+    }
     // lấy lịch trình theo tour
     $tour_detail_data['itineraries'] = [];
     $tour_id = $tour_detail_data['tour_id'] ?? null;

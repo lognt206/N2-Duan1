@@ -8,6 +8,8 @@ $nameUser = $_SESSION['user']['full_name'] ?? 'Hướng dẫn viên';
 
 // Dùng htmlspecialchars để tránh lỗi HTML injection
 $nameUser = htmlspecialchars($nameUser);
+//nếu tour có trạng thái =đã hoàn thành thì k hiện cột check-in
+$isCompleted = $tour_detail_data['is_completed'] ?? false;
 ?>
 
 <!DOCTYPE html>
@@ -165,7 +167,9 @@ $nameUser = htmlspecialchars($nameUser);
                             <th>Năm sinh</th>
                             <th>Liên hệ</th>
                             <th>Yêu cầu đặc biệt</th>
+                            <?php if(!$isCompleted): ?>
                             <th class="text-center">Check_in</th>
+                            <?php endif?>
                         </tr>
                     </thead>
                     <tbody>
@@ -177,10 +181,12 @@ $nameUser = htmlspecialchars($nameUser);
                             <td><?= $data['birth_year'] ?? "Chưa xác định" ?></td>
                             <td><?= htmlspecialchars($data['contact'] ?? '-') ?></td>
                             <td><?= htmlspecialchars($data['special_request'] ?? '-') ?></td>
+                            <?php if(!$isCompleted): ?>
                             <td class="text-center">
                                 <input type="checkbox" class="checkin-toggle" id="guest<?= $index ?>" checked>
                                 <label for="guest<?= $index ?>" class="toggle-label"></label>
                             </td>
+                            <?php endif?>
                         </tr>
                         <?php endforeach; ?>
                         </tbody>
