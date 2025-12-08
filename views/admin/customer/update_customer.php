@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sửa thông tin khách hàng </title>
+<title>Sửa thông tin khách hàng</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
@@ -47,7 +47,7 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
 <h3>Admin Panel</h3>
 <a href="?act=dashboard"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
 <a href="?act=tour"><i class="fa-solid fa-plane"></i> Quản lý Tour</a>
-  <a href="?act=category"><i class="fa-solid fa-plane"></i> Quản lý danh mục Tour</a>
+<a href="?act=category"><i class="fa-solid fa-plane"></i> Quản lý danh mục Tour</a>
 <a href="?act=customer" class="active"><i class="fa-solid fa-users"></i> Quản lý Khách hàng</a>
 <a href="?act=booking"><i class="fa-solid fa-ticket"></i> Quản lý Đặt tour</a>
 <a href="?act=guideadmin"><i class="fa-solid fa-user-tie"></i> Quản lý Hướng dẫn viên</a>
@@ -64,13 +64,14 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
 <span>Admin Panel</span>
 </div>
 <div class="user">
-<img src="https://via.placeholder.com/40" alt="User">
-<span>Admin</span>
+<img src="uploads/logo.png" alt="User">
+<span><?= $_SESSION['user']['full_name'] ?? ''; ?></span>
 <a href="?act=login" class="btn btn-sm btn-outline-danger ms-3">Đăng xuất</a>
 </div>
 </div>
 
-<h3 class="mb-3"><i class="fa-solid fa-users"></i>Sửa thông tin khách hàng</h3>
+<h3 class="mb-3"><i class="fa-solid fa-users"></i> Sửa thông tin khách hàng</h3>
+
 <form action="?act=update_customer" method="POST" enctype="multipart/form-data">
     <input type="hidden" name="customer_id" value="<?= $customer['customer_id'] ?>">
 
@@ -107,17 +108,6 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
                 <select class="form-select" name="payment_status">
                     <option value="1" <?= $customer['payment_status']==1 ? "selected" : "" ?>>Đã thanh toán</option>
                     <option value="0" <?= $customer['payment_status']==0 ? "selected" : "" ?>>Chưa thanh toán</option>
-                </select>
-            </div>
-            <div class="mb-3">
-                <label for="group_id" class="form-label">Nhóm khách</label>
-                <select class="form-select" name="group_id" required>
-                    <option value="">-- Chọn nhóm --</option>
-                    <?php foreach ($groups as $group): ?>
-                        <option value="<?= $group['group_id'] ?>" <?= $customer['group_id']==$group['group_id'] ? "selected" : "" ?>>
-                            <?= htmlspecialchars($group['group_name']) ?>
-                        </option>
-                    <?php endforeach; ?>
                 </select>
             </div>
             <div class="mb-3">

@@ -73,7 +73,7 @@ match ($act) {
     'profile'=>(new TourGuideController())-> profile(),
     'tour_detail'=>(new TourGuideController())-> tour_detail(),
     'report'=>(new TourGuideController())-> report(),
-    'check_in'=>(new TourGuideController())-> check_in($_GET['tour_id'] ?? null),
+    'check_in'=>(new TourGuideController())-> check_in(),
     'special_request'=>(new TourGuideController())-> special_request(),
 //báo cáo 
 
