@@ -59,6 +59,7 @@ class CustomerModel {
             throw new Exception("Lỗi tìm khách hàng: " . $err->getMessage());
         }
     }
+  
 
     // Thêm khách hàng
     public function create_customer(Customer $customer): int {

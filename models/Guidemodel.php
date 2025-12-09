@@ -31,12 +31,12 @@ class TourGuideModel {
         }
     }
 
-    public function find_guide($user_id){
+    public function find_guide($id){
         try{
             // ? vì PDO tự động điền user_id khi hdv đăng nhập vào
             $sql = "SELECT * FROM `tourguide` WHERE user_id = ?";
             $stmt = $this->conn->prepare($sql);
-            $stmt->execute([$user_id]);
+            $stmt->execute([$id]);
             $guide = $stmt->fetch(PDO::FETCH_ASSOC);
             return $guide;
         }catch (PDOException $err) {
@@ -44,6 +44,19 @@ class TourGuideModel {
             return null;
         }
     }
+
+public function findById($guide_id){
+    try {
+        $sql = "SELECT * FROM `tourguide` WHERE guide_id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([$guide_id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (PDOException $err) {
+        echo "Lỗi: " . $err->getMessage();
+        return null;
+    }
+}
+
 
     public function create_guide(Guide $guide) {
         try {
@@ -111,14 +124,17 @@ public function getByUserId($user_id)
 }
 
     //lấy customer theo tour
-    public function customer_tour($tour_id){
+   public function customer_tour($tour_id){
+        // schedule -> booking -> customer_group -> customer
+        // tìm tour hdv đc phân công-> xem có booking nào -> có group_id nào -> khách
         $sql = "SELECT c.full_name, c.gender, c.birth_year, c.contact, c.payment_status, c.special_request
-                FROM booking b
+                FROM schedule s
+                JOIN booking b ON b.tour_id= s.tour_id
                 JOIN customer_group cg ON b.group_id=cg.group_id
                 JOIN customer c ON c.group_id=cg.group_id
-                WHERE b.tour_id = ?";
+                WHERE b.tour_id = :tour_id AND s.guide_id = :guide_id";
         $stmt = $this->conn->prepare($sql);
-        $stmt->execute([$tour_id]);
+        $stmt->execute(['tour_id'=>$tour_id]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 

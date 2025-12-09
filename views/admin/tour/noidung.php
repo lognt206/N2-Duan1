@@ -61,8 +61,8 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
 <span>Admin Panel</span>
 </div>
 <div class="user">
-<img src="uploads/logo.png" alt="User">
-<span><?= $_SESSION['user']['username'] ?? '';?></span>
+ <img src="uploads/logo.png" alt="User">
+<span><?= $_SESSION['user']['full_name'] ?? ''; ?></span>
 <a href="?act=login" class="btn btn-sm btn-outline-danger ms-3">Đăng xuất</a>
 </div>
 </div>
@@ -110,11 +110,23 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
         <td><?= $tour['category_name'] ?></td>
         <td><?= $tour['description'] ?></td>
         <td><?= number_format($tour['price'], 0, ',', '.') ?>₫</td>
-        <td><?= $tour['policy'] ?></td>
+
+       <td>
+    <?php if (!empty($tour['policy']) && file_exists($tour['policy'])): ?>
+        <a href="<?= htmlspecialchars($tour['policy']) ?>" target="_blank" class="btn btn-sm btn-info">
+            <i class="fa-solid fa-file-arrow-down"></i> Xem/Tải
+        </a>
+    <?php else: ?>
+        <span class="text-muted">Chưa có chính sách</span>
+    <?php endif; ?>
+</td>
+
+
+
         <td>
           <?php if (!empty($tour['partners'])): ?>
     <?php foreach ($tour['partners'] as $p): ?>
-        <span class="badge bg-info text-dark me-1"><?= htmlspecialchars($p) ?></span>
+        <span class="badge bg-secondary text-light me-1"><?= htmlspecialchars($p) ?></span>
     <?php endforeach; ?>
 <?php else: ?>
     <span class="text-muted">Không có đối tác</span>
@@ -124,7 +136,7 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
             <?php if(!empty($tour['itineraries'])): ?>
                 <?php foreach($tour['itineraries'] as $it): ?>
                     <div class="itinerary-item">
-                        Ngày <?= $it['day_number'] ?>: <?= $it['activity'] ?> (<?= $it['start_time'] ?> - <?= $it['end_time'] ?>) tại <?= $it['location'] ?>
+                        Ngày <?= $it['day_number'] ?>: <?= $it['activity'] ?>  tại <?= $it['location'] ?>
                     </div>
                 <?php endforeach; ?>
             <?php else: ?>

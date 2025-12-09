@@ -68,7 +68,7 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
     </div>
     <div class="user d-flex align-items-center">
         <img src="uploads/logo.png" alt="User">
-        <span><?= htmlspecialchars($_SESSION['user']['username'] ?? 'Admin') ?></span>
+        <span><?= $_SESSION['user']['full_name'] ?? ''; ?></span>
         <a href="?act=login" class="btn btn-sm btn-outline-danger ms-3">Đăng xuất</a>
     </div>
 </div>
@@ -76,9 +76,9 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
 <h3 class="mb-3"><i class="fa-solid fa-users"></i> Quản lý Khách hàng</h3>
 
 <div class="d-flex justify-content-between mb-3">
-    <a href="index.php?act=create_customer" class="btn btn-primary">
+    <!-- <a href="index.php?act=create_customer" class="btn btn-primary">
         <i class="fa-solid fa-plus"></i> Thêm Khách hàng
-    </a>
+    </a> -->
 
     <form class="d-flex" style="max-width:300px;" method="get">
         <input type="hidden" name="act" value="customer">
@@ -90,50 +90,49 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
 <div class="table-responsive bg-white p-3 rounded shadow-sm">
 <table class="table table-bordered align-middle text-center">
     <thead>
+    <tr>
+        <th>ID</th>
+        <th>Họ và Tên</th>
+        <th>Giới tính</th>
+        <th>Năm sinh</th>
+        <th>CMND/CCCD</th>
+        <th>Liên hệ</th>
+        <th>Thanh toán</th>
+        <th>Yêu cầu đặc biệt</th>
+        <th>Hành động</th>
+    </tr>
+</thead>
+<tbody>
+    <?php if (!empty($customers)) : ?>
+        <?php foreach ($customers as $customer) : ?>
         <tr>
-            <th>ID</th>
-            <th>Nhóm khách</th>
-            <th>Họ và Tên</th>
-            <th>Giới tính</th>
-            <th>Năm sinh</th>
-            <th>CMND/CCCD</th>
-            <th>Liên hệ</th>
-            <th>Thanh toán</th>
-            <th>Yêu cầu đặc biệt</th>
-            <th>Hành động</th>
+            <td><?= $customer['customer_id'] ?></td>
+            <td><?= htmlspecialchars($customer['full_name'] ?? '') ?></td>
+            <td><?= isset($customer['gender']) ? ($customer['gender']==1 ? "Nam" : "Nữ") : "Chưa xác định" ?></td>
+            <td><?= $customer['birth_year'] ?? "Chưa xác định" ?></td>
+            <td><?= htmlspecialchars($customer['id_number'] ?? '') ?></td>
+            <td><?= htmlspecialchars($customer['contact'] ?? '') ?></td>
+            <td>
+                <span class="badge <?= $customer['payment_status']==1 ? 'pay' : 'no_pay' ?>">
+                    <?= $customer['payment_status']==1 ? "Đã thanh toán" : "Chưa thanh toán" ?>
+                </span>
+            </td>
+            <td><?= $customer['special_request'] ? nl2br(htmlspecialchars($customer['special_request'])) : "Không" ?></td>
+            <td>
+                <a href="index.php?act=update_customer&id=<?= $customer['customer_id'] ?>" class="btn btn-sm btn-warning me-1">
+                    <i class="fa-solid fa-pen"></i>
+                </a>
+                <!-- <a href="index.php?act=delete_customer&id=<?= $customer['customer_id'] ?>" onclick="return confirm('Xóa khách hàng này?')" class="btn btn-sm btn-danger">
+                    <i class="fa-solid fa-trash"></i>
+                </a> -->
+            </td>
         </tr>
-    </thead>
-    <tbody>
-        <?php if (!empty($customers)) : ?>
-            <?php foreach ($customers as $customer) : ?>
-            <tr>
-                <td><?= $customer['customer_id'] ?></td>
-                <td><?= htmlspecialchars($customer['group_name'] ?? 'Không có nhóm') ?></td>
-                <td><?= htmlspecialchars($customer['full_name'] ?? '') ?></td>
-                <td><?= isset($customer['gender']) ? ($customer['gender']==1 ? "Nam" : "Nữ") : "Chưa xác định" ?></td>
-                <td><?= $customer['birth_year'] ?? "Chưa xác định" ?></td>
-                <td><?= htmlspecialchars($customer['id_number'] ?? '') ?></td>
-                <td><?= htmlspecialchars($customer['contact'] ?? '') ?></td>
-                <td>
-                    <span class="badge <?= $customer['payment_status']==1 ? 'pay' : 'no_pay' ?>">
-                        <?= $customer['payment_status']==1 ? "Đã thanh toán" : "Chưa thanh toán" ?>
-                    </span>
-                </td>
-                <td><?= $customer['special_request'] ? nl2br(htmlspecialchars($customer['special_request'])) : "Không" ?></td>
-                <td>
-                    <a href="index.php?act=update_customer&id=<?= $customer['customer_id'] ?>" class="btn btn-sm btn-warning me-1">
-                        <i class="fa-solid fa-pen"></i>
-                    </a>
-                    <a href="index.php?act=delete_customer&id=<?= $customer['customer_id'] ?>" onclick="return confirm('Xóa khách hàng này?')" class="btn btn-sm btn-danger">
-                        <i class="fa-solid fa-trash"></i>
-                    </a>
-                </td>
-            </tr>
-            <?php endforeach; ?>
-        <?php else: ?>
-            <tr><td colspan="10" class="text-center text-muted">Không có dữ liệu khách hàng.</td></tr>
-        <?php endif; ?>
-    </tbody>
+        <?php endforeach; ?>
+    <?php else: ?>
+        <tr><td colspan="9" class="text-center text-muted">Không có dữ liệu khách hàng.</td></tr>
+    <?php endif; ?>
+</tbody>
+
 </table>
 </div>
 </div>

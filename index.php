@@ -75,8 +75,10 @@ match ($act) {
     'schedule'=>(new TourGuideController())-> schedule(),
     'profile'=>(new TourGuideController())-> profile(),
     'tour_detail'=>(new TourGuideController())-> tour_detail(),
+
     'report'=>(new TourGuideController())-> report(),
     'check_in'=>(new TourGuideController())-> check_in(),
+
     'special_request'=>(new TourGuideController())-> special_request(),
 //báo cáo 
 
