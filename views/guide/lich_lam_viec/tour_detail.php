@@ -8,6 +8,14 @@ $nameUser = $_SESSION['user']['full_name'] ?? 'Hướng dẫn viên';
 
 // Dùng htmlspecialchars để tránh lỗi HTML injection
 $nameUser = htmlspecialchars($nameUser);
+
+$statusValue = $tour_detail_data['status'];
+switch ($statusValue) {
+            case 1: $statusText='Đã hoàn thành'; $statusClass='completed'; break;
+            case 2: $statusText='Đang thực hiện'; $statusClass='in_progress'; break;
+            case 3: $statusText='Đã hủy'; $statusClass='cancelled'; break;
+            default: $statusText='Sắp khởi hành'; $statusClass='upcoming';
+        }
 ?>
 
 <!DOCTYPE html>
@@ -41,10 +49,7 @@ $nameUser = htmlspecialchars($nameUser);
         .container { max-width: 1000px; margin: 20px auto; padding: 30px; background-color: #fff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);}
         .page-main-title { color: #333; font-size: 28px; margin-bottom: 5px;}
         .tour-status { font-size: 16px; margin-bottom: 15px;}
-        .status-badge { padding: 4px 8px; border-radius: 4px; font-weight: bold;}
-        .status-badge.upcoming { background-color: #fff3cd;  color: #856404;}
-        .status-badge.checkin { background-color: #d4edda; color: #155724;}
-        .status-badge.pending { background-color: #f8d7da; color: #721c24;}
+        
         .quick-actions { display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #eee;}
         .btn-back, .btn-primary { text-decoration: none; padding: 10px 15px; border-radius: 4px; font-weight: bold; transition: background-color 0.2s;}
         .btn-back { background-color: #f8f9fa; color: #6c757d; border: 1px solid #ccc;}
@@ -71,6 +76,12 @@ $nameUser = htmlspecialchars($nameUser);
         .toggle-label::after { content: ''; position: absolute; width: 21px; height: 21px; border-radius: 50%; background-color: white; top: 2px; left: 2px; transition: transform 0.3s;}
         .checkin-toggle:checked + .toggle-label { background-color: #28a745;}
         .checkin-toggle:checked + .toggle-label::after { transform: translateX(25px);}
+
+        .status-badge { padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: bold; }
+        .upcoming { background: #e8d9ff; color: #4b0082;}
+        .in_progress { background: #cce5ff; color: #004085;}
+        .completed { background: #d4edda; color: #155724;}
+        .cancelled { background: #f8d7da; color: #721c24;}
     </style>
 </head>
 <body>
@@ -103,7 +114,7 @@ $nameUser = htmlspecialchars($nameUser);
     <!-- Dashboard Content -->
     <div class="container-fluid">
         <h2 class="page-main-title">Chi tiết Tour: <?= $tour_detail_data['tour_name'] ?></h2>
-        <p class="tour-status">Trạng thái: <span class="status-badge upcoming">Sắp khởi hành</span></p>
+        <p class="tour-status">Trạng thái: <span class="status-badge <?= $statusClass ?>"><?= $statusText ?></span></p>
 
         <div class="quick-actions">
             <a href="?act=schedule" class="btn-back">Quay lại Lịch làm việc</a>

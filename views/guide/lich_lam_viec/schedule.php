@@ -103,10 +103,10 @@ $nameUser = htmlspecialchars($nameUser);
             <div class="filter-controls">
                 <div class="status-filters">
                     <button class="filter-btn active" data-status="all">Tất cả Tour</button>
-                    <button class="filter-btn" data-status="cancelled">Sắp khởi hành</button>
+                    <button class="filter-btn" data-status="upcoming">Sắp khởi hành</button>
                     <button class="filter-btn" data-status="in_progress">Đang thực hiện</button>
-                    <button class="filter-btn" data-status="upcoming">Đã hoàn thành</button>
-                    <button class="filter-btn" data-status="completed">Đã hủy</button>
+                    <button class="filter-btn" data-status="completed">Đã hoàn thành</button>
+                    <button class="filter-btn" data-status="cancelled">Đã hủy</button>
                 </div>
 
                 <!-- <div class="search-box">
@@ -151,7 +151,7 @@ $nameUser = htmlspecialchars($nameUser);
         }
     ?>
 
-    <tr>
+    <tr data-status="<?= $statusClass ?>">
     <td>
     <img src="<?= $tourImage ?>" style="width:80px; height:60px; object-fit:cover;">
 </td>
@@ -196,7 +196,7 @@ $nameUser = htmlspecialchars($nameUser);
             this.classList.add('active');
 
             const filter = this.dataset.status;
-            document.querySelectorAll('.tour-schedule-table tbody tr').forEach(row => {
+            document.querySelectorAll('.data-table tbody tr').forEach(row => {
                 const status = row.dataset.status;
                 row.style.display = (filter === 'all' || filter === status) ? '' : 'none';
             });
@@ -204,14 +204,14 @@ $nameUser = htmlspecialchars($nameUser);
     });
 
     // Tìm kiếm
-    document.querySelector('.btn-search').onclick = () => {
-        const q = document.querySelector('.search-box input').value.toLowerCase();
-        document.querySelectorAll('.tour-schedule-table tbody tr').forEach(row => {
-            const id = row.cells[1].textContent.toLowerCase();
-            const name = row.cells[2].textContent.toLowerCase();
-            row.style.display = (id.includes(q) || name.includes(q)) ? '' : 'none';
-        });
-    };
+    //document.querySelector('.btn-search').onclick = () => {
+    //    const q = document.querySelector('.search-box input').value.toLowerCase();
+    //    document.querySelectorAll('.tour-schedule-table tbody tr').forEach(row => {
+    //        const id = row.cells[1].textContent.toLowerCase();
+    //        const name = row.cells[2].textContent.toLowerCase();
+    //        row.style.display = (id.includes(q) || name.includes(q)) ? '' : 'none';
+    //    });
+    //};
 </script>
 
 </body>

@@ -17,6 +17,7 @@ class TourGuideController
     public $modelTour;
     public $modelCustomer;
     public $tourlog;
+
 public $itineraryModel;   
 
 
