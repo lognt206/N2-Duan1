@@ -16,7 +16,7 @@ body { display: flex; min-height: 100vh; margin: 0; font-family: Arial, sans-ser
 #sidebar a:hover { background: #495057; }
 #sidebar a.active { background: #6c757d; }
 
-/* Content */
+/* Content */  
 #content { flex: 1; padding: 20px; background: #f8f9fa; }
 
 /* Topbar */

@@ -19,7 +19,7 @@ body { display: flex; min-height: 100vh; margin: 0; font-family: Arial, sans-ser
 #sidebar h3 { text-align: center; padding: 12px 0; border-bottom: 1px solid #495057; }
 #sidebar a { color: #fff; text-decoration: none; display: block; padding: 12px 20px; }
 #sidebar a:hover { background: #495057; }
-#sidebar a.active { background: #6c757d; }
+#sidebar a.active { background: #6c757d; } 
 #content { flex: 1; padding: 20px; background: #f8f9fa; padding-bottom: 70px; }
 .topbar { height: 60px; background: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
 .topbar .logo { display: flex; align-items: center; font-weight: bold; }
