@@ -76,9 +76,9 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
 <h3 class="mb-3"><i class="fa-solid fa-users"></i> Quản lý Khách hàng</h3>
 
 <div class="d-flex justify-content-between mb-3">
-    <a href="index.php?act=create_customer" class="btn btn-primary">
+    <!-- <a href="index.php?act=create_customer" class="btn btn-primary">
         <i class="fa-solid fa-plus"></i> Thêm Khách hàng
-    </a>
+    </a> -->
 
     <form class="d-flex" style="max-width:300px;" method="get">
         <input type="hidden" name="act" value="customer">
@@ -122,9 +122,9 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
                 <a href="index.php?act=update_customer&id=<?= $customer['customer_id'] ?>" class="btn btn-sm btn-warning me-1">
                     <i class="fa-solid fa-pen"></i>
                 </a>
-                <a href="index.php?act=delete_customer&id=<?= $customer['customer_id'] ?>" onclick="return confirm('Xóa khách hàng này?')" class="btn btn-sm btn-danger">
+                <!-- <a href="index.php?act=delete_customer&id=<?= $customer['customer_id'] ?>" onclick="return confirm('Xóa khách hàng này?')" class="btn btn-sm btn-danger">
                     <i class="fa-solid fa-trash"></i>
-                </a>
+                </a> -->
             </td>
         </tr>
         <?php endforeach; ?>

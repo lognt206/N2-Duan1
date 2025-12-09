@@ -34,49 +34,100 @@ class BookingModel
     }
 
     // Chi tiết booking + khách hàng + đối tác
-    public function getBookingFullDetail(int $id): ?array {
-        try {
-            $sql = "SELECT b.*, t.tour_name, d.departure_date, d.return_date, d.meeting_point, 
-                           g.full_name AS guide_name,
-                           b.customer_ids
-                    FROM booking b
-                    LEFT JOIN tour t ON b.tour_id = t.tour_id
-                    LEFT JOIN departure d ON b.departure_id = d.departure_id
-                    LEFT JOIN tourguide g ON b.guide_id = g.guide_id
-                    WHERE b.booking_id = :id";
-            $stmt = $this->conn->prepare($sql);
-            $stmt->execute(['id' => $id]);
-            $booking = $stmt->fetch(PDO::FETCH_ASSOC);
-            if (!$booking) return null;
+   // Chi tiết booking + khách hàng + đối tác + tổng tiền
+public function getBookingFullDetail(int $id): ?array {
+    try {
+        $sql = "SELECT 
+                    b.*, 
+                    t.tour_name, 
+                    t.price AS tour_price,
 
-            // Lấy danh sách khách hàng
-            $booking['customers'] = [];
-            if (!empty($booking['customer_ids'])) {
-                $customer_ids = json_decode($booking['customer_ids'], true);
-                if (is_array($customer_ids) && count($customer_ids) > 0) {
-                    $placeholders = implode(',', array_fill(0, count($customer_ids), '?'));
-                    $sql2 = "SELECT * FROM customer WHERE customer_id IN ($placeholders)";
-                    $stmt2 = $this->conn->prepare($sql2);
-                    $stmt2->execute($customer_ids);
-                    $booking['customers'] = $stmt2->fetchAll(PDO::FETCH_ASSOC);
-                }
+                    d.departure_date, 
+                    d.return_date, 
+                    d.meeting_point, 
+
+                    -- ⭐ FULL thông tin hướng dẫn viên
+                    g.guide_id,
+                    g.full_name AS guide_name,
+                    g.photo AS guide_photo,
+                    g.birth_date AS guide_birth,
+                    g.contact AS guide_contact,
+                    g.certificate AS guide_certificate,
+                    g.languages AS guide_languages,
+                    g.experience AS guide_experience,
+                    g.health_condition AS guide_health,
+                    g.rating AS guide_rating,
+                    g.category AS guide_category,
+
+                    -- ⭐ TÍNH TỔNG TIỀN BOOKING
+                    CASE 
+                        WHEN b.status = 1 THEN b.num_people * t.price
+                        WHEN b.status = 2 THEN b.num_people * t.price * 0.5
+                        ELSE 0
+                    END AS total_amount
+
+                FROM booking b
+                LEFT JOIN tour t ON b.tour_id = t.tour_id
+                LEFT JOIN departure d ON b.departure_id = d.departure_id
+                LEFT JOIN tourguide g ON b.guide_id = g.guide_id
+                WHERE b.booking_id = :id";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute(['id' => $id]);
+        $booking = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$booking) return null;
+
+        // 🔥 Gom thông tin hướng dẫn viên thành 1 object giống View đang dùng
+        $booking['guide'] = [
+            'guide_id'        => $booking['guide_id'],
+            'full_name'       => $booking['guide_name'],
+            'photo'           => $booking['guide_photo'],
+            'birth_date'      => $booking['guide_birth'],
+            'contact'         => $booking['guide_contact'],
+            'certificate'     => $booking['guide_certificate'],
+            'languages'       => $booking['guide_languages'],
+            'experience'      => $booking['guide_experience'],
+            'health_condition'=> $booking['guide_health'],
+            'rating'          => $booking['guide_rating'],
+            'category'        => $booking['guide_category'],
+        ];
+
+        /* ---------------------------
+           ⭐ LẤY DANH SÁCH KHÁCH HÀNG
+        ---------------------------- */
+        $booking['customers'] = [];
+        if (!empty($booking['customer_ids'])) {
+            $customer_ids = json_decode($booking['customer_ids'], true);
+
+            if (is_array($customer_ids) && count($customer_ids) > 0) {
+                $placeholders = implode(',', array_fill(0, count($customer_ids), '?'));
+                $sql2 = "SELECT * FROM customer WHERE customer_id IN ($placeholders)";
+                $stmt2 = $this->conn->prepare($sql2);
+                $stmt2->execute($customer_ids);
+                $booking['customers'] = $stmt2->fetchAll(PDO::FETCH_ASSOC);
             }
-
-            // Lấy danh sách đối tác
-            $sql3 = "SELECT p.* 
-                     FROM tour_partner tp
-                     JOIN partner p ON tp.partner_id = p.partner_id
-                     WHERE tp.tour_id = :tour_id";
-            $stmt3 = $this->conn->prepare($sql3);
-            $stmt3->execute(['tour_id' => $booking['tour_id']]);
-            $booking['partners'] = $stmt3->fetchAll(PDO::FETCH_ASSOC);
-
-            return $booking;
-
-        } catch (PDOException $err) {
-            throw new Exception("Lỗi lấy chi tiết booking: " . $err->getMessage());
         }
+
+        /* ---------------------------
+           ⭐ LẤY ĐỐI TÁC CỦA TOUR
+        ---------------------------- */
+        $sql3 = "SELECT p.* 
+                 FROM tour_partner tp
+                 JOIN partner p ON tp.partner_id = p.partner_id
+                 WHERE tp.tour_id = :tour_id";
+        $stmt3 = $this->conn->prepare($sql3);
+        $stmt3->execute(['tour_id' => $booking['tour_id']]);
+        $booking['partners'] = $stmt3->fetchAll(PDO::FETCH_ASSOC);
+
+        return $booking;
+
+    } catch (PDOException $err) {
+        throw new Exception("Lỗi lấy chi tiết booking: " . $err->getMessage());
     }
+}
+
+
 
     // Thêm booking
     public function insert($data)
@@ -158,9 +209,6 @@ class BookingModel
         throw new Exception("Lỗi cập nhật booking: " . $err->getMessage());
     }
 }
-
-
-
     // Xóa booking
     public function delete($id)
     {
@@ -168,6 +216,48 @@ class BookingModel
         $stmt = $this->conn->prepare($sql);
         return $stmt->execute([$id]);
     }
+
+// Lọc booking theo keyword + status
+public function filter($keyword = '', $status = '') {
+    $sql = "SELECT 
+                b.booking_id,
+                b.booking_date,
+                b.num_people,
+                b.booking_type,
+                b.status,
+                b.notes,
+                t.tour_name,
+                g.full_name AS guide_name,
+                d.departure_date,
+                d.return_date
+            FROM booking b
+            JOIN tour t ON b.tour_id = t.tour_id
+            LEFT JOIN tourguide g ON b.guide_id = g.guide_id
+            LEFT JOIN departure d ON b.departure_id = d.departure_id
+            WHERE 1 ";
+
+    $params = [];
+
+    // Tìm kiếm theo từ khóa
+    if (!empty($keyword)) {
+        $sql .= " AND (t.tour_name LIKE :kw OR g.full_name LIKE :kw)";
+        $params['kw'] = '%' . $keyword . '%';
+    }
+
+    // Lọc theo trạng thái
+    if ($status !== '' && $status !== null) {
+        $sql .= " AND b.status = :status";
+        $params['status'] = $status;
+    }
+
+    $sql .= " ORDER BY b.booking_id DESC";
+
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute($params);
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
 
     // Kiểm tra khách có booking trùng
     public function customerHasBooking($customer_id, $departure_id)
