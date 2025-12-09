@@ -71,8 +71,8 @@ function addItinerary(itinerary_id = '', day_number = '', start_time = '', end_t
         <div class="topbar">
             <div class="logo"><i class="fa-solid fa-plane-departure me-2"></i> Admin Panel</div>
             <div class="user">
-                <img src="https://via.placeholder.com/40" alt="User">
-                <span><?= $_SESSION['user']['username'] ?? '';?></span>
+               <img src="uploads/logo.png" alt="User">
+<span><?= $_SESSION['user']['full_name'] ?? ''; ?></span>
                 <a href="?act=logout" class="btn btn-sm btn-outline-danger ms-3">Đăng xuất</a>
             </div>
         </div>
@@ -105,22 +105,34 @@ function addItinerary(itinerary_id = '', day_number = '', start_time = '', end_t
                         <input type="text" class="form-control" id="price" name="price" value="<?= htmlspecialchars($tour->price) ?>">
                     </div>
                     <div class="mb-3">
-                        <label for="image" class="form-label">Ảnh tour</label>
-                        <input type="file" class="form-control" name="image" id="image" accept="image/*" onchange="previewImage(event)">
-                        <?php if(!empty($tour->image)): ?>
-                            <img src="uploads/tours/<?= htmlspecialchars($tour->image) ?>" id="image-preview" class="img-preview" alt="Preview">
-                        <?php else: ?>
-                            <img src="" id="image-preview" class="img-preview" style="display:none;" alt="Preview">
-                        <?php endif; ?>
-                    </div>
+                    <label for="image" class="form-label">Ảnh tour</label>
+                    <input type="file" class="form-control" name="image" id="image" accept="image/*" onchange="previewImage(event)">
+                    <input type="hidden" name="old_image" value="<?= htmlspecialchars($tour->image) ?>">
+
+                    <?php if(!empty($tour->image)): ?>
+                    <img src="<?= htmlspecialchars($tour->image) ?>" id="image-preview" class="img-preview" alt="Preview">
+                    <?php else: ?>
+                        <img src="" id="image-preview" class="img-preview" style="display:none;" alt="Preview">
+                    <?php endif; ?>
+                </div>
+
                 </div>
 
                 <div class="col-6">
                     <h5 class="mb-3">Thông tin khác</h5>
                     <div class="mb-3">
-                        <label for="policy" class="form-label">Chính sách</label>
-                        <input type="text" class="form-control" id="policy" name="policy" value="<?= htmlspecialchars($tour->policy) ?>">
-                    </div>
+    <label for="policy" class="form-label">Chính sách (PDF/DOCX)</label>
+    <input type="file" class="form-control" id="policy" name="policy" accept=".pdf,.doc,.docx">
+    <!-- Lưu trữ file cũ nếu không upload mới -->
+    <input type="hidden" name="old_policy" value="<?= htmlspecialchars($tour->policy ?? '') ?>">
+
+    <?php if(!empty($tour->policy) && file_exists($tour->policy)): ?>
+        <a href="<?= htmlspecialchars($tour->policy) ?>" target="_blank" class="btn btn-sm btn-info mt-2">
+            <i class="fa-solid fa-file-arrow-down"></i> Xem/Tải Chính sách hiện tại
+        </a>
+    <?php endif; ?>
+</div>
+
                     <div class="mb-3">
                         <label for="partners" class="form-label">Nhà cung cấp</label>
                         <select name="supplier[]" class="form-select" id="partners" multiple>

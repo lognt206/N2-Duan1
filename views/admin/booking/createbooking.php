@@ -214,6 +214,7 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
                     <input type="date" name="booking_date" class="form-control" required value="<?= $_SESSION['old']['booking_date'] ?? '' ?>">
                     <div class="invalid-feedback">Vui lòng nhập ngày đặt.</div>
                 </div>
+
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Loại đặt <span class="text-danger">*</span></label>
                     <select name="booking_type" class="form-control" required>
@@ -256,10 +257,12 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
     const numPeopleInput = document.getElementById('num_people');
 
     // Đếm số khách chọn
+
     checkboxes.forEach(cb => cb.addEventListener('change', () => {
         const count = document.querySelectorAll('input[name="customer_ids[]"]:checked').length;
         numPeopleInput.value = count;
     }));
+
 
     // Validate form
     form.addEventListener('submit', function(event){
@@ -279,6 +282,7 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
     }, false);
 
     // Thêm khách mới AJAX
+
     document.getElementById('addCustomerBtn').addEventListener('click', function() {
         const name = document.getElementById('new_customer_name').value;
         const email = document.getElementById('new_customer_email').value;
@@ -286,12 +290,15 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
         const address = document.getElementById('new_customer_address').value;
         const dob = document.getElementById('new_customer_dob').value;
 
+
         if(!name){ alert("Vui lòng nhập tên khách"); return; }
 
         fetch('?act=addcustomerajax', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
+
             body: JSON.stringify({name, email, phone, address, dob})
+
         })
         .then(res => res.json())
         .then(data => {
@@ -323,11 +330,11 @@ footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box
             } else {
                 alert(data.error || "Lỗi thêm khách mới");
             }
+
         });
     });
 })();
 </script>
-
 <?php unset($_SESSION['old']); ?>
 </body>
 </html>
