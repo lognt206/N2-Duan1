@@ -238,6 +238,7 @@ $this->itineraryModel = new ItineraryModel();
    public function tour_detail()
 {
     $booking_id = $_GET['id'] ?? null;
+    $today= date('Y-m-d');
 
     if (!$booking_id) {
         echo "Thiếu booking_id";
@@ -269,9 +270,11 @@ $this->itineraryModel = new ItineraryModel();
         }
     }
 
+
     // -------------------------------
     // LẤY LỊCH TRÌNH THEO tour_id
     // -------------------------------
+
     $tour_id = $tour_detail_data['tour_id'] ?? null;
     $itineraries = [];
 

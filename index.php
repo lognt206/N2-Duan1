@@ -77,9 +77,8 @@ match ($act) {
     'profile'=>(new TourGuideController())-> profile(),
     'tour_detail'=>(new TourGuideController())-> tour_detail(),
 
-    'edit_nhat_ky'=>(new TourGuideController())-> edit_nhat_ky(),
-    'update_nhat_ky'=>(new TourGuideController())-> update_nhat_ky(),
-    'check_in'=>(new TourGuideController())-> check_in($_GET['tour_id'] ?? null),
+    'report'=>(new TourGuideController())-> report(),
+    'check_in'=>(new TourGuideController())-> check_in(),
 
     'special_request'=>(new TourGuideController())-> special_request(),
 //báo cáo 

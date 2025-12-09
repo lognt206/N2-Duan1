@@ -9,6 +9,7 @@ $nameUser = $_SESSION['user']['full_name'] ?? 'Hướng dẫn viên';
 // Dùng htmlspecialchars để tránh lỗi HTML injection
 $nameUser = htmlspecialchars($nameUser);
 
+
 $statusValue = $tour_detail_data['status'];
 switch ($statusValue) {
             case 1: $statusText='Đã hoàn thành'; $statusClass='completed'; break;
@@ -16,6 +17,7 @@ switch ($statusValue) {
             case 3: $statusText='Đã hủy'; $statusClass='cancelled'; break;
             default: $statusText='Sắp khởi hành'; $statusClass='upcoming';
         }
+
 ?>
 
 <!DOCTYPE html>
@@ -176,7 +178,9 @@ switch ($statusValue) {
                             <th>Năm sinh</th>
                             <th>Liên hệ</th>
                             <th>Yêu cầu đặc biệt</th>
+                            <?php if(!$isCompleted): ?>
                             <th class="text-center">Check_in</th>
+                            <?php endif?>
                         </tr>
                     </thead>
                     <tbody>
@@ -188,10 +192,12 @@ switch ($statusValue) {
                             <td><?= $data['birth_year'] ?? "Chưa xác định" ?></td>
                             <td><?= htmlspecialchars($data['contact'] ?? '-') ?></td>
                             <td><?= htmlspecialchars($data['special_request'] ?? '-') ?></td>
+                            <?php if(!$isCompleted): ?>
                             <td class="text-center">
                                 <input type="checkbox" class="checkin-toggle" id="guest<?= $index ?>" checked>
                                 <label for="guest<?= $index ?>" class="toggle-label"></label>
                             </td>
+                            <?php endif?>
                         </tr>
                         <?php endforeach; ?>
                         </tbody>
