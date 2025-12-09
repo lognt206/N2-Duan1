@@ -119,7 +119,7 @@ $nameUser = htmlspecialchars($nameUser);
             <thead>
                 <tr>
                     <th>Ảnh</th>
-                    <th>Mã Tour</th>
+                    <th>Mã Booking</th>
                     <th>Tên Tour</th>
                     <th>Ngày Bắt đầu</th>
                     <th>Ngày Kết thúc</th>

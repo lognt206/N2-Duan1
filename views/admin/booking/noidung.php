@@ -72,10 +72,9 @@ if (session_status() === PHP_SESSION_NONE) {
         <select name="status" class="form-control">
             <option value="">-- Trạng thái --</option>
             <option value="0" <?= (($_GET['status'] ?? '')=='0')?'selected':'' ?>>Chờ xác nhận</option>
-            <option value="1" <?= (($_GET['status'] ?? '')=='1')?'selected':'' ?>>Đã xác nhận</option>
-            <option value="2" <?= (($_GET['status'] ?? '')=='2')?'selected':'' ?>>Đã hoàn thành</option>
+            <option value="2" <?= (($_GET['status'] ?? '')=='2')?'selected':'' ?>>Đã cọc</option>
+            <option value="1" <?= (($_GET['status'] ?? '')=='1')?'selected':'' ?>>Đã hoàn thành</option>
             <option value="3" <?= (($_GET['status'] ?? '')=='3')?'selected':'' ?>>Đã hủy</option>
-            <option value="4" <?= (($_GET['status'] ?? '')=='4')?'selected':'' ?>>Tạm lưu</option>
         </select>
     </div>
 
@@ -143,11 +142,11 @@ if (session_status() === PHP_SESSION_NONE) {
                                                 </a>
                             <?php endif; ?>
 
-                            <!-- <a href="?act=deletebooking&id=<?= $b['booking_id'] ?>" 
+                            <a href="?act=deletebooking&id=<?= $b['booking_id'] ?>" 
                             onclick="return confirm('Xóa đặt tour này?')" 
                             class="btn btn-sm btn-danger">
                                 <i class="fa-solid fa-trash"></i>
-                            </a> -->
+                            </a>
                         </td>
 
                     </tr>
