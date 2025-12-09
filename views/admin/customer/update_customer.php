@@ -19,7 +19,7 @@ body { display: flex; min-height: 100vh; margin: 0; font-family: Arial, sans-ser
 /* Content */  
 #content { flex: 1; padding: 20px; background: #f8f9fa; }
 
-/* Topbar */
+/* Topbar */ 
 .topbar { height: 60px; background: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
 .topbar .logo { display: flex; align-items: center; font-weight: bold; }
 .topbar .user { display: flex; align-items: center; }
