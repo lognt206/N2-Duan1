@@ -127,27 +127,27 @@ $nameUser = htmlspecialchars($nameUser);
         
         <div class="tab-content-wrapper">
             
-            <div id="info" class="tab-pane active">
-                <div class="info-grid">
-                    <div class="info-item">
-                        <span class="label">Ngày bắt đầu Tour:</span>
-                        <span class="value"><?= $tour_detail_data['departure_date'] ?></span>
-                    </div>
-                    <div class="info-item">
-                        <span class="label">Ngày kết thúc Tour:</span>
-                        <span class="value"><?= $tour_detail_data['return_date'] ?></span>
-                    </div>
-                    <div class="info-item">
-                        <span class="label">Điểm gặp gỡ:</span>
-                        <span class="value"><?= $tour_detail_data['meeting_point'] ?></span>
-                    </div>
-                    <div class="info-item">
-                        <span class="label">Số người:</span>
-                        <span class="value"><?= $tour_detail_data['num_people'] ?></span>
-                    </div>
-                    </div>
-                </div>
-            </div>
+           <div id="info" class="tab-pane active">
+    <div class="info-grid">
+        <div class="info-item">
+            <span class="label">Ngày bắt đầu Tour:</span>
+            <span class="value"><?= $tour_detail_data['departure_date'] ?></span>
+        </div>
+        <div class="info-item">
+            <span class="label">Ngày kết thúc Tour:</span>
+            <span class="value"><?= $tour_detail_data['return_date'] ?></span>
+        </div>
+        <div class="info-item">
+            <span class="label">Điểm gặp gỡ:</span>
+            <span class="value"><?= $tour_detail_data['meeting_point'] ?></span>
+        </div>
+        <div class="info-item">
+            <span class="label">Số người:</span>
+            <span class="value"><?= $tour_detail_data['num_people'] ?></span>
+        </div>
+    </div>
+</div>
+
             
             <div id="guests" class="tab-pane hidden">
                 <h3>Danh sách khách hàng</h3> 

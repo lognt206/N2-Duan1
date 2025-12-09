@@ -5,6 +5,8 @@ require_once __DIR__ . '/../models/BookingModel.php';
 require_once __DIR__ . '/../models/tourmodel.php';
 require_once __DIR__ . '/../models/CustomerModel.php';
 require_once __DIR__ . '/../models/TourlogModel.php';
+require_once __DIR__ . '/../models/itineraryModel.php';
+
 
 class TourGuideController
 {
@@ -15,6 +17,7 @@ class TourGuideController
     public $modelTour;
     public $modelCustomer;
     public $tourlog;
+public $itineraryModel;   
 
 
     public function __construct()
@@ -25,7 +28,7 @@ class TourGuideController
         $this->modelTour = new TourModel();
         $this->modelCustomer = new CustomerModel();
         $this->tourlog = new TourlogModel();
-
+$this->itineraryModel = new ItineraryModel();  
     }
 
     // ----------------------------
@@ -231,34 +234,56 @@ class TourGuideController
     // ----------------------------
     // CHI TIẾT TOUR
     // ----------------------------
-    public function tour_detail()
+   public function tour_detail()
 {
     $booking_id = $_GET['id'] ?? null;
 
-    if ($booking_id) {
-
-        // SỬA LỖI Ở ĐÂY
-        // Dùng đúng hàm có trong BookingModel
-        $tour_detail_data = $this->BookingModel->getBookingFullDetail($booking_id);
-
-
-        //Nhật ký tour lấy theo departure_id
-        $departure_id = $tour_detail_data['departure_id'];
-        $tourlogs = $this->tourlog->find_Tour_log($departure_id );
-        require_once './views/guide/lich_lam_viec/tour_detail.php';
-
+    if (!$booking_id) {
+        echo "Thiếu booking_id";
+        exit;
     }
 
-    // lấy lịch trình theo tour
-    $tour_detail_data['itineraries'] = [];
+    // Lấy chi tiết booking + tour + customer
+    $tour_detail_data = $this->BookingModel->getBookingFullDetail($booking_id);
+
+    if (!$tour_detail_data) {
+        echo "Không tìm thấy thông tin tour";
+        exit;
+    }
+
+    // -------------------------------
+    // KIỂM TRA TRẠNG THÁI TOUR
+    // -------------------------------
+    $status = $tour_detail_data['status'] ?? null;
+
+    // -------------------------------
+    // LẤY NHẬT KÝ TOUR CHỈ KHI ĐÃ HOÀN THÀNH
+    // -------------------------------
+    $tourlogs = [];
+
+    if ($status === 'completed') {
+        $departure_id = $tour_detail_data['departure_id'] ?? null;
+        if ($departure_id) {
+            $tourlogs = $this->tourlog->find_Tour_log($departure_id);
+        }
+    }
+
+    // -------------------------------
+    // LẤY LỊCH TRÌNH THEO tour_id
+    // -------------------------------
     $tour_id = $tour_detail_data['tour_id'] ?? null;
+    $itineraries = [];
 
     if ($tour_id) {
-        $tour_detail_data['itineraries'] = $this->itineraryModel->getByTour($tour_id);
+        $itineraries = $this->itineraryModel->getByTour($tour_id);
     }
+
+    $tour_detail_data['itineraries'] = $itineraries;
+    $tour_detail_data['tourlogs'] = $tourlogs;
 
     require_once './views/guide/lich_lam_viec/tour_detail.php';
 }
+
 
     // ----------------------------
     // CHECK IN TOUR

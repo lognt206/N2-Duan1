@@ -66,7 +66,7 @@ if (session_status() === PHP_SESSION_NONE) {
             <h2 class="card-title mb-3"><?= htmlspecialchars($booking['tour_name'] ?? '-') ?></h2>
 
             <?php
-            // --- PHÒNG VỆ: lấy giá tour và tổng tiền nếu model chưa trả ---
+            // --- PHÒNG VỆ: lấy giá tour
             $tour_price = 0;
             if (isset($booking['tour_price'])) {
                 $tour_price = (float)$booking['tour_price'];
@@ -76,17 +76,20 @@ if (session_status() === PHP_SESSION_NONE) {
                 $tour_price = (float)$booking['tour']['price'];
             }
 
-            // total_amount có thể đã được tính trong model; nếu chưa, tính tại view theo business rule
+            // --- Tính tổng tiền dựa trên trạng thái booking
+            $num_people = isset($booking['num_people']) ? (int)$booking['num_people'] : 0;
+            $status = isset($booking['status']) ? (int)$booking['status'] : 0;
+
             if (isset($booking['total_amount'])) {
                 $total_amount = (float)$booking['total_amount'];
             } else {
-                $num_people = isset($booking['num_people']) ? (int)$booking['num_people'] : 0;
-                $status = isset($booking['status']) ? (int)$booking['status'] : 0;
-                if ($status === 1) {
+                if ($status === 1) {               // Hoàn thành
                     $total_amount = $num_people * $tour_price;
-                } elseif ($status === 2) {
+                } elseif ($status === 2) {         // Đã cọc
                     $total_amount = $num_people * $tour_price * 0.5;
-                } else {
+                } elseif ($status === 0) {         // Chờ xác nhận -> ước tính
+                    $total_amount = $num_people * $tour_price;
+                } else {                            // Hủy hoặc khác
                     $total_amount = 0;
                 }
             }
@@ -107,9 +110,13 @@ if (session_status() === PHP_SESSION_NONE) {
                 <div class="col-md-4 fw-bold">Tổng tiền:</div>
                 <div class="col-md-8">
                     <span class="fs-5 text-danger"><?= $total_amount > 0 ? fmtVnd($total_amount) : '0 VND' ?></span>
-                    <?php if (!isset($booking['total_amount'])): ?>
-                        <div class="text-muted small">(*Tính tạm theo trạng thái booking nếu chưa có giá trị từ hệ thống)</div>
-                    <?php endif; ?>
+                    <div class="text-muted small">
+                        <?php if ($status === 0): ?>
+                            (*Ước tính tổng tiền, có thể thay đổi khi xác nhận booking)
+                        <?php elseif (!isset($booking['total_amount'])): ?>
+                            (*Tính tạm theo trạng thái booking nếu chưa có giá trị từ hệ thống)
+                        <?php endif; ?>
+                    </div>
                 </div>
             </div>
 
@@ -155,107 +162,62 @@ if (session_status() === PHP_SESSION_NONE) {
                 </div>
             </div>
 
-           <!-- THÔNG TIN HƯỚNG DẪN VIÊN -->
-<div class="card mb-4 shadow-sm">
-    <div class="card-header bg-primary text-white fw-bold">
-        <i class="fa-solid fa-user-tie"></i> Thông tin Hướng dẫn viên
-    </div>
-
-    <div class="card-body">
-
-        <?php 
-        /**
-         * Chuẩn hóa dữ liệu guide để tránh lỗi:
-         * - Model trả về: $booking['guide'] = array(...)
-         * - JOIN cũ trả về: $booking['guide_name'], $booking['certificate'], ...
-         */
-
-        $guide = [];
-
-        if (!empty($booking['guide']) && is_array($booking['guide'])) {
-            $guide = $booking['guide'];            // Dữ liệu dạng mảng chuẩn từ model
-        } else {
-            // Dữ liệu dạng JOIN cũ: map thủ công thành chuẩn
-            $guide = [
-                'full_name'        => $booking['guide_name']     ?? null,
-                'photo'            => $booking['guide_photo']     ?? null,
-                'birth_date'       => $booking['guide_birth']     ?? null,
-                'contact'          => $booking['guide_contact']   ?? null,
-                'certificate'      => $booking['guide_certificate'] ?? null,
-                'languages'        => $booking['guide_languages'] ?? null,
-                'experience'       => $booking['guide_experience'] ?? null,
-                'health_condition' => $booking['guide_health']    ?? null,
-                'rating'           => $booking['guide_rating']    ?? null,
-                'category'         => $booking['guide_category']  ?? null
-            ];
-        }
-
-        // Kiểm tra chưa gán
-        $guide_not_assigned = empty($booking['guide_id']) && empty($guide['full_name']);
-        ?>
-
-        <?php if ($guide_not_assigned): ?>
-
-            <p class="text-muted fst-italic">
-                <i class="fa-solid fa-triangle-exclamation text-warning"></i> 
-                Chưa gán hướng dẫn viên cho booking này.
-            </p>
-
-        <?php else: ?>
-            
-            <div class="row">
-                <div class="col-md-3 text-center">
-                    <img src="<?=($guide['photo'])?>"
-                         class="img-fluid rounded shadow-sm"
-                         style="max-height: 180px; object-fit: cover;">
+            <!-- THÔNG TIN HƯỚNG DẪN VIÊN -->
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header bg-primary text-white fw-bold">
+                    <i class="fa-solid fa-user-tie"></i> Thông tin Hướng dẫn viên
                 </div>
 
-                <div class="col-md-9">
+                <div class="card-body">
 
-                    <p><strong>Họ và tên:</strong> 
-                        <?= htmlspecialchars($guide['full_name'] ?: '-') ?>
-                    </p>
+                    <?php 
+                    $guide = [];
+                    if (!empty($booking['guide']) && is_array($booking['guide'])) {
+                        $guide = $booking['guide'];
+                    } else {
+                        $guide = [
+                            'full_name'        => $booking['guide_name']     ?? null,
+                            'photo'            => $booking['guide_photo']     ?? null,
+                            'birth_date'       => $booking['guide_birth']     ?? null,
+                            'contact'          => $booking['guide_contact']   ?? null,
+                            'certificate'      => $booking['guide_certificate'] ?? null,
+                            'languages'        => $booking['guide_languages'] ?? null,
+                            'experience'       => $booking['guide_experience'] ?? null,
+                            'health_condition' => $booking['guide_health']    ?? null,
+                            'rating'           => $booking['guide_rating']    ?? null,
+                            'category'         => $booking['guide_category']  ?? null
+                        ];
+                    }
+                    $guide_not_assigned = empty($booking['guide_id']) && empty($guide['full_name']);
+                    ?>
 
-                    <p><strong>Ngày sinh:</strong> 
-                        <?= htmlspecialchars($guide['birth_date'] ?: '-') ?>
-                    </p>
-
-                    <p><strong>Liên hệ:</strong> 
-                        <?= htmlspecialchars($guide['contact'] ?: '-') ?>
-                    </p>
-
-                    <p><strong>Chứng chỉ nghề:</strong> 
-                        <?= htmlspecialchars($guide['certificate'] ?: '-') ?>
-                    </p>
-
-                    <p><strong>Ngôn ngữ:</strong> 
-                        <?= htmlspecialchars($guide['languages'] ?: '-') ?>
-                    </p>
-
-                    <p><strong>Kinh nghiệm:</strong><br>
-                        <?= nl2br(htmlspecialchars($guide['experience'] ?: '-')) ?>
-                    </p>
-
-                    <p><strong>Tình trạng sức khỏe:</strong><br>
-                        <?= nl2br(htmlspecialchars($guide['health_condition'] ?: '-')) ?>
-                    </p>
-
-                    <p><strong>Xếp hạng:</strong> 
-                        <?= htmlspecialchars($guide['rating'] ?: '-') ?> / 5
-                    </p>
-
-                    <p><strong>Phân loại:</strong>
-                        <?= ($guide['category'] == 1) ? "HDV Nội địa" : "HDV Quốc tế" ?>
-                    </p>
+                    <?php if ($guide_not_assigned): ?>
+                        <p class="text-muted fst-italic">
+                            <i class="fa-solid fa-triangle-exclamation text-warning"></i> 
+                            Chưa gán hướng dẫn viên cho booking này.
+                        </p>
+                    <?php else: ?>
+                        <div class="row">
+                            <div class="col-md-3 text-center">
+                                <img src="<?=($guide['photo'])?>"
+                                     class="img-fluid rounded shadow-sm"
+                                     style="max-height: 180px; object-fit: cover;">
+                            </div>
+                            <div class="col-md-9">
+                                <p><strong>Họ và tên:</strong> <?= htmlspecialchars($guide['full_name'] ?: '-') ?></p>
+                                <p><strong>Ngày sinh:</strong> <?= htmlspecialchars($guide['birth_date'] ?: '-') ?></p>
+                                <p><strong>Liên hệ:</strong> <?= htmlspecialchars($guide['contact'] ?: '-') ?></p>
+                                <p><strong>Chứng chỉ nghề:</strong> <?= htmlspecialchars($guide['certificate'] ?: '-') ?></p>
+                                <p><strong>Ngôn ngữ:</strong> <?= htmlspecialchars($guide['languages'] ?: '-') ?></p>
+                                <p><strong>Kinh nghiệm:</strong><br><?= nl2br(htmlspecialchars($guide['experience'] ?: '-')) ?></p>
+                                <p><strong>Tình trạng sức khỏe:</strong><br><?= nl2br(htmlspecialchars($guide['health_condition'] ?: '-')) ?></p>
+                                <p><strong>Xếp hạng:</strong> <?= htmlspecialchars($guide['rating'] ?: '-') ?> / 5</p>
+                                <p><strong>Phân loại:</strong> <?= ($guide['category'] == 1) ? "HDV Nội địa" : "HDV Quốc tế" ?></p>
+                            </div>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
-
-        <?php endif; ?>
-
-    </div>
-</div>
-
-
 
             <!-- THÔNG TIN ĐỐI TÁC -->
             <div class="card mb-4 shadow-sm">
@@ -264,7 +226,6 @@ if (session_status() === PHP_SESSION_NONE) {
                 </div>
 
                 <div class="card-body">
-
                     <?php if (!empty($booking['partners'])): ?>
                         <table class="table table-bordered table-striped">
                             <thead>
@@ -291,11 +252,9 @@ if (session_status() === PHP_SESSION_NONE) {
                                 <?php endforeach; ?>
                             </tbody>
                         </table>
-
                     <?php else: ?>
                         <p class="text-muted">Không có đối tác nào được gán.</p>
                     <?php endif; ?>
-
                 </div>
             </div>
 
@@ -335,8 +294,8 @@ if (session_status() === PHP_SESSION_NONE) {
                 <div class="col-md-4 fw-bold">Trạng thái:</div>
                 <div class="col-md-8">
                     <span class="badge 
-                        <?= (isset($booking['status']) && $booking['status']==1)?'bg-success':((isset($booking['status']) && $booking['status']==2)?'bg-primary':((isset($booking['status']) && $booking['status']==3)?'bg-danger':'bg-warning')) ?>">
-                        <?= (isset($booking['status']) && $booking['status']==1)?"Hoàn thành":((isset($booking['status']) && $booking['status']==2)?"Đã cọc":((isset($booking['status']) && $booking['status']==3)?"Đã hủy":"Chờ xử lý")) ?>
+                        <?= ($status===1)?'bg-success':($status===2?'bg-primary':($status===3?'bg-danger':'bg-warning')) ?>">
+                        <?= ($status===1)?"Hoàn thành":($status===2?"Đã cọc":($status===3?"Đã hủy":"Chờ xử lý")) ?>
                     </span>
                 </div>
             </div>

@@ -109,17 +109,17 @@ $nameUser = htmlspecialchars($nameUser);
                     <button class="filter-btn" data-status="completed">Đã hủy</button>
                 </div>
 
-                <div class="search-box">
+                <!-- <div class="search-box">
                     <input type="text" placeholder="Tìm kiếm theo mã tour, tên tour...">
                     <button class="btn-search"><i class="fa-solid fa-search"></i></button>
-                </div>
+                </div> -->
             </div>
 
             <table class="data-table table">
             <thead>
                 <tr>
                     <th>Ảnh</th>
-                    <th>Mã Tour</th>
+                    <th>Mã Booking</th>
                     <th>Tên Tour</th>
                     <th>Ngày Bắt đầu</th>
                     <th>Ngày Kết thúc</th>
