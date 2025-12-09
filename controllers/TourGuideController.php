@@ -5,6 +5,7 @@ require_once __DIR__ . '/../models/BookingModel.php';
 require_once __DIR__ . '/../models/tourmodel.php';
 require_once __DIR__ . '/../models/CustomerModel.php';
 require_once __DIR__ . '/../models/TourlogModel.php';
+require_once __DIR__ . '/../models/itineraryModel.php';
 
 class TourGuideController
 {
@@ -15,7 +16,7 @@ class TourGuideController
     public $modelTour;
     public $modelCustomer;
     public $tourlog;
-
+    public $itineraryModel;
 
     public function __construct()
     {
@@ -25,7 +26,7 @@ class TourGuideController
         $this->modelTour = new TourModel();
         $this->modelCustomer = new CustomerModel();
         $this->tourlog = new TourlogModel();
-
+        $this->itineraryModel = new itineraryModel();
     }
 
     // ----------------------------
