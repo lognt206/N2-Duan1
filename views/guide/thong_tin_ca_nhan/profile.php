@@ -107,7 +107,7 @@ $nameUser = htmlspecialchars($nameUser);
                         Tôi là hướng dẫn viên du lịch với <?= $tourguide['experience'] ?? 'Chưa cập nhật' ?> năm kinh nghiệm dẫn tour trong nước và quốc tế.
                         Luôn nhiệt huyết, thân thiện và sẵn sàng chia sẻ kiến thức văn hoá địa phương đến du khách.
                     </p>
-                    <button class="edit-btn"><i class="fa-solid fa-pen"></i> Chỉnh sửa hồ sơ</button>
+                    <!-- <button class="edit-btn"><i class="fa-solid fa-pen"></i> Chỉnh sửa hồ sơ</button> -->
                 </div>
             </div>
 
@@ -116,7 +116,7 @@ $nameUser = htmlspecialchars($nameUser);
                 <div class="info-card text-center">
                     <h5><i class="fa-solid fa-star"></i> Thông tin nhanh</h5>
                     <hr>
-                    <p><strong>Tour đã dẫn:</strong> <?= $tourguide['tours_done'] ?? 0 ?></p>
+                    <p><strong>Tour đã dẫn:</strong> <?= $totalCompletedTours ?></p>
                     <p><strong>Khách đánh giá trung bình:</strong> 
                         <i class="fa-solid fa-star" style="color:#EB8317"></i> <?= $tourguide['rating'] ?? 'Chưa cập nhật' ?>/5
                     </p>

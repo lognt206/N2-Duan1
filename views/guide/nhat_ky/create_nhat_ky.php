@@ -7,7 +7,8 @@ if (session_status() === PHP_SESSION_NONE) {
 $nameUser = $_SESSION['user']['full_name'] ?? 'Hướng dẫn viên';
 
 // Dùng htmlspecialchars để tránh lỗi HTML injection
-$nameUser = htmlspecialchars($nameUser);
+$departure_id = $departure_id ?? $_GET['departure_id'] ?? 0;
+$booking_id = $_GET['booking_id'] ?? 0;
 ?>
 
 <!DOCTYPE html>
@@ -53,8 +54,6 @@ $nameUser = htmlspecialchars($nameUser);
     <a href="?act=header"><i class="fa-solid fa-chart-line"></i>Dashboard</a>
     <a href="?act=profile"><i class="fa-solid fa-user"></i> Thông tin cá nhân</a>
     <a href="?act=schedule"><i class="fa-solid fa-calendar-day"></i> Lịch làm việc</a>
-    <a href="?act=report" class="active"><i class="fa-solid fa-clipboard-list"></i> Nhật ký tour</a>
-    <a href="?act=special_request"><i class="fa-solid fa-star"></i> Yêu cầu đặc biệt</a>
     <a href="?act=login"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
 </div>
 
@@ -76,44 +75,41 @@ $nameUser = htmlspecialchars($nameUser);
 
     <!-- Dashboard Content -->
     <div class="container-fluid">
-        <h2 class="text-primary mb-3">Cập nhật tình trạng Tour</h2>
-        <p>Tour: <strong>Lucca Bike Tour - HL25</strong> | Ngày: 02 Thg 10, 2025</p>
+        <h2 class="text-primary mb-3">Thêm Nhật ký Tour</h2>
 
-        <form action="process_report.php" method="POST">
-          <input type="hidden" name="tour_id" value="HL25">
+        <form action="index.php?act=create_nhat_ky" method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="departure_id" value="<?= htmlspecialchars($departure_id) ?>">
+            <input type="hidden" name="booking_id" value="<?= htmlspecialchars($booking_id) ?>">
+            <fieldset class="form-section">
+                <legend>Ảnh Tour (Cập nhật)</legend>
+                
+                <?php if (!empty($tour_log['photo'])): ?>
+                    <div class="mb-3">
+                        <label class="form-label">Ảnh hiện tại:</label>
+                        <div>
+                            <img src="<?=$tour_log['photo'] ?>" alt="Ảnh hiện tại" style="max-width: 200px; height: auto; border: 1px solid #ccc; border-radius: 4px;">
+                        </div>
+                    </div>
+                <?php endif; ?>
 
-          <fieldset class="form-section">
-            <legend>1. Trạng thái Tour</legend>
-            <div class="mb-3">
-              <label for="status" class="form-label">Chọn trạng thái:</label>
-              <select id="status" name="status" class="form-select" required>
-                <option value="completed"> Đã hoàn thành</option>
-                <option value="in_progress"> Đang thực hiện</option>
-                <option value="incident"> Có sự cố</option>
-                <option value="cancelled"><i class="alert-triangle"></i> Đã hủy</option>
-              </select>
+                <div class="mb-3">
+                    <label for="photo_file" class="form-label">Tải lên Ảnh:</label>
+                    <input type="file" id="photo_file" name="photo_file" class="form-control" accept="image/*">
+                </div>
+            </fieldset>
+
+            <fieldset class="form-section">
+                <legend>Cảm nhận của Hướng dẫn viên</legend>
+                <div class="mb-3">
+                    <label for="guide_review" class="form-label">Cảm nhận/Đánh giá của HDV:</label>
+                    <textarea id="guide_review" name="guide_review" class="form-control" rows="6" required placeholder="Nhập cảm nhận và đánh giá của bạn về chuyến tour..."></textarea>
+                </div>
+            </fieldset>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-submit">Lưu</button>
             </div>
-          </fieldset>
-
-          <fieldset class="form-section">
-            <legend>2. Báo cáo & Ghi chú</legend>
-            <div class="mb-3">
-              <label for="notes" class="form-label">Tóm tắt & ghi chú:</label>
-              <textarea id="notes" name="notes" class="form-control" rows="6" placeholder="Nhận xét khách hàng và đánh giá cá nhân"></textarea>
-            </div>
-          </fieldset>
-
-          <fieldset class="form-section">
-            <legend>3. Chi tiết Sự cố (nếu có)</legend>
-            <div class="mb-3">
-              <label for="incident_detail" class="form-label">Mô tả sự cố:</label>
-              <textarea id="incident_detail" name="incident_detail" class="form-control" rows="5" placeholder="Mô tả chi tiết sự cố nếu có"></textarea>
-            </div>
-          </fieldset>
-
-          <div class="text-center">
-            <button type="submit" class="btn btn-submit">Gửi Báo cáo</button>
-          </div>
+            
         </form>
     </div>
 </div>

@@ -99,20 +99,16 @@ $this->itineraryModel = new ItineraryModel();
         $kthuc = $tour['return_date'] ?? null;
 
         if (!$bdau || !$kthuc) {
-            $tours[$i]['tinh_trang'] = "Chưa có dữ liệu";
-            $tours[$i]['trangthai'] = "unknown";
+            $tours[$i]['status'] = 0;
         } 
         elseif ($kthuc < $today) {
-            $tours[$i]['tinh_trang'] = "Đã hoàn thành";
-            $tours[$i]['trangthai'] = "completed";
+            $tours[$i]['status'] = 1;
         } 
         elseif ($bdau <= $today && $kthuc >= $today) {
-            $tours[$i]['tinh_trang'] = "Đang thực hiện";
-            $tours[$i]['trangthai'] = "in_progress";
+            $tours[$i]['status'] = 2;
         } 
         else {
-            $tours[$i]['tinh_trang'] = "Sắp khởi hành";
-            $tours[$i]['trangthai'] = "upcoming";
+            $tours[$i]['status'] = 0;
         }
 
         // ẢNH TOUR – LẤY TỪ cột t.image
@@ -135,10 +131,15 @@ $this->itineraryModel = new ItineraryModel();
             header("Location:?act=login");
             exit;
         }
+        $guideId = $_SESSION['user']['guide_id'] ?? 0;
         //lấy user_id đã lưu khi login vào
         $user_id = $_SESSION['user']['user_id'];
         $tourguideModel = new TourGuideModel();
         $tourguide = $this->modelTourGuide->find_guide($user_id);
+        // -------------------------------
+        // Tour đã hoàn thành/ đã dẫn
+        // -------------------------------
+        $totalCompletedTours = $this->BookingModel->countCompletedToursByGuide($guideId);
         require_once './views/guide/thong_tin_ca_nhan/profile.php';
     }
 
@@ -150,6 +151,7 @@ $this->itineraryModel = new ItineraryModel();
         $tour_log = null; // Khởi tạo biến để tránh lỗi Undefined
 
         if ($log_id) {
+            $log_id= (int)$log_id;
             // 2. Lấy dữ liệu nhật ký tour từ Model
             // Gọi hàm trong TourlogModel để lấy chi tiết bản ghi
             $tour_log = $this->tourlog->getTourLogById($log_id); 
@@ -172,15 +174,15 @@ $this->itineraryModel = new ItineraryModel();
             $tourlog->log_id = $log_id;
             $this->tourlog->delete_nhatky($tourlog);
         }
-        require_once './views/guide/nhat_ky/edit_nhat_ky.php';
+        require_once './views/guide/lich_lam_viec/schedule.php';
     }
     public function update_nhat_ky()
 {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        header('Location: index.php?act=report');
+        header('Location: index.php?act=tour_detail');
         exit;
     }
-
+    $booking_id=$_POST['booking_id'] ?? null;
     $log_id = $_POST['log_id'] ?? null;
     $guide_review = $_POST['guide_review'] ?? '';
     $old_photo = $_POST['old_photo'] ?? '';
@@ -207,11 +209,7 @@ $this->itineraryModel = new ItineraryModel();
             if ($old_photo && file_exists($old_photo) && $old_photo !== 'uploads/logo.png') {
                 unlink($old_photo);
             }
-        } else {
-            // Xử lý lỗi upload
-            echo "Lỗi: Không thể tải ảnh lên.";
-            // Bạn có thể chọn dừng hoặc tiếp tục với ảnh cũ
-        }
+         }
     }
     // -------------------------
 
@@ -224,13 +222,67 @@ $this->itineraryModel = new ItineraryModel();
 
     if ($is_updated) {
         // Cập nhật thành công, chuyển hướng về trang Nhật ký Tour
-        header('Location: index.php?act=report&message=updated_success');
+        header('Location: index.php?act=tour_detail&id='.(int)$booking_id);
         exit;
     } else {
         // Cập nhật thất bại
         echo "Cập nhật Nhật ký Tour thất bại. Vui lòng thử lại.";
+        exit;
     }
 }
+    public function create_tourlog_view(){
+        $departure_id=$_GET['departure_id'] ?? null;
+        $booking_id=$_GET['booking_id'] ?? null;
+        if(!$departure_id || !$booking_id){
+            echo "Lỗi thiếu id tour hoặc booking";
+            exit;
+        }
+        require_once './views/guide/nhat_ky/create_nhat_ky.php';
+    }
+    public function create_tourlog(){
+        if($_SERVER['REQUEST_METHOD'] !== 'POST'){
+            header('Location: index.php?act=schedule');
+            exit;
+        }
+        $departure_id= $_POST['departure_id'] ?? null;
+        $booking_id = $_POST['booking_id'] ?? null;
+        $guide_review= $_POST['guide_review'] ?? '';
+        if(!$booking_id){
+            echo "Lỗi thiếu Id booking";
+            exit;
+        }
+        if(!$departure_id){
+            echo "Lỗi thiếu Id tour";
+            exit;
+        }
+        $log_date= date('Y-m-d'); //lấy tgian htai
+        $photo_path = null;
+        $photo_file = $_FILES['photo_file'] ?? null;
+        if($photo_file && $photo_file['error'] === UPLOAD_ERR_OK){
+            $target_dir = 'uploads/';
+            $file_extension = pathinfo($photo_file['name'], PATHINFO_EXTENSION);
+            $new_file_name= "log_".$departure_id."_".time().".".$file_extension;
+            $target_file=$target_dir.$new_file_name;
+            if(move_uploaded_file($photo_file['tmp_name'], $target_file)){
+                $photo_path = $target_file;
+            }
+        }
+        $data_to_save = [
+            'departure_id' => $departure_id,
+            'booking_id' => $booking_id,
+            'guide_review' => $guide_review,
+            'log_date' => $log_date,
+            'photo' => $photo_path,
+        ];
+        
+        $is_saved = $this->tourlog->create_tourlog($data_to_save);
+        if(!$is_saved){
+            echo"Lỗi lưu vào db";
+            exit;
+        }
+        header("Location: index.php?act=tour_detail&id=" . $booking_id . "&tab=report"); 
+        exit;
+    }
 
     // ----------------------------
     // CHI TIẾT TOUR
@@ -238,7 +290,8 @@ $this->itineraryModel = new ItineraryModel();
    public function tour_detail()
 {
     $booking_id = $_GET['id'] ?? null;
-
+    //cột check-in
+    $today = date('Y-m-d');
     if (!$booking_id) {
         echo "Thiếu booking_id";
         exit;
@@ -255,20 +308,29 @@ $this->itineraryModel = new ItineraryModel();
     // -------------------------------
     // KIỂM TRA TRẠNG THÁI TOUR
     // -------------------------------
-    $status = $tour_detail_data['status'] ?? null;
+    $status = $tour_detail_data['status'] ?? 0;
 
     // -------------------------------
     // LẤY NHẬT KÝ TOUR CHỈ KHI ĐÃ HOÀN THÀNH
     // -------------------------------
     $tourlogs = [];
-
-    if ($status === 'completed') {
+    $statusInt = (int)$status; // đổi sang số để so sánh chuẩn hơn
+    if ($statusInt === 1 ||$statusInt === 2) {
         $departure_id = $tour_detail_data['departure_id'] ?? null;
         if ($departure_id) {
             $tourlogs = $this->tourlog->find_Tour_log($departure_id);
         }
     }
 
+    //cột check-in
+    $bdau=$tour_detail_data['departure_date'] ?? null;
+    $kthuc=$tour_detail_data['return_date'] ?? null;
+    $tour_detail_data['is-comleted']=false;
+    if($bdau && $kthuc){
+        if($kthuc<$today){
+            $tour_detail_data['is-comleted']=true;
+        }
+    }
     // -------------------------------
     // LẤY LỊCH TRÌNH THEO tour_id
     // -------------------------------
@@ -289,24 +351,20 @@ $this->itineraryModel = new ItineraryModel();
     // ----------------------------
     // CHECK IN TOUR
     // ----------------------------
-    // public function check_in()
-    // {   
-    //     session_start();
-    //     $tour_id = $_GET['tour_id'] ?? null;
-    //     if(!$tour_id){
-    //         echo "Không tìm thấy tour";
-    //         exit;
-    //     }
-    //     //sd tourmodel để lấy ra chi tiết tour
-    //     $tourModel = new TourModel();
-    //     $tour_detail_data = $this->modelTour->find($tour_id);
-    //     if(!$tour_detail_data){
-    //         echo "Tour không tồn tại";
-    //         exit;
-    //     }
-    //     $customers = $this->modelTourGuide->customer_tour($tour_id);
-    //     require_once './views/guide/lich_lam_viec/check_in.php';
-    // }
+    public function update_check_in()
+    {   
+        if($_SERVER['REQUEST_METHOD'] !== 'POST'){
+            header("Location: index.php?act=schedule");
+            exit();
+        }
+        $booking_id=$_GET['booking_id'] ?? null;
+        $checked_customer_ids = $_POST['check-in'] ?? [];
+        if($booking_id){
+            echo "lỗi thiếu id booking";
+            exit();
+        }
+        require_once './views/guide/lich_lam_viec/check_in.php';
+    }
 
     // ----------------------------
     // YÊU CẦU ĐẶC BIỆT

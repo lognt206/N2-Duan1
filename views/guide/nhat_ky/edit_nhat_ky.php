@@ -84,6 +84,7 @@ $tour_log = $tour_log ?? [
         <form action="index.php?act=update_nhat_ky" method="POST" enctype="multipart/form-data">
             <input type="hidden" name="log_id" value="<?= $tour_log['log_id'] ?>">
             <input type="hidden" name="old_photo" value="<?= htmlspecialchars($tour_log['photo']) ?>">
+            <input type="hidden" name="booking_id" value="<?= $tour_log['booking_id'] ?>">
 
             <fieldset class="form-section">
                 <legend>Ảnh Tour (Cập nhật)</legend>
@@ -115,9 +116,9 @@ $tour_log = $tour_log ?? [
                 <button type="submit" class="btn btn-submit">Lưu Cập nhật</button>
             </div>
             
-            <a href="index.php?act=report" class="btn btn-secondary">
+            <!-- <a href="index.php?act=report" class="btn btn-secondary">
                 <i class="fa-solid fa-arrow-left"></i> Quay lại Nhật ký Tour
-            </a>
+            </a> -->
             
         </form>
     </div>
