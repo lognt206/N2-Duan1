@@ -292,6 +292,7 @@ $this->itineraryModel = new ItineraryModel();
     $booking_id = $_GET['id'] ?? null;
     //cột check-in
     $today = date('Y-m-d');
+
     if (!$booking_id) {
         echo "Thiếu booking_id";
         exit;
@@ -322,6 +323,7 @@ $this->itineraryModel = new ItineraryModel();
         }
     }
 
+
     //cột check-in
     $bdau=$tour_detail_data['departure_date'] ?? null;
     $kthuc=$tour_detail_data['return_date'] ?? null;
@@ -331,9 +333,11 @@ $this->itineraryModel = new ItineraryModel();
             $tour_detail_data['is-comleted']=true;
         }
     }
+
     // -------------------------------
     // LẤY LỊCH TRÌNH THEO tour_id
     // -------------------------------
+
     $tour_id = $tour_detail_data['tour_id'] ?? null;
     $itineraries = [];
 

@@ -17,6 +17,7 @@ switch ($statusValue) {
             case 3: $statusText='Đã hủy'; $statusClass='cancelled'; break;
             default: $statusText='Sắp khởi hành'; $statusClass='upcoming';
         }
+
 ?>
 
 <!DOCTYPE html>
@@ -180,9 +181,11 @@ switch ($statusValue) {
                             <th>Năm sinh</th>
                             <th>Liên hệ</th>
                             <th>Yêu cầu đặc biệt</th>
+
                             <?php if($statusValue==2){?>
                             <th class="text-center">Check_in</th>
                             <?php }?>
+
                         </tr>
                     </thead>
                     <tbody>
@@ -194,12 +197,16 @@ switch ($statusValue) {
                             <td><?= $data['birth_year'] ?? "Chưa xác định" ?></td>
                             <td><?= htmlspecialchars($data['contact'] ?? '-') ?></td>
                             <td><?= htmlspecialchars($data['special_request'] ?? '-') ?></td>
+
                             <?php if($statusValue==2){?>
+
                             <td class="text-center">
                                 <input type="checkbox" class="checkin-toggle" id="guest<?= $index ?>">
                                 <label for="guest<?= $index ?>" class="toggle-label"></label>
                             </td>
-                            <?php }?>
+
+                            <?php endif?>
+
                         </tr>
                         <?php endforeach; ?>
                         </tbody>
