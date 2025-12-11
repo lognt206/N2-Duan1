@@ -407,27 +407,98 @@ public function createbooking()
     include "views/admin/booking/createbooking.php";
 }
 
-  public function booking_step1()
+ public function booking_step1()
 {
     if (session_status() === PHP_SESSION_NONE) session_start();
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        // Validate bắt buộc chọn tour và departure
+
+        // Validate bắt buộc chọn tour
         if (empty($_POST['tour_id'])) {
-    $_SESSION['error'] = "Vui lòng chọn Tour!";
-    header("Location: ?act=booking_step1");
-    exit();
+            $_SESSION['error'] = "Vui lòng chọn Tour!";
+            header("Location: ?act=booking_step1");
+            exit();
+        }
+
+// ⭐ Kiểm tra trùng lịch hướng dẫn viên
+if (!empty($_POST['guide_id'])) {
+
+    $guide_id  = $_POST['guide_id'];
+    $departure = $_POST['departure_date'];
+    $return    = $_POST['return_date'];
+
+    // KIỂM TRA TRONG BẢNG DEPARTURES
+    $conflict = $this->DepartureModel->checkGuideConflict($guide_id, $departure, $return);
+
+    if ($conflict) {
+        $_SESSION['error'] = "Hướng dẫn viên đã có lịch trong khoảng thời gian này!";
+        header("Location: ?act=booking_step1");
+        exit();
+    }
 }
+
+
+
+        // ------- VALIDATE NGÀY -------
+        $departure = $_POST['departure_date'] ?? null;
+        $return    = $_POST['return_date'] ?? null;
+        $booking   = $_POST['booking_date'] ?? null;
+
+        $today = date("Y-m-d");
+
+        // Kiểm tra không để trống
+        if (!$departure || !$return || !$booking) {
+            $_SESSION['error'] = "Vui lòng nhập đầy đủ ngày đi, ngày về và ngày đặt!";
+            header("Location: ?act=booking_step1");
+            exit();
+        }
+
+        // 1. Ngày đi >= hôm nay
+        if ($departure < $today) {
+            $_SESSION['error'] = "Ngày đi không được nhỏ hơn ngày hiện tại!";
+            header("Location: ?act=booking_step1");
+            exit();
+        }
+
+        // 2. Ngày về >= hôm nay
+        if ($return < $today) {
+            $_SESSION['error'] = "Ngày về không được nhỏ hơn ngày hiện tại!";
+            header("Location: ?act=booking_step1");
+            exit();
+        }
+
+        // 3. Ngày đi >= ngày đặt
+        if ($departure < $booking) {
+            $_SESSION['error'] = "Ngày đi không được nhỏ hơn ngày đặt!";
+            header("Location: ?act=booking_step1");
+            exit();
+        }
+
+        // 4. Ngày về >= ngày đặt
+        if ($return < $booking) {
+            $_SESSION['error'] = "Ngày về không được nhỏ hơn ngày đặt!";
+            header("Location: ?act=booking_step1");
+            exit();
+        }
+
+        // 5. Ngày về >= ngày đi
+        if ($return < $departure) {
+            $_SESSION['error'] = "Ngày về không được nhỏ hơn ngày đi!";
+            header("Location: ?act=booking_step1");
+            exit();
+        }
+        // ------- END VALIDATE NGÀY -------
+
 
         // Lưu tất cả thông tin bước 1 vào session
         $_SESSION['booking_step1'] = [
             'tour_id'        => $_POST['tour_id'],
             'guide_id'       => $_POST['guide_id'] ?? null,
             'departure_id'   => $_POST['departure_id'],
-            'departure_date' => $_POST['departure_date'] ?? null,
-            'return_date'    => $_POST['return_date'] ?? null,
+            'departure_date' => $departure,
+            'return_date'    => $return,
             'meeting_point'  => $_POST['meeting_point'] ?? null,
-            'booking_date'   => $_POST['booking_date'] ?? null,
+            'booking_date'   => $booking,
             'booking_type'   => $_POST['booking_type'] ?? 1,
             'status'         => $_POST['status'] ?? 0,
             'notes'          => $_POST['notes'] ?? null
@@ -457,21 +528,63 @@ public function choose_customer()
     }
 
     $customerModel = new CustomerModel();
+    $bookingModel  = new BookingModel();
 
+    // Ngày đi / Ngày về lấy từ Step 1
+    $start = $_SESSION['booking_step1']['departure_date'];
+    $end   = $_SESSION['booking_step1']['return_date'];
+
+    // Không cho chọn tour đã qua
+    $today = date("Y-m-d");
+    if ($start < $today) {
+        $_SESSION['error'] = "Ngày đi không được nhỏ hơn ngày hiện tại!";
+        header("Location: ?act=booking_step1");
+        exit();
+    }
+
+    // Khởi tạo DS khách chọn
     if (!isset($_SESSION['booking_customers'])) {
         $_SESSION['booking_customers'] = [];
     }
 
+    // ==========================
+    // XỬ LÝ POST
+    // ==========================
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+        // --------------------------------------------------------
+        // 1. Chọn khách có sẵn
+        // --------------------------------------------------------
         if (empty($_POST['create_new']) && !empty($_POST['customer_id'])) {
+
             $customer_id = intval($_POST['customer_id']);
-            $customer = $customerModel->find_customer($customer_id);
+            $customer    = $customerModel->find_customer($customer_id);
+
             if ($customer) {
+
+                // KIỂM TRA KHÁCH NÀY CÓ TOUR TRÙNG HAY KHÔNG
+                $conflict = $bookingModel->checkCustomerConflict($customer_id, $start, $end);
+
+                if ($conflict) {
+                    $_SESSION['error'] =
+                        "Khách {$customer['full_name']} đã có tour từ "
+                        . $conflict['departure_date'] . " đến " . $conflict['return_date']
+                        . ". Không thể đặt trùng lịch.";
+
+                    header("Location: ?act=choose_customer");
+                    exit();
+                }
+
+                // Không trùng lịch -> thêm
                 $_SESSION['booking_customers'][$customer_id] = $customer;
             }
         }
 
+        // --------------------------------------------------------
+        // 2. Tạo khách hàng mới
+        // --------------------------------------------------------
         if (!empty($_POST['create_new'])) {
+
             $c = new Customer();
             $c->full_name       = $_POST['full_name'];
             $c->gender          = $_POST['gender'];
@@ -481,8 +594,23 @@ public function choose_customer()
             $c->payment_status  = $_POST['payment_status'];
             $c->special_request = $_POST['special_request'] ?: null;
 
+            // Tạo
             $newID = $customerModel->create_customer($c);
             $newCustomer = $customerModel->find_customer($newID);
+
+            // KIỂM TRA TRÙNG LỊCH
+            $conflict = $bookingModel->checkCustomerConflict($newID, $start, $end);
+
+            if ($conflict) {
+                $_SESSION['error'] =
+                    "Khách {$newCustomer['full_name']} đã có tour từ "
+                    . $conflict['departure_date'] . " đến " . $conflict['return_date']
+                    . ". Không thể đặt trùng lịch.";
+
+                header("Location: ?act=choose_customer");
+                exit();
+            }
+
             $_SESSION['booking_customers'][$newID] = $newCustomer;
         }
 
@@ -490,6 +618,9 @@ public function choose_customer()
         exit();
     }
 
+    // ==========================
+    // LOAD DATA VIEW
+    // ==========================
     $customers = $customerModel->allcustomer();
     $selectedCustomers = $_SESSION['booking_customers'];
 

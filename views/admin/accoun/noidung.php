@@ -81,7 +81,7 @@
                     <th>Phone</th>
                     <th>Vai trò</th>
                     <th>Trạng thái</th>
-                    <th>Hành động</th>
+                    <!-- <th>Hành động</th> -->
                 </tr>
             </thead>
             <tbody>
@@ -106,19 +106,19 @@
 <td>
     <a href="?act=account_toggle&id=<?= $acc->user_id ?>">
         <span class="badge <?= $acc->status == 1 ? 'Active' : 'Inactive' ?>">
-            <?= $acc->status == 1 ? "Active" : "Inactive" ?>
+            <?= $acc->status == 1 ? "Đã Mở" : "Đã Khóa" ?>
         </span>
     </a>
 </td>
 
-                            <td>
+                            <!-- <td>
                                
                                 <a href="?act=account_delete&id=<?= $acc->user_id ?>"
                                    onclick="return confirm('Xóa tài khoản này?')"
                                    class="btn btn-sm btn-danger">
                                     <i class="fa-solid fa-trash"></i>
                                 </a>
-                            </td>
+                            </td> -->
                         </tr>
                     <?php endforeach; ?>
 
