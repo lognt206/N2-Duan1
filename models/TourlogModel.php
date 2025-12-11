@@ -24,23 +24,10 @@ class TourlogModel{
             return [];
         }
     }
-    public function update_nhatky(Tourlog $tourlog){
-        try{
-            $sql = "UPDATE `tourlog` SET `photo`=:photo, `guide_review`=:guide_review WHERE log_id = :log_id";
-            $stmt=$this->conn->prepare($sql);
-            $result = $stmt->execute([
-                ':photo' => $tourlog->photo,
-                ':guide_review' => $tourlog->guide_review,
-                ':log_id' => $tourlog->log_id,
-            ]);
-            return $stmt->rowCount();
-        }catch (PDOException $err) {
-            echo "Lỗi";
-        }
-    }
     public function getTourLogById($logId)
     {
-        $sql = "SELECT * FROM `tourlog` WHERE log_id = :log_id";
+        $sql = "SELECT tl.*, b.booking_id FROM `tourlog` tl
+        JOIN booking b ON tl.departure_id= b.departure_id WHERE tl.log_id = :log_id";
         
         try {
             $stmt = $this->conn->prepare($sql);
@@ -92,12 +79,28 @@ class TourlogModel{
 
     public function delete_nhatky(Tourlog $tourlog) {
         $sql="UPDATE `tourlog` SET `photo`=:photo, `guide_review`=:guide_review WHERE log_id = :log_id";
-        $stmt= $this->conn->query($sql);
+        $stmt= $this->conn->prepare($sql);
         $stmt->execute([':photo' => '',
                 ':guide_review' => '',
                 ':log_id' => $tourlog->log_id,]);
         return $stmt->rowCount();
     }
-
+    public function create_tourlog($data){
+        try{
+            $sql="INSERT INTO tourlog (departure_id, log_date, photo, guide_review)
+                    VALUES (:departure_id, :log_date, :photo, :guide_review)";
+                    $stmt = $this->conn->prepare($sql);
+                    $stmt->execute([
+                        'departure_id'  =>(int)$data['departure_id'],
+                        'log_date'      =>$data['log_date'], 
+                        'photo'         =>$data['photo'], 
+                        'guide_review'  =>$data['guide_review'],
+                    ]);
+                    return true;
+        }catch(PDOException $err){
+            error_log("Lỗi tạo nhật ký tour: " . $err->getMessage());
+            return false;
+        }
+    }
 }
 ?>
