@@ -344,6 +344,37 @@ public function countCompletedToursByGuide($guide_id) {
     }
 }
 
+public function checkCustomerConflict($customer_id, $start, $end)
+{
+    try {
+        // customer_ids của bạn lưu dạng số -> ép về số
+        $cid = intval($customer_id);
+
+        $sql = "
+            SELECT b.booking_id, d.departure_date, d.return_date
+            FROM booking b
+            JOIN departure d ON b.departure_id = d.departure_id
+            WHERE JSON_CONTAINS(b.customer_ids, :cid) = 1
+              AND (
+                    d.departure_date <= :end
+                AND d.return_date >= :start
+              )
+        ";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([
+            ':cid'  => $cid,      // không có dấu nháy -> đúng với kiểu số
+            ':start'=> $start,
+            ':end'  => $end
+        ]);
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+
+    } catch (Exception $e) {
+        throw new Exception("Lỗi kiểm tra lịch khách hàng: " . $e->getMessage());
+    }
+}
+
 
 
 }

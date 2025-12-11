@@ -22,8 +22,6 @@ if (session_status() === PHP_SESSION_NONE) {
         font-family: Arial, sans-serif;
         background: #f8f9fa;
     }
-
-    /* Sidebar */
     #sidebar {
         min-width: 250px;
         background: #343a40;
@@ -37,15 +35,13 @@ if (session_status() === PHP_SESSION_NONE) {
         padding: 12px 20px;
     }
     #sidebar a:hover { background: #495057; }
-    #sidebar a.active, #sidebar a.bg-secondary { background: #6c757d; }
+    #sidebar a.bg-secondary { background: #6c757d; }
 
-    /* Main content */
     #content {
         flex: 1;
         padding: 20px;
     }
 
-    /* Topbar */
     .topbar {
         height: 60px;
         background: #fff;
@@ -63,14 +59,12 @@ if (session_status() === PHP_SESSION_NONE) {
         margin-right: 10px;
     }
 
-    /* Form */
     .card {
         border-radius: 10px;
         background: #fff;
         padding: 25px;
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
-    .form-label { font-weight: 600; }
 
     footer {
         width: 100%;
@@ -124,7 +118,7 @@ if (session_status() === PHP_SESSION_NONE) {
     <?php endif; ?>
 
     <div class="card">
-        <form action="?act=booking_step1" method="POST">
+        <form id="bookingForm" action="?act=booking_step1" method="POST">
 
             <!-- Tour & Guide -->
             <div class="row mb-3">
@@ -162,13 +156,13 @@ if (session_status() === PHP_SESSION_NONE) {
                 </div>
             </div>
 
-            <!-- Meeting point -->
+            <!-- Meeting -->
             <div class="mb-3">
                 <label class="form-label">Điểm hẹn <span class="text-danger">*</span></label>
                 <input type="text" name="meeting_point" class="form-control" required>
             </div>
 
-            <!-- Booking Info -->
+            <!-- Booking Information -->
             <div class="row mb-3">
                 <div class="col-md-6">
                     <label class="form-label">Ngày đặt <span class="text-danger">*</span></label>
@@ -191,7 +185,6 @@ if (session_status() === PHP_SESSION_NONE) {
                 <select name="status" class="form-control">
                     <option value="0">Chờ xác nhận</option>
                     <option value="2">Đã cọc</option>
-                    
                 </select>
             </div>
 
@@ -202,7 +195,7 @@ if (session_status() === PHP_SESSION_NONE) {
             </div>
 
             <button class="btn btn-primary">
-                <i class="fa-solid fa-arrow-right"></i> thêm khách hàng
+                <i class="fa-solid fa-arrow-right"></i> Thêm khách hàng
             </button>
             <a href="?act=booking" class="btn btn-secondary">Hủy</a>
         </form>
@@ -212,6 +205,52 @@ if (session_status() === PHP_SESSION_NONE) {
 <footer>
     &copy; 2025 Công ty Du lịch. All rights reserved.
 </footer>
+
+<!-- VALIDATE NGÀY -->
+<script>
+document.getElementById("bookingForm").addEventListener("submit", function(e) {
+    const departure = document.querySelector("input[name='departure_date']").value;
+    const retour    = document.querySelector("input[name='return_date']").value;
+    const booking   = document.querySelector("input[name='booking_date']").value;
+
+    const today = new Date().toISOString().split("T")[0];
+
+    // Validate 1: Ngày đi >= hôm nay
+    if (departure < today) {
+        alert("❌ Ngày đi không được nhỏ hơn ngày hiện tại!");
+        e.preventDefault();
+        return;
+    }
+
+    // Validate 2: Ngày về >= hôm nay
+    if (retour < today) {
+        alert("❌ Ngày về không được nhỏ hơn ngày hiện tại!");
+        e.preventDefault();
+        return;
+    }
+
+    // Validate 3: Ngày đi >= ngày đặt
+    if (departure < booking) {
+        alert("❌ Ngày đi không được nhỏ hơn ngày đặt!");
+        e.preventDefault();
+        return;
+    }
+
+    // Validate 4: Ngày về >= ngày đặt
+    if (retour < booking) {
+        alert("❌ Ngày về không được nhỏ hơn ngày đặt!");
+        e.preventDefault();
+        return;
+    }
+
+    // Validate 5: Ngày về >= ngày đi
+    if (retour < departure) {
+        alert("❌ Ngày về không được nhỏ hơn ngày đi!");
+        e.preventDefault();
+        return;
+    }
+});
+</script>
 
 </body>
 </html>

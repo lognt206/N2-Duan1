@@ -159,5 +159,33 @@ class DepartureModel{
 
     return $this->create($dep);
 }
+
+public function checkGuideConflict($guide_id, $start, $end) 
+{
+    try {
+        $sql = "
+            SELECT departure_id 
+            FROM departure
+            WHERE guide_id = :guide_id
+            AND (
+                 (departure_date <= :end AND return_date >= :start)
+            )
+        ";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([
+            ':guide_id' => $guide_id,
+            ':start'    => $start,
+            ':end'      => $end
+        ]);
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+
+    } catch (Exception $e) {
+        throw new Exception("Lỗi kiểm tra lịch Hướng Dẫn Viên: " . $e->getMessage());
+    }
+}
+
+
 }
 ?>
