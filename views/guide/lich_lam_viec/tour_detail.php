@@ -9,13 +9,15 @@ $nameUser = $_SESSION['user']['full_name'] ?? 'Hướng dẫn viên';
 // Dùng htmlspecialchars để tránh lỗi HTML injection
 $nameUser = htmlspecialchars($nameUser);
 
-$statusValue = $tour_detail_data['status'];
+$statusValue =(int) $tour_detail_data['status'];
+
 switch ($statusValue) {
             case 1: $statusText='Đã hoàn thành'; $statusClass='completed'; break;
             case 2: $statusText='Đang thực hiện'; $statusClass='in_progress'; break;
             case 3: $statusText='Đã hủy'; $statusClass='cancelled'; break;
             default: $statusText='Sắp khởi hành'; $statusClass='upcoming';
         }
+
 ?>
 
 <!DOCTYPE html>
@@ -118,7 +120,7 @@ switch ($statusValue) {
 
         <div class="quick-actions">
             <a href="?act=schedule" class="btn-back">Quay lại Lịch làm việc</a>
-            <a href="report.php?id=HL25" class="btn-primary"> Cập nhật tình trạng tour</a>
+            <!-- <a href="report.php?id=HL25" class="btn-primary"> Cập nhật tình trạng tour</a> -->
         </div>
 
         <div class="tabs">
@@ -161,12 +163,15 @@ switch ($statusValue) {
 
             
             <div id="guests" class="tab-pane hidden">
-                <h3>Danh sách khách hàng</h3> 
+                <h3>Danh sách khách hàng</h3>
                 <div class="summary-box">
                     <span>Tổng khách: <strong><?= $tour_detail_data['num_people'] ?></strong></span>|
+                    <?php if($statusValue==2){?> 
                     <span>Đã check-in: <strong id="checked-in-count"> </strong></span>|
                     <span>Còn lại: <strong id="remaining-count"> </strong></span>
+                    <?php }?>
                 </div>
+                <form action="index.php?act=update_checkin&booking_id=<?= $tour_detail_data['booking_id'] ?>" method="post" id="checkin-form">
                 <table class="table table-bordered align-middle text-center data-table guest-table">
                     <thead>
                         <tr>
@@ -176,7 +181,11 @@ switch ($statusValue) {
                             <th>Năm sinh</th>
                             <th>Liên hệ</th>
                             <th>Yêu cầu đặc biệt</th>
+
+                            <?php if($statusValue==2){?>
                             <th class="text-center">Check_in</th>
+                            <?php }?>
+
                         </tr>
                     </thead>
                     <tbody>
@@ -188,15 +197,21 @@ switch ($statusValue) {
                             <td><?= $data['birth_year'] ?? "Chưa xác định" ?></td>
                             <td><?= htmlspecialchars($data['contact'] ?? '-') ?></td>
                             <td><?= htmlspecialchars($data['special_request'] ?? '-') ?></td>
+
+                            <?php if($statusValue==2){?>
+
                             <td class="text-center">
-                                <input type="checkbox" class="checkin-toggle" id="guest<?= $index ?>" checked>
+                                <input type="checkbox" class="checkin-toggle" id="guest<?= $index ?>">
                                 <label for="guest<?= $index ?>" class="toggle-label"></label>
                             </td>
+
+                            <?php endif?>
+
                         </tr>
                         <?php endforeach; ?>
                         </tbody>
                 </table>
-               
+               </form>
             </div>
 
             <div id="itinerary" class="tab-pane hidden">
@@ -212,10 +227,14 @@ switch ($statusValue) {
                 <?php endif; ?>
                
             </div>
-            
+
             <div id="report" class="tab-pane hidden" style="margin-bottom: 100px;">
                 <h3>Nhật ký tour</h3>
-                <table class="table table-bordered align-middle text-center data-table guest-table">
+                <?php 
+                    $departure_id_for_log = $tour_detail_data['departure_id'] ?? 0;
+                    $booking_id_for_log = $tour_detail_data['booking_id'] ?? 0;
+                ?>
+                <a href="index.php?act=create_tourlog_view&departure_id=<?= $departure_id_for_log ?>&booking_id=<?= $booking_id_for_log ?>" class="btn-primary">Thêm nhật ký</a>                <table class="table table-bordered align-middle text-center data-table guest-table">
                     <thead>
                         <th>STT</th>
                         <th>Ngày tạo</th>
@@ -224,22 +243,26 @@ switch ($statusValue) {
                         <th>Cảm nhận của HDV</th>
                         <th>Hành động</th>
                     </thead>
+                    <tbody>
                     <?php foreach($tourlogs as $index => $tourlog ){ 
                     ?>
-                    <tbody>
+                    <tr>
                         <td><?= $index + 1 ?></td>
                         <td><?= $tourlog['log_date'] ?></td>
                         <td><?= $tourlog['content'] ?></td>
-                        <td><img src="" alt=""><?= $tourlog['photo'] ?? null ?></td>
+                        <td><img src="<?= htmlspecialchars($tourlog['photo']) ?>" width="100px" height="100px"></td>
                         <td><?= $tourlog['guide_review'] ?></td>
+                        <?php if($statusValue == 2 || $statusValue == 1) {?>
                         <td>
                             <a href="index.php?act=edit_nhat_ky&id=<?= $tourlog['log_id'] ?>" class="btn btn-sm btn-warning me-1">
                                 <i class="fa-solid fa-pen"></i>
                             </a>
-                            <a href="index.php?act=delete_tour_log&id=<?= $tourlog['log_id'] ?>" onclick="return confirm('Xóa khách hàng này?')" class="btn btn-sm btn-danger">
+                            <a href="index.php?act=delete_nhatky&id=<?= $tourlog['log_id'] ?>" onclick="return confirm('Bạn có chắc chắn xóa nhật ký này không?')" class="btn btn-sm btn-danger">
                                 <i class="fa-solid fa-trash"></i>
                             </a>
                         </td>
+                        <?php } ?>
+                    </tr>
                     </tbody>
                     <?php } ?>
                 </table>
@@ -270,8 +293,11 @@ switch ($statusValue) {
         const checkboxes = document.querySelectorAll('.checkin-toggle');
         const checkedCount = document.getElementById('checked-in-count');
         const remainingCount = document.getElementById('remaining-count');
-        const filterBtn = document.getElementById('filter-btn');
-        let filtered = false;
+        //key riêng cho mỗi tour
+        const key="tour-checkin-<?= $tour_detail_data['booking_id'] ?>";
+        //đổ lại dữ liệu check-in đã lưu
+        const luuCheckin= JSON.parse(localStorage.getItem(key)) || {}
+        if(!checkedCount || !remainingCount) return;
 
         function updateSummary() {
             const total = checkboxes.length;
@@ -280,16 +306,17 @@ switch ($statusValue) {
             remainingCount.textContent = total - checked;
         }
 
-        checkboxes.forEach(cb => cb.addEventListener('change', updateSummary));
-
-        filterBtn.addEventListener('click', () => {
-            filtered = !filtered;
-            document.querySelectorAll('tbody tr').forEach(row => {
-            const cb = row.querySelector('.checkin-toggle');
-            row.style.display = (filtered && cb.checked) ? 'none' : '';
+        checkboxes.forEach((cb, index)=>{
+            //đổ lại check-in cũ
+            if(luuCheckin[index]) cb.checked=true;
+            //tích thì lưu lại
+            cb.addEventListener('change', ()=>{
+                updateSummary();
+                luuCheckin[index]=cb.checked;
+                localStorage.setItem(key, JSON.stringify(luuCheckin));
             });
-            filterBtn.textContent = filtered ? 'Hiện tất cả' : 'Lọc: Chưa check-in';
         });
+        
 
         updateSummary();
     });

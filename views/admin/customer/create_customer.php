@@ -28,9 +28,9 @@ body { display: flex; min-height: 100vh; margin: 0; font-family: Arial, sans-ser
 .table-responsive { background: #fff; padding: 20px; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
 footer { width: 100%; background: #fff; text-align: center; padding: 10px 0; box-shadow: 0 -2px 4px rgba(0,0,0,0.1); position: fixed; bottom: 0; }
 </style>
-</head>
+</head> 
 <body>
-
+   
 <!-- Sidebar -->
 <div id="sidebar">
 <h3>Admin Panel</h3>

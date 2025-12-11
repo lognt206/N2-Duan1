@@ -159,17 +159,22 @@ if (session_status() === PHP_SESSION_NONE) {
             <!-- Meeting -->
             <div class="mb-3">
                 <label class="form-label">Điểm hẹn <span class="text-danger">*</span></label>
+
                 <input type="text" name="meeting_point" class="form-control" required>
             </div>
 
+
             <!-- Booking Information -->
+
             <div class="row mb-3">
                 <div class="col-md-6">
                     <label class="form-label">Ngày đặt <span class="text-danger">*</span></label>
                     <input type="date" name="booking_date" class="form-control" required>
                 </div>
 
+
                 <div class="col-md-6">
+
                     <label class="form-label">Loại đặt <span class="text-danger">*</span></label>
                     <select name="booking_type" class="form-control" required>
                         <option value="">-- Chọn --</option>
@@ -202,9 +207,11 @@ if (session_status() === PHP_SESSION_NONE) {
     </div>
 </div>
 
+
 <footer>
     &copy; 2025 Công ty Du lịch. All rights reserved.
 </footer>
+
 
 <!-- VALIDATE NGÀY -->
 <script>
@@ -251,6 +258,7 @@ document.getElementById("bookingForm").addEventListener("submit", function(e) {
     }
 });
 </script>
+
 
 </body>
 </html>
