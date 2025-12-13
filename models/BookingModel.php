@@ -375,6 +375,32 @@ public function checkCustomerConflict($customer_id, $start, $end)
     }
 }
 
+public function finishTourByBooking(int $booking_id): bool
+{
+    try {
+        $sql = "UPDATE booking 
+                SET status = 1 
+                WHERE booking_id = :booking_id";
+
+        $stmt = $this->conn->prepare($sql);
+        return $stmt->execute([
+            ':booking_id' => $booking_id
+        ]);
+    } catch (PDOException $e) {
+        throw new Exception("Lỗi kết thúc tour: " . $e->getMessage());
+    }
+}
+
+// Lấy 1 booking theo ID (dùng cho xóa nhật ký, kiểm tra trạng thái)
+public function findById(int $booking_id): ?array
+{
+    $sql = "SELECT * FROM booking WHERE booking_id = :id LIMIT 1";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute(['id' => $booking_id]);
+    $booking = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    return $booking ?: null;
+}
 
 
 }

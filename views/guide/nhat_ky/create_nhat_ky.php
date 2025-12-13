@@ -3,12 +3,12 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Lấy tên hướng dẫn viên từ session, nếu chưa có thì mặc định là "Hướng dẫn viên"
+// Lấy tên hướng dẫn viên
 $nameUser = $_SESSION['user']['full_name'] ?? 'Hướng dẫn viên';
 
-// Dùng htmlspecialchars để tránh lỗi HTML injection
-$departure_id = $departure_id ?? $_GET['departure_id'] ?? 0;
-$booking_id = $_GET['booking_id'] ?? 0;
+// Lấy ID tour
+$departure_id = $_GET['departure_id'] ?? 0;
+$booking_id   = $_GET['booking_id'] ?? 0;
 ?>
 
 <!DOCTYPE html>
@@ -16,42 +16,31 @@ $booking_id = $_GET['booking_id'] ?? 0;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guide</title>
-    
+    <title>Thêm nhật ký tour</title>
+
     <!-- Bootstrap & Font Awesome -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-    <!-- Custom CSS giống customer -->
     <style>
         body { display: flex; min-height: 100vh; margin: 0; font-family: Arial, sans-serif; }
-        #sidebar { min-width: 250px; max-width: 250px; background: #343a40; color: #fff; }
+        #sidebar { min-width: 250px; background: #343a40; color: #fff; }
         #sidebar a { color: #fff; text-decoration: none; display: block; padding: 12px 20px; }
-        #sidebar a:hover, #sidebar a.active { background: #495057; }
+        #sidebar a:hover { background: #495057; }
         #content { flex: 1; padding: 20px; background: #f8f9fa; }
-        .topbar { height: 60px; background: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .topbar .user { display: flex; align-items: center; }
-        .topbar .user img { width: 40px; height: 40px; border-radius: 50%; margin-right: 10px; }
-        .card-stats { padding: 20px; color: #fff; border-radius: 8px; margin-bottom: 20px; text-align: center; }
-        .bg-primary { background-color: #0d6efd !important; }
-        .bg-success { background-color: #198754 !important; }
-        .bg-warning { background-color: #ffc107 !important; color: #212529 !important; }
-        .bg-danger { background-color: #dc3545 !important; }
-        footer { width:100%; background:#fff; position:fixed; bottom:0; box-shadow:0 -2px 4px rgba(0,0,0,0.1); }
-        #sidebar a i { color: #fff !important; }
-        .text-primary{font-weight: 500; color: #212529 !important;}
-        .form-section { border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin-bottom: 50px;}
-        .form-section legend { font-weight: 400; color: #000000ff;}
-        .btn-submit { background-color: #d59d00ff; color: #fff; border: none; padding: 12px 40px; border-radius: 6px; margin-bottom: 50px;}
-        .btn-submit:hover { background-color: #c02600ff; transform: translateY(-2px);}
+        .topbar { height: 60px; background: #fff; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .form-section { border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin-bottom: 30px; }
+        .btn-submit { background-color: #d59d00; color: #fff; padding: 12px 40px; border-radius: 6px; border: none; }
+        .btn-submit:hover { background-color: #c02600; }
     </style>
 </head>
+
 <body>
 
 <!-- Sidebar -->
 <div id="sidebar">
-    <h3 class="text-center py-3 border-bottom">Guide Panel</h3>
-    <a href="?act=header"><i class="fa-solid fa-chart-line"></i>Dashboard</a>
+    <h4 class="text-center py-3 border-bottom">Guide Panel</h4>
+    <a href="?act=header"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
     <a href="?act=profile"><i class="fa-solid fa-user"></i> Thông tin cá nhân</a>
     <a href="?act=schedule"><i class="fa-solid fa-calendar-day"></i> Lịch làm việc</a>
     <a href="?act=login"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
@@ -59,64 +48,64 @@ $booking_id = $_GET['booking_id'] ?? 0;
 
 <!-- Content -->
 <div id="content">
-    <!-- Topbar -->
+
     <div class="topbar">
-        <div class="logo">
-            <a href="?act=dashboard" class="text-decoration-none text-dark">
-                <i class="fa-solid fa-plane-departure"></i> Guide Panel
-            </a>
-        </div>
-        <div class="user">
-            <img src="uploads/logo.png" alt="User">
-                <span><?= $nameUser ?></span>
-            <a href="?act=login" class="btn btn-sm btn-outline-danger ms-3">Đăng xuất</a>
+        <strong>Thêm nhật ký tour</strong>
+        <div>
+            <img src="uploads/logo.png" width="40" class="rounded-circle">
+            <span class="ms-2"><?= htmlspecialchars($nameUser) ?></span>
         </div>
     </div>
 
-    <!-- Dashboard Content -->
-    <div class="container-fluid">
-        <h2 class="text-primary mb-3">Thêm Nhật ký Tour</h2>
+    <form action="index.php?act=create_tourlog" method="POST" enctype="multipart/form-data">
 
-        <form action="index.php?act=create_nhat_ky" method="POST" enctype="multipart/form-data">
-            <input type="hidden" name="departure_id" value="<?= htmlspecialchars($departure_id) ?>">
-            <input type="hidden" name="booking_id" value="<?= htmlspecialchars($booking_id) ?>">
-            <fieldset class="form-section">
-                <legend>Ảnh Tour (Cập nhật)</legend>
-                
-                <?php if (!empty($tour_log['photo'])): ?>
-                    <div class="mb-3">
-                        <label class="form-label">Ảnh hiện tại:</label>
-                        <div>
-                            <img src="<?=$tour_log['photo'] ?>" alt="Ảnh hiện tại" style="max-width: 200px; height: auto; border: 1px solid #ccc; border-radius: 4px;">
-                        </div>
-                    </div>
-                <?php endif; ?>
+        <input type="hidden" name="departure_id" value="<?= (int)$departure_id ?>">
+        <input type="hidden" name="booking_id" value="<?= (int)$booking_id ?>">
 
-                <div class="mb-3">
-                    <label for="photo_file" class="form-label">Tải lên Ảnh:</label>
-                    <input type="file" id="photo_file" name="photo_file" class="form-control" accept="image/*">
-                </div>
-            </fieldset>
+        <!-- Ảnh tour -->
+        <fieldset class="form-section">
+            <legend>Ảnh tour</legend>
+            <input type="file" name="photo_file" class="form-control" accept="image/*">
+        </fieldset>
 
-            <fieldset class="form-section">
-                <legend>Cảm nhận của Hướng dẫn viên</legend>
-                <div class="mb-3">
-                    <label for="guide_review" class="form-label">Cảm nhận/Đánh giá của HDV:</label>
-                    <textarea id="guide_review" name="guide_review" class="form-control" rows="6" required placeholder="Nhập cảm nhận và đánh giá của bạn về chuyến tour..."></textarea>
-                </div>
-            </fieldset>
+        <!-- Phản hồi khách hàng -->
+        <fieldset class="form-section">
+            <legend>Phản hồi của khách hàng</legend>
 
-            <div class="text-center">
-                <button type="submit" class="btn btn-submit">Lưu</button>
+            <div class="mb-3">
+                <label class="form-label">Ý kiến / nhận xét:</label>
+                <textarea name="customer_feedback" class="form-control" rows="4"
+                          placeholder="Ghi nhận phản hồi của khách về dịch vụ, lịch trình, trải nghiệm..."></textarea>
             </div>
-            
-        </form>
-    </div>
-</div>
 
-<footer class="text-center py-3">
-    &copy; 2025 Công ty Du lịch. All rights reserved.
-</footer>
+            <div class="mb-3">
+                <label class="form-label">Mức độ hài lòng:</label>
+                <select name="customer_rating" class="form-select">
+                    <option value="">-- Chọn mức đánh giá --</option>
+                    <option value="5">★★★★★ Rất hài lòng</option>
+                    <option value="4">★★★★ Hài lòng</option>
+                    <option value="3">★★★ Bình thường</option>
+                    <option value="2">★★ Không hài lòng</option>
+                    <option value="1">★ Rất không hài lòng</option>
+                </select>
+            </div>
+        </fieldset>
+
+        <!-- Cảm nhận HDV -->
+        <fieldset class="form-section">
+            <legend>Cảm nhận của Hướng dẫn viên</legend>
+            <textarea name="guide_review" class="form-control" rows="5" required
+                      placeholder="Đánh giá tổng quan tour, khách hàng, lịch trình..."></textarea>
+        </fieldset>
+
+        <div class="text-center">
+            <button type="submit" class="btn btn-submit">
+                <i class="fa-solid fa-save"></i> Lưu nhật ký
+            </button>
+        </div>
+
+    </form>
+</div>
 
 </body>
 </html>

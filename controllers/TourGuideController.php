@@ -167,69 +167,91 @@ $this->itineraryModel = new ItineraryModel();
         }
         require_once './views/guide/nhat_ky/edit_nhat_ky.php';
     }
-    public function delete_nhatky(){
-        if(isset($_GET['id'])){
-            $log_id = (int)$_GET['id'];
-            $tourlog = new Tourlog();
-            $tourlog->log_id = $log_id;
-            $this->tourlog->delete_nhatky($tourlog);
-        }
-        require_once './views/guide/lich_lam_viec/schedule.php';
+   public function delete_nhatky()
+{
+    $log_id = (int)($_GET['id'] ?? 0);
+    if ($log_id <= 0) {
+        die("Thiếu ID nhật ký");
     }
-    public function update_nhat_ky()
+
+    $tourlog = $this->tourlog->getTourLogById($log_id);
+    if (!$tourlog) {
+        die("Nhật ký không tồn tại");
+    }
+
+    $booking = $this->BookingModel->findById($tourlog['booking_id']);
+    if (!$booking || (int)$booking['status'] !== 2) {
+        die("Chỉ được xóa nhật ký khi tour đang thực hiện");
+    }
+
+    $this->tourlog->deleteTourLogById($log_id);
+
+    header("Location: index.php?act=tour_detail&id=" . $tourlog['booking_id']);
+    exit;
+}
+
+
+
+   public function update_nhat_ky()
 {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        header('Location: index.php?act=tour_detail');
-        exit;
-    }
-    $booking_id=$_POST['booking_id'] ?? null;
-    $log_id = $_POST['log_id'] ?? null;
-    $guide_review = $_POST['guide_review'] ?? '';
-    $old_photo = $_POST['old_photo'] ?? '';
-    $photo_file = $_FILES['photo_file'] ?? null;
-    $photo_path = $old_photo; // Mặc định giữ lại ảnh cũ
-
-    if (!$log_id) {
-        // Xử lý lỗi nếu thiếu ID
-        echo "Lỗi: Thiếu ID Nhật ký Tour để cập nhật.";
+        header('Location: index.php?act=schedule');
         exit;
     }
 
-    // --- Xử lý Upload Ảnh ---
+    $log_id     = (int)($_POST['log_id'] ?? 0);
+    $booking_id = (int)($_POST['booking_id'] ?? 0);
+
+    $customer_feedback = $_POST['customer_feedback'] ?? '';
+    $guide_review      = $_POST['guide_review'] ?? '';
+    $old_photo         = $_POST['old_photo'] ?? '';
+    $photo_file        = $_FILES['photo_file'] ?? null;
+
+    if ($log_id <= 0) {
+        die("Thiếu ID nhật ký");
+    }
+
+    // 🔒 KIỂM TRA TRẠNG THÁI TOUR
+    $booking = $this->BookingModel->findById($booking_id);
+    if (!$booking || (int)$booking['status'] !== 2) {
+        die("Chỉ được sửa nhật ký khi tour đang thực hiện");
+    }
+
+    // ---------- UPLOAD ẢNH ----------
+    $photo_path = $old_photo;
+
     if ($photo_file && $photo_file['error'] === UPLOAD_ERR_OK) {
         $target_dir = "uploads/";
-        $file_extension = pathinfo($photo_file['name'], PATHINFO_EXTENSION);
-        $new_file_name = "log_" . $log_id . "_" . time() . "." . $file_extension;
-        $target_file = $target_dir . $new_file_name;
-        
+        $ext = pathinfo($photo_file['name'], PATHINFO_EXTENSION);
+        $new_name = "log_" . $log_id . "_" . time() . "." . $ext;
+        $target_file = $target_dir . $new_name;
+
         if (move_uploaded_file($photo_file['tmp_name'], $target_file)) {
-            $photo_path = $target_file; // Cập nhật đường dẫn ảnh mới
-            
-            // Xóa ảnh cũ nếu nó tồn tại và không phải là ảnh mặc định
-            if ($old_photo && file_exists($old_photo) && $old_photo !== 'uploads/logo.png') {
+            $photo_path = $target_file;
+
+            if ($old_photo && file_exists($old_photo)) {
                 unlink($old_photo);
             }
-         }
+        }
     }
-    // -------------------------
 
-    // 4. Gọi Model để cập nhật dữ liệu
-    $is_updated = $this->tourlog->updateTourLog(
-        $log_id, 
-        $guide_review, 
+    $updated = $this->tourlog->updateTourLog(
+        $log_id,
+        $customer_feedback,
+        $guide_review,
         $photo_path
     );
 
-    if ($is_updated) {
-        // Cập nhật thành công, chuyển hướng về trang Nhật ký Tour
-        header('Location: index.php?act=tour_detail&id='.(int)$booking_id);
-        exit;
-    } else {
-        // Cập nhật thất bại
-        echo "Cập nhật Nhật ký Tour thất bại. Vui lòng thử lại.";
-        exit;
+    if (!$updated) {
+        die("Cập nhật nhật ký thất bại");
     }
+
+    header("Location: index.php?act=tour_detail&id=" . $booking_id);
+    exit;
 }
+
+
+
     public function create_tourlog_view(){
         $departure_id=$_GET['departure_id'] ?? null;
         $booking_id=$_GET['booking_id'] ?? null;
@@ -239,50 +261,66 @@ $this->itineraryModel = new ItineraryModel();
         }
         require_once './views/guide/nhat_ky/create_nhat_ky.php';
     }
-    public function create_tourlog(){
-        if($_SERVER['REQUEST_METHOD'] !== 'POST'){
-            header('Location: index.php?act=schedule');
-            exit;
-        }
-        $departure_id= $_POST['departure_id'] ?? null;
-        $booking_id = $_POST['booking_id'] ?? null;
-        $guide_review= $_POST['guide_review'] ?? '';
-        if(!$booking_id){
-            echo "Lỗi thiếu Id booking";
-            exit;
-        }
-        if(!$departure_id){
-            echo "Lỗi thiếu Id tour";
-            exit;
-        }
-        $log_date= date('Y-m-d'); //lấy tgian htai
-        $photo_path = null;
-        $photo_file = $_FILES['photo_file'] ?? null;
-        if($photo_file && $photo_file['error'] === UPLOAD_ERR_OK){
-            $target_dir = 'uploads/';
-            $file_extension = pathinfo($photo_file['name'], PATHINFO_EXTENSION);
-            $new_file_name= "log_".$departure_id."_".time().".".$file_extension;
-            $target_file=$target_dir.$new_file_name;
-            if(move_uploaded_file($photo_file['tmp_name'], $target_file)){
-                $photo_path = $target_file;
-            }
-        }
-        $data_to_save = [
-            'departure_id' => $departure_id,
-            'booking_id' => $booking_id,
-            'guide_review' => $guide_review,
-            'log_date' => $log_date,
-            'photo' => $photo_path,
-        ];
-        
-        $is_saved = $this->tourlog->create_tourlog($data_to_save);
-        if(!$is_saved){
-            echo"Lỗi lưu vào db";
-            exit;
-        }
-        header("Location: index.php?act=tour_detail&id=" . $booking_id . "&tab=report"); 
+
+    public function create_tourlog()
+{
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        header('Location: index.php?act=schedule');
         exit;
     }
+
+    $departure_id = (int)($_POST['departure_id'] ?? 0);
+    $booking_id   = (int)($_POST['booking_id'] ?? 0);
+
+    $customer_feedback = $_POST['customer_feedback'] ?? '';
+    $customer_rating   = $_POST['customer_rating'] ?? null;
+    $guide_review      = $_POST['guide_review'] ?? '';
+    $log_date          = date('Y-m-d');
+
+    if ($departure_id <= 0 || $booking_id <= 0) {
+        die("Thiếu thông tin tour hoặc booking");
+    }
+
+    // 🔒 CHỈ CHO PHÉP TOUR ĐANG THỰC HIỆN
+    $booking = $this->BookingModel->findById($booking_id);
+    if (!$booking || (int)$booking['status'] !== 2) {
+        die("Chỉ được thêm nhật ký khi tour đang thực hiện");
+    }
+
+    // ---------- UPLOAD ẢNH ----------
+    $photo_path = null;
+    if (!empty($_FILES['photo_file']['name'])) {
+        $target_dir = "uploads/";
+        $ext = pathinfo($_FILES['photo_file']['name'], PATHINFO_EXTENSION);
+        $new_name = "log_" . $departure_id . "_" . time() . "." . $ext;
+        $target_file = $target_dir . $new_name;
+
+        if (move_uploaded_file($_FILES['photo_file']['tmp_name'], $target_file)) {
+            $photo_path = $target_file;
+        }
+    }
+
+    // ---------- LƯU DB ----------
+    $data = [
+        'departure_id' => $departure_id,
+        'log_date'     => $log_date,
+        'content'      => $customer_feedback, // PHẢN HỒI KHÁCH
+        'guide_review' => $guide_review,
+        'photo'        => $photo_path
+    ];
+
+    $saved = $this->tourlog->create_tourlog($data);
+
+    if (!$saved) {
+        die("Lỗi lưu nhật ký tour");
+    }
+
+    header("Location: index.php?act=tour_detail&id=" . $booking_id . "&tab=report");
+    exit;
+}
+
+
+
 
     // ----------------------------
     // CHI TIẾT TOUR
@@ -377,4 +415,37 @@ $this->itineraryModel = new ItineraryModel();
     {
         require_once './views/guide/yeu_cau_dbiet/special_request.php';
     }
+
+public function finish_tour()
+{
+    session_start();
+
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        header("Location: index.php?act=schedule");
+        exit;
+    }
+
+    $booking_id = (int)($_POST['booking_id'] ?? 0);
+
+    if ($booking_id <= 0) {
+        echo "Booking không hợp lệ";
+        exit;
+    }
+
+    $success = $this->BookingModel->finishTourByBooking($booking_id);
+
+    if ($success) {
+        $_SESSION['success'] = "Tour đã được kết thúc";
+    } else {
+        $_SESSION['error'] = "Kết thúc tour thất bại";
+    }
+
+    header("Location: index.php?act=tour_detail&id=" . $booking_id);
+    exit;
+}
+
+
+
+
+
 }

@@ -100,9 +100,9 @@ if (session_status() === PHP_SESSION_NONE) {
                     <th>Ngày Đặt</th>
                     <th>Lịch khởi hành</th>
                     <th>Số Người</th>
-                    <th>Loại Đặt</th>
+                    <th>Hình thức đặt</th>
                     <th>Trạng Thái</th>
-                    <th>Ghi Chú</th>
+                    <!-- <th>Ghi Chú</th> -->
                     <th>Hành Động</th>
                 </tr>
             </thead>
@@ -129,7 +129,7 @@ if (session_status() === PHP_SESSION_NONE) {
                                 </span>
                             </a>
                         </td>
-                        <td><?= $b['notes'] ?></td>
+                        <!-- <td><?= $b['notes'] ?></td> -->
                         <td>
                             <a href="?act=bookingDetail&id=<?= $b['booking_id'] ?>" class="btn btn-sm btn-info">
                                 <i class="fa-solid fa-eye"></i> Xem chi tiết

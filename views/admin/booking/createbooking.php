@@ -175,7 +175,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
                 <div class="col-md-6">
 
-                    <label class="form-label">Loại đặt <span class="text-danger">*</span></label>
+                    <label class="form-label">Hình thức đặt <span class="text-danger">*</span></label>
                     <select name="booking_type" class="form-control" required>
                         <option value="">-- Chọn --</option>
                         <option value="1">Trực tiếp</option>

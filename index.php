@@ -16,7 +16,7 @@ require_once './controllers/TourGuideController.php';
 // require_once './models/ProductModel.php';
 require_once './models/GuideModel.php';
 // Route
-$act = $_GET['act'] ?? '/';
+$act = trim($_GET['act'] ?? '/');
 $id = $_GET['id'] ?? null;
 
 // Để bảo bảo tính chất chỉ gọi 1 hàm Controller để xử lý request thì mình sử dụng match
@@ -78,15 +78,17 @@ match ($act) {
     'schedule'=>(new TourGuideController())-> schedule(),
     'profile'=>(new TourGuideController())-> profile(),
     'tour_detail'=>(new TourGuideController())-> tour_detail(),
+        'finish_tour'=>(new TourGuideController())-> finish_tour(),
+
 
 
     'edit_nhat_ky'=>(new TourGuideController())-> edit_nhat_ky(),
-    'update_nhat_ky'=>(new TourGuideController())-> update_nhat_ky(),
+    'update_nhat_ky'=>(new TourGuideController())->update_nhat_ky(),
     'delete_nhatky' => (new TourGuideController())->delete_nhatky(),
 
-    'special_request'=>(new TourGuideController())-> special_request(),
-    'create_tourlog_view'=>(new TourGuideController())-> create_tourlog_view(),
-    'create_nhat_ky'=>(new TourGuideController())-> create_tourlog(),
+    'special_request'=>(new TourGuideController())->special_request(),
+    'create_tourlog_view'=>(new TourGuideController())->create_tourlog_view(),
+    'create_tourlog'=>(new TourGuideController())-> create_tourlog(),
 
     
     
