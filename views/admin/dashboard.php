@@ -69,7 +69,7 @@ footer { width:100%; background:#fff; text-align:center; padding:10px 0; box-sha
     canvas { max-width: 100%; height: auto !important; }
 }
 </style>
-</head>
+</head> 
 <body>
 
 <!-- Sidebar -->
